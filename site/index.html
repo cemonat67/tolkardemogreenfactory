@@ -1,0 +1,2510 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Zero Factory — TOLKAR Facility</title>
+  <link rel="icon" href="factory-logo 2.svg">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+  <style>
+    
+.hidden{display:none !important;}
+:root { --zero-navy:#02154e; --zero-orange:#f9ba00; --zero-green:#005530; --zero-red:#D51635; --zero-white:#ffffff; --zero-black:#1a1a1a; --zero-gray-dark:#666; --zero-gray-light:#e0e0e0; --zero-gray-bg:#fafafa; }
+    *{margin:0;padding:0;box-sizing:border-box}
+    body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','Helvetica Neue',Arial,sans-serif;background:var(--zero-white);color:var(--zero-black);line-height:1.6;padding-top:4px}
+    .zero-color-bar{height:4px;width:100%;background:linear-gradient(90deg,var(--zero-green) 0%,var(--zero-green) 25%,var(--zero-red) 25%,var(--zero-red) 50%,var(--zero-navy) 50%,var(--zero-navy) 75%,var(--zero-orange) 75%,var(--zero-orange) 100%);position:fixed;top:0;left:0;right:0;z-index:1000}
+    .app-header{background:var(--zero-white);color:var(--zero-navy);padding:2rem;box-shadow:0 2px 10px rgba(0,0,0,0.1);border-bottom:1px solid var(--zero-gray-light)}
+    .header-content{display:flex;justify-content:space-between;align-items:center;max-width:1200px;margin:0 auto}
+    .title{font-size:1.5rem;font-weight:300;color:var(--zero-navy)}
+    
+
+/* --- Zero@Green Factory subtitle line (same font+size as .title) --- */
+.title-subline{
+  display:block;              /* üst üste binmeyi kes */
+  margin-top:18px;            /* title ile arayı aç */
+  padding-top:2px;
+  text-align:center;
+  font-weight:400;
+  opacity:.88;
+  line-height:1.25;           /* satır yüksekliği */
+  white-space:normal;         /* wrap serbest */
+}
+.title-subline-by{
+  display:inline-block;
+  margin-left:10px;           /* "by ..." ile boşluk */
+  font-weight:700;
+  opacity:.95;
+}.title-at{color:var(--zero-orange)}
+    .container{max-width:1200px;margin:0 auto;padding:2rem}
+    .controls{display:flex;gap:.75rem;margin-bottom:1rem}
+    .btn{padding:.5rem 1rem;background:var(--zero-navy);color:#fff;border:none;border-radius:6px;font-size:.9rem;cursor:pointer}
+    .btn:hover{background:var(--zero-orange);color:var(--zero-navy)}
+    .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:1rem}
+    .card{background:#fff;border:1px solid var(--zero-gray-light);border-radius:8px;padding:1rem}
+    .status{margin:.5rem 0;color:var(--zero-gray-dark)}
+    .logout{position:fixed;top:16px;right:16px;z-index:9999}
+    .toast{position:fixed;bottom:16px;right:16px;background:#111;color:#fff;padding:.6rem .9rem;border-radius:8px;opacity:0;transform:translateY(10px);transition:.2s}
+    .toast.show{opacity:1;transform:translateY(0)}
+    .tabs{display:flex;flex-wrap:wrap;gap:.5rem;justify-content:center}
+    .tab-btn{display:inline-flex;align-items:center;gap:.35rem;padding:.5rem .9rem;border:none;border-radius:6px;background:var(--zero-navy);color:#fff;cursor:pointer;font-size:.85rem;text-decoration:none}
+    .tab-btn:hover{background:var(--zero-orange);color:var(--zero-navy)}
+    .tab-btn.active{background:var(--zero-green);color:#fff}
+    /* TAB VISIBILITY FIX */
+    .tab-content{display:none !important}
+    .tab-content.active{display:block !important}
+    /* prevent nesting issues */
+    #overview .tab-content{display:inherit !important}
+    .stations-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:.75rem}
+    
+    .station-card{background:linear-gradient(135deg,#f9fafb 0%,#f5f7fa 100%);border:1px solid #e0e0e0;border-radius:10px;padding:12px;cursor:pointer;border-left:4px solid transparent}
+    .station-card.ok{border-left-color:#005530}
+    .station-card.risk{border-left-color:#f9ba00}
+    .station-card.bottleneck{border-left-color:#D51635}
+    .station-name{font-size:.85rem;font-weight:700;color:#02154e;margin-bottom:.5rem;text-transform:uppercase}
+    .station-metric{font-size:.8rem;color:#666;margin:.25rem 0;display:flex;justify-content:space-between}
+    /* PATCH START: SYNAPSE_BRAIN_BRIDGE_V1 (CSS) */
+    .synapse-pill{padding:.25rem .5rem;border-radius:999px;border:1px solid #e0e0e0;font-size:.75rem;margin-left:6px;background:#fafbfc;color:#02154e}
+    .synapse-pill.ok{background:rgba(0,85,48,.08);color:#005530;border-color:rgba(0,85,48,.3)}
+    .synapse-pill.warn{background:rgba(249,186,0,.12);color:#7a5b00;border-color:rgba(249,186,0,.4)}
+    .synapse-pill.crit{background:rgba(213,22,53,.10);color:#D51635;border-color:rgba(213,22,53,.3)}
+    .synapse-actions{margin-top:.5rem;border-top:1px dashed #e0e0e0;padding-top:.4rem;color:#02154e}
+    .synapse-focus{outline:2px solid #D51635; outline-offset:2px; border-radius:6px}
+    /* PATCH END: SYNAPSE_BRAIN_BRIDGE_V1 (CSS) */
+    /* PATCH START: SYNAPSE_HEAL_ROW_STYLES */
+    .brain-heal-row{position:absolute;right:16px;top:50%;transform:translateY(-50%);display:grid;grid-template-columns:repeat(2,max-content);gap:8px 12px;justify-content:end;justify-items:end;align-items:center;pointer-events:none}
+    #headerBelowNav .tab-btn{pointer-events:auto}
+    .pill.synapse-orange{background:#f9ba00;color:#fff;border-color:#f9ba00}
+    .pill.heal-red{background:#D51635;color:#fff;border-color:#D51635}
+    /* PATCH END: SYNAPSE_HEAL_ROW_STYLES */
+    /* PATCH START: MES + CO2 V1 - Styles */
+    .co2-strip{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:.75rem;margin:10px 0}
+    .co2-item{background:#fff;border:1px solid #e0e0e0;border-radius:10px;padding:.5rem .75rem}
+    .co2-title{font-size:.8rem;color:#02154e;display:flex;justify-content:space-between;align-items:center}
+    .co2-value{font-size:1.2rem;font-weight:800;color:#02154e}
+    .co2-sub{font-size:.75rem;color:#666}
+    .pill.watch{background:#fff7e6;color:#a86700;border-color:#ffe2a9}
+    .pill.action{background:#fde8ea;color:#D51635;border-color:#f7b9c1}
+    /* PATCH END: MES + CO2 V1 - Styles */
+    /* PATCH START: MES PANEL WIRING FIX V1 (CSS) */
+    #mes.tab-content{padding:10px; min-height:140px}
+    #mes-tab-content{display:block}
+    /* PATCH END: MES PANEL WIRING FIX V1 (CSS) */
+    /* PATCH START: MES Panel Init Fix V2 */
+      #mes.tab-content { display: none; padding: 1rem; }
+      #mes.tab-content.active { display: block; }
+      #mes-tab-content { min-height: 200px; }
+      .mes-table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
+      .mes-table th, .mes-table td { padding: 0.75rem; border: 1px solid #e0e0e0; text-align: left; }
+      .mes-table th { background: #fafbfc; font-weight: 600; color: #02154e; }
+      .mes-table tr:hover { background: #f9fafb; }
+      .mes-timeline { display: flex; gap: 0.5rem; overflow-x: auto; margin-bottom: 1rem; padding: 0.5rem 0; }
+      .mes-token { display: inline-flex; align-items: center; justify-content: center; min-width: 45px; height: 45px; border-radius: 50%; background: #f5f7fa; color: #02154e; font-size: 0.75rem; font-weight: 600; border: 1px solid #e0e0e0; cursor: pointer; transition: all 0.2s ease; }
+      .mes-token:hover { background: #02154e; color: #fff; transform: scale(1.1); }
+      .mes-token.active { background: #02154e; color: #fff; box-shadow: 0 2px 8px rgba(2,21,78,0.2); }
+      @media (max-width: 768px) {
+        .mes-table td:nth-child(n+5):nth-child(-n+8) { display: none; }
+        .mes-table th:nth-child(n+5):nth-child(-n+8) { display: none; }
+      }
+    /* PATCH END: MES Panel Init Fix V2 */
+    /* DEMO styles for Üretim Pisti and Trendler */
+    #lineView{align-items:stretch}
+    #lineView.track-demo{grid-template-columns:repeat(5,minmax(180px,1fr)) !important;gap:12px}
+    @media (max-width: 1100px){ #lineView.track-demo{grid-template-columns:repeat(auto-fit,minmax(160px,1fr)) !important} }
+    /* PATCH START: Timeline + Token Info Cards */
+    .fw-tl-wrap{margin:0 -1rem;padding:.3rem 1rem .2rem}
+    .fw-tl-bar{display:grid;grid-template-columns:260px 1fr 320px;align-items:center;gap:.6rem;background:#fff;border-top:1px solid #e0e0e0;border-bottom:1px solid #e0e0e0}
+    .fw-pill{display:inline-flex;align-items:center;gap:.35rem;padding:.25rem .6rem;border-radius:999px;background:#f5f7fa;color:#02154e;border:1px solid #e0e0e0;font-size:.8rem}
+    .fw-track{position:relative;height:12px;background:#eef1f4;border-radius:999px}
+    .fw-progress{position:absolute;left:0;top:0;height:12px;background:#005530;border-radius:999px}
+    .fw-now{position:absolute;top:50%;transform:translate(-50%,-50%);width:16px;height:16px;border-radius:50%;background:#fff;border:2px solid #005530;box-shadow:0 2px 6px rgba(0,0,0,.1)}
+    .fw-right{display:flex;align-items:center;gap:.4rem;justify-content:flex-end}
+    .fw-mode{display:inline-flex;gap:.35rem}
+    .fw-btn{padding:.25rem .6rem;border:1px solid #e0e0e0;border-radius:999px;background:#fafbfc;color:#02154e;cursor:pointer;font-size:.8rem}
+    .fw-btn.active{background:#02154e;color:#fff;border-color:#02154e}
+    .fw-queue{display:flex;align-items:center;gap:.35rem;margin:.35rem -1rem 0 -1rem;padding:0 1rem}
+    .fw-q-token{padding:.2rem .5rem;border:1px solid #e0e0e0;border-radius:999px;background:#fff;color:#02154e;font-size:.78rem;cursor:pointer}
+    .fw-q-more{padding:.2rem .6rem;border-radius:999px;background:#f5f7fa;color:#555;border:1px solid #e0e0e0}
+    @media (max-width: 900px){ .fw-tl-bar{grid-template-columns:220px 1fr 240px} }
+    /* token ui */
+    .flow-token{position:absolute;top:10px;right:10px;width:28px;height:28px;border-radius:50%;background:#fff;border:2px solid #02154e;box-shadow:0 2px 6px rgba(0,0,0,.12);z-index:5;display:flex;align-items:center;justify-content:center;cursor:pointer}
+    .flow-token.ok{border-color:#005530}
+    .flow-token.warn{border-color:#f9ba00}
+    .flow-token.crit{border-color:#D51635}
+    .token-chip{position:absolute;top:42px;right:10px;background:#fff;border:1px solid #e0e0e0;border-radius:8px;padding:.3rem .5rem;font-size:.75rem;box-shadow:0 2px 8px rgba(0,0,0,.12);white-space:nowrap;z-index:6}
+    .order-popup{position:absolute;background:#fff;border:1px solid #e0e0e0;border-radius:12px;box-shadow:0 12px 28px rgba(0,0,0,.22);width:280px;max-width:90vw;z-index:7}
+    .order-popup.center{position:fixed;left:50%;top:50%;transform:translate(-50%,-50%)}
+    .op-head{display:flex;justify-content:space-between;align-items:center;padding:.6rem .9rem;background:#fafbfc;border-bottom:1px solid #e0e0e0}
+    .op-body{padding:.9rem}
+    .op-tabs{display:flex;gap:.5rem;margin:.4rem 0}
+    .op-tab{padding:.25rem .5rem;border:1px solid #e0e0e0;border-radius:999px;background:#fff;color:#02154e;cursor:pointer}
+    .op-tab.active{background:#02154e;color:#fff;border-color:#02154e}
+    /* PATCH END: Timeline + Token Info Cards */
+    
+    .track-card{position:relative;display:flex;flex-direction:column;justify-content:flex-start;min-height:220px;padding-bottom:0}
+    .track-card .station-name{font-size:.95rem;font-weight:700;display:flex;justify-content:space-between;align-items:center;padding-right:72px}
+    .track-card .station-metric{padding:.15rem 0}
+    .track-card .progress-wrap{margin-top:auto}
+    .station-card.bottleneck{border-left:4px solid #D51635}
+    .station-card.bottleneck .station-name{color:#D51635}
+    .station-card.monitor .station-name{color:#f9ba00}
+    .station-card.ok .station-name{color:#005530}
+    .status-pill{display:inline-block;padding:.18rem .4rem;border-radius:999px;font-size:.7rem;border:1px solid #e0e0e0;color:#02154e;background:#f5f7fa;margin-left:.5rem}
+    .status-pill.ok{background:rgba(0,85,48,.08);color:#005530;border-color:rgba(0,85,48,.3)}
+    .status-pill.monitor{background:rgba(249,186,0,.12);color:#7a5b00;border-color:rgba(249,186,0,.4)}
+    .status-pill.action{background:rgba(213,22,53,.10);color:#D51635;border-color:rgba(213,22,53,.3)}
+    .progress-wrap{height:6px;background:#f0f0f0;border-radius:999px;margin-top:8px;overflow:hidden}
+    .progress-bar{height:100%;background:#02154e;width:0;border-radius:999px}
+    .bottleneck-badge{position:absolute;top:32px;right:8px;font-size:.7rem;padding:.2rem .4rem;border-radius:999px;background:rgba(213,22,53,.08);color:#D51635;border:1px solid rgba(213,22,53,.3)}
+    /* Ensure equal height & bottom-aligned content across modules */
+    #lineView .station-card{height:100%;display:flex;flex-direction:column;box-sizing:border-box;margin:0}
+    #lineView .station-card .progress-wrap{margin-top:auto;margin-bottom:0}
+    .demo-pill{display:inline-block;margin-left:.5rem;padding:.15rem .4rem;border-radius:999px;font-size:.7rem;background:#02154e;color:#fff}
+    #f1Track{width:100%;height:300px;background:#fafbfc;border:1px solid #e0e0e0;border-radius:8px}
+    .events-timeline{display:flex;flex-direction:column;gap:.5rem;max-height:300px;overflow-y:auto}
+    .event-pill{display:inline-flex;align-items:center;gap:.5rem;padding:.5rem .6rem;background:#f5f7fa;border:1px solid #e0e0e0;border-radius:8px;font-size:.8rem;color:#02154e;width:fit-content;font-weight:600;cursor:pointer}
+    .event-pill.critical{background:rgba(213,22,53,.08);border-color:rgba(213,22,53,.3);color:#D51635}
+    .event-pill.info{background:rgba(0,85,48,.08);border-color:rgba(0,85,48,.3);color:#005530}
+    .event-dot{width:8px;height:8px;border-radius:50%;background:currentColor}
+    .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.5);display:none;align-items:center;justify-content:center;z-index:2000;padding:20px}
+    .modal-overlay.visible{display:flex}
+    .modal{background:#fff;border-radius:12px;padding:24px;max-width:600px;max-height:80vh;overflow:auto}
+    .kpi-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px;margin-top:.5rem}
+    .kpi-card{background:linear-gradient(135deg,#f9fafb 0%,#f5f7fa 100%);border:1px solid #e0e0e0;border-radius:10px;padding:16px;position:relative;overflow:hidden}
+    .kpi-card::before{content:'';position:absolute;top:0;left:0;right:0;height:4px;background:linear-gradient(90deg,#02154e,#644bcc)}
+    .kpi-label{font-size:.75rem;text-transform:uppercase;color:#666;margin-bottom:.5rem;font-weight:600;letter-spacing:.5px}
+    .kpi-value{font-size:2rem;font-weight:700;color:#02154e;line-height:1}
+    .kpi-unit{font-size:.8rem;color:#999;margin-left:.25rem}
+    .kpi-delta{font-size:.85rem;font-weight:600;margin-top:.25rem}
+    .delta-up{color:#005530}
+    .delta-down{color:#D51635}
+    .btn-pdf{background:var(--zero-navy);color:#fff;border:1px solid transparent}
+    .btn-pdf:hover{background:var(--zero-orange);color:var(--zero-navy);border-color:var(--zero-orange)}
+    .spinner-overlay{position:fixed;inset:0;background:rgba(0,0,0,.3);display:none;align-items:center;justify-content:center;z-index:3000}
+    .spinner-overlay.visible{display:flex}
+    .spinner{width:40px;height:40px;border:4px solid #fff;border-top-color:var(--zero-orange);border-radius:50%;animation:spin .8s linear infinite}
+    .spinner-text{margin-top:12px;color:#fff;font-weight:600}
+    @keyframes spin{to{transform:rotate(360deg)}}
+    .range-buttons{display:flex;gap:.5rem;margin-bottom:.75rem}
+    .range-btn{padding:.4rem .7rem;border:1px solid #e0e0e0;background:#fff;color:#02154e;border-radius:6px;cursor:pointer;font-size:.85rem}
+    .range-btn.active{background:#02154e;color:#fff}
+    .hist-grid{display:grid;grid-template-columns:1fr 1fr;gap:1rem}
+    .range-label{color:#666;font-size:.85rem;margin-bottom:.5rem}
+    .alert-grid{display:grid;grid-template-columns:1fr 1fr;gap:.75rem}
+    .field{display:flex;flex-direction:column;gap:.25rem}
+    .field label{font-size:.85rem;color:#02154e;font-weight:600}
+    .field input,.field select,.field textarea{padding:.5rem;border:1px solid #e0e0e0;border-radius:6px;font-size:.9rem}
+    .alert-actions{display:flex;gap:.5rem;justify-content:flex-end;margin-top:.75rem}
+    .btn-secondary{padding:.5rem .8rem;background:#f5f7fa;color:#02154e;border:1px solid #e0e0e0;border-radius:6px;cursor:pointer}
+    .alert-list{display:flex;flex-direction:column;gap:.5rem}
+    .alert-item{display:flex;gap:.5rem;align-items:center;padding:.5rem;border:1px solid #e0e0e0;border-radius:8px}
+    .alert-item .ts{color:#888;font-size:.85rem;margin-left:auto}
+    .ms-controls{display:flex;gap:.5rem;align-items:center;margin-bottom:.75rem}
+    .site-select{padding:.4rem .7rem;border:1px solid #e0e0e0;border-radius:6px}
+    .ms-grid{display:grid;grid-template-columns:1fr 1fr;gap:1rem}
+    @media (max-width: 1400px){ .ms-grid{grid-template-columns:1fr} }
+    @media (max-width: 1100px){ .hist-grid{grid-template-columns:1fr} .alert-grid{grid-template-columns:1fr} }
+
+
+    .ms-table{width:100%;border-collapse:collapse}
+    .ms-table th,.ms-table td{border:1px solid #e0e0e0;padding:.5rem;text-align:left;font-size:.9rem}
+    .geo-map{width:100%;height:260px;border:1px solid #e0e0e0;border-radius:8px;background:#fafbfc}
+    .site-marker{r:10}
+    .app-header{position:relative}
+    .header-content{display:flex;justify-content:center;align-items:center}
+    .brand-logo{position:absolute;left:16px;top:50%;transform:translateY(-50%);width:80px;height:80px;opacity:.9}
+    .health-bar{position:absolute;right:16px;top:50%;transform:translateY(-50%);display:flex;gap:.5rem;align-items:center}
+    .pill{padding:.25rem .5rem;border-radius:999px;font-size:.8rem;border:1px solid #e0e0e0}
+    .pill.ok{background:rgba(0,85,48,.08);color:#005530;border-color:rgba(0,85,48,.3)}
+    .pill.degraded{background:rgba(249,186,0,.12);color:#7a5b00;border-color:rgba(249,186,0,.4)}
+    .pill.offline{background:rgba(213,22,53,.10);color:#D51635;border-color:rgba(213,22,53,.3)}
+    .card{position:relative}
+    .no-data-overlay{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(255,255,255,.85);color:#02154e;font-weight:600;text-align:center;padding:1rem;}
+    .line-highlight{animation:flash 1.5s linear 1}
+    @keyframes flash{0%{background:#fffcc0}50%{background:#ffe28a}100%{background:transparent}}
+    @keyframes pulse{0%{box-shadow:0 0 0 0 rgba(213,22,53,.20)}50%{box-shadow:0 0 0 6px rgba(213,22,53,.12)}100%{box-shadow:0 0 0 0 rgba(213,22,53,.08)}}
+  
+
+/* ZGF_HEADER_STACK */
+.title-stack{
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  gap:12px;
+  text-align:center;
+  line-height:1.15;
+}
+.title-stack .title{ line-height:1.05; }
+.title-stack .subtitle{
+  margin-top:10px;               /* 1.5 satır aşağı hissi */
+  font-size:inherit;             /* title ile aynı size */
+  font-weight:400;               /* bold değil */
+  color:#02154e;
+  opacity:.85;
+  line-height:1.25;
+  white-space:normal;
+}
+.title-stack .subtitle .subtitle-by{ font-weight:400; opacity:.9; }
+.title-stack .subtitle .brand{ font-weight:400; }  /* by Zero@Ecosystem bold olmasın */
+.title-stack .facility-wrap{ margin-top:2px; display:flex; justify-content:center; }
+.title-stack .facility-pill{
+  display:inline-flex;
+  align-items:center;
+  gap:8px;
+  padding:6px 12px;
+  border-radius:999px;
+  border:1px solid rgba(2,21,78,.18);
+  background:rgba(249,186,0,.12);
+  color:#02154e;
+  font-weight:700;
+  font-size:12px;
+  letter-spacing:.2px;
+}
+.title-stack .facility-name{ font-weight:800; }
+
+
+
+/* ZGF_BRAND_BADGES */
+.title-stack .facility-pill{
+  background:#005530 !important;  /* Zero green */
+  color:#fff !important;
+  border:none !important;
+  border-radius:10px !important;  /* köşesiz dikdörtgen (Çıkış vibe) */
+  padding:8px 14px !important;
+  box-shadow:0 8px 18px rgba(0,0,0,.08);
+}
+.title-stack .facility-pill .facility-name{ color:#fff !important; }
+
+/* OFFLINE badge (sağ üst) — kırmızı zemin + beyaz yazı (olası class/id varyasyonlarını yakala) */
+#healthPill.offline, #statusPill.offline, #syncPill.offline,
+.health-pill.offline, .status-pill.offline, .sync-pill.offline,
+#healthPill[data-state="offline"], #statusPill[data-state="offline"],
+.sync-status.offline, .badge.offline, .pill.offline {
+  background:#D51635 !important;  /* Zero red */
+  color:#fff !important;
+  border:none !important;
+  border-radius:10px !important;
+  padding:6px 12px !important;
+  font-weight:700 !important;
+}
+
+/* ONLINE varsa (bonus): yeşil */
+#healthPill.online, #statusPill.online, #syncPill.online,
+.health-pill.online, .status-pill.online, .sync-pill.online,
+#healthPill[data-state="online"], #statusPill[data-state="online"],
+.sync-status.online, .badge.online, .pill.online {
+  background:#005530 !important;
+  color:#fff !important;
+  border:none !important;
+  border-radius:10px !important;
+  padding:6px 12px !important;
+  font-weight:700 !important;
+}
+
+</style>
+</head>
+<body>
+<div class="zero-color-bar"></div>
+  <header class="app-header">
+    <div class="header-content">
+      <img class="brand-logo" src="factory-logo 2.svg" alt="Tolkar">
+      <div class="title-stack">
+  <div class="title">Zero<span class="title-at">@</span>Green Factory</div>
+  <div class="subtitle">
+    Sürdürülebilir Üretim Kontrol Merkezi <span class="subtitle-by">by</span>
+    <span class="brand">Zero<span class="title-at">@</span>Ecosystem</span>
+  </div>
+  <div class="facility-wrap">
+    <span class="facility-pill">Facility: <span class="facility-name">TOLKAR</span></span>
+  </div>
+</div>
+<div style="margin-top:10px;display:flex;justify-content:center">
+  </div>
+      <div class="health-bar"><span id="healthPill" class="pill offline">Offline</span><span class="pill" id="mlReadyPill" style="margin-left:8px">ML READY</span></div>
+      <div class="proof-bar" id="proofBar" style="margin-left:8px;color:#02154e;font-size:.82rem">
+        <span id="proofSync">--:--:--</span>
+        <span>•</span>
+        <span id="proofSource">/api</span>
+        <span>•</span>
+        <span id="proofLatency">0ms</span>
+        <span>•</span>
+        <span id="proofMode">DEMO</span>
+      </div>
+      <!-- PATCH START: SYNAPSE_HEAL_ROW -->
+      <div id="brainHealRow" class="brain-heal-row"></div>
+      <!-- PATCH END: SYNAPSE_HEAL_ROW -->
+    </div>
+  </header>
+  <!-- PATCH START: Status Banner + MES + CO2 V1 - Strip -->
+  <div id="offlineBanner" class="offline-banner" style="display:none;margin:0 auto 10px;background:rgba(249,186,0,.12);border:1px solid rgba(249,186,0,.35);color:#5c4400;border-radius:10px;max-width:1200px;padding:.6rem .9rem;text-align:center"></div>
+  <div id="co2Strip" class="co2-strip">
+    <div class="co2-item"><div class="co2-title">CO₂e Today (kg) <span id="co2TodayPill" class="pill">OK</span></div><div id="co2TodayVal" class="co2-value">-</div><div id="co2TodaySub" class="co2-sub">vs dün: +0</div></div>
+    <div class="co2-item"><div class="co2-title">CO₂e / Unit (kg) <span id="co2UnitPill" class="pill">OK</span></div><div id="co2UnitVal" class="co2-value">-</div><div class="co2-sub">hedef: 20</div></div>
+    <div class="co2-item"><div class="co2-title">Energy (kWh)</div><div id="energyVal" class="co2-value">-</div><div class="co2-sub">intensity</div></div>
+    <div class="co2-item"><div class="co2-title">Water (L) <span id="co2ModeBadge" class="pill" style="margin-left:6px">SIM</span></div><div id="waterVal" class="co2-value">-</div><div class="co2-sub">intensity</div></div>
+  </div>
+  <!-- PATCH END: MES + CO2 V1 - Strip -->
+  <main class="container">
+    <div id="headerBelowNav">
+      <div class="tabs">
+        <a class="tab-btn active" href="#overview" onclick="switchTab('overview',this);return false;">Genel Bakış</a>
+        <a class="tab-btn" href="quality.html" onclick="window.location.href='quality.html'+(location.search||'');return false;">Kalite</a>
+        <a class="tab-btn" href="maintenance.html" onclick="window.location.href='maintenance.html'+(location.search||'');return false;">Bakım</a>
+        <a class="tab-btn" href="materials.html" onclick="window.location.href='materials.html'+(location.search||'');return false;">Malzemeler</a>
+        <a class="tab-btn" href="shipping.html" onclick="window.location.href='shipping.html'+(location.search||'');return false;">Sevkiyat</a>
+        <a class="tab-btn" href="lines.html" onclick="window.location.href='lines.html'+(location.search||'');return false;">Hat Takip</a>
+        <a class="tab-btn" href="MES.html" onclick="window.location.href='MES.html'+(location.search||'');return false;">MES</a>
+        <a class="tab-btn" href="#" onclick="window.location.href='FactoryFlowLine.html'+(location.search||'');return false;">Üretim Akış Şeması</a>
+        <a class="tab-btn" href="historical.html" onclick="window.location.href='historical.html'+(location.search||'');return false;">Geçmiş Eğilimler</a>
+        <a class="tab-btn" href="greenfactory.html" onclick="window.location.href='greenfactory.html'+(location.search||'');return false;">Green Factory (Details)</a>
+      </div>
+      <style>
+        .menu-dd{display:inline-block;position:relative;margin-right:8px}
+        .menu-dd > summary.btn{list-style:none}
+        .menu-dd > summary.btn::-webkit-details-marker{display:none}
+        .menu-panel{position:absolute;z-index:50;min-width:320px;right:auto;left:0;top:44px;background:#fff;border:1px solid #e5e7eb;border-radius:12px;box-shadow:0 12px 30px rgba(0,0,0,.12);padding:10px}
+        .menu-title{font-weight:800;color:#02154e;margin:2px 6px 8px}
+        .menu-row{display:flex;gap:8px;flex-wrap:wrap;padding:0 6px 6px}
+        @media (max-width: 900px){ .menu-panel{left:0;right:0;min-width:unset;width:min(92vw,420px)} }
+      </style>
+      <div id="quickActionsDock" style="display:flex;justify-content:center;gap:10px;flex-wrap:wrap;align-items:center;margin:10px 0 6px;">
+        <div class="menu-strip" style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin:10px 0 6px;">
+          <details class="menu-dd">
+            <summary class="btn" style="cursor:pointer;">▶ Senaryolar</summary>
+            <div class="menu-panel">
+              <div class="menu-title">Senaryolar</div>
+              <div class="menu-row">
+                <button class="btn" id="btn-refresh">Yenile</button>
+                <button class="btn" id="btn-reset">S&#305;f&#305;rla</button>
+                <button class="btn" id="btn-shock">&#350;ok</button>
+                <button class="btn" id="btn-kaizen">Kaizen</button>
+              </div>
+            </div>
+          </details>
+          <details class="menu-dd">
+            <summary class="btn" style="cursor:pointer;">▶ Raporlar</summary>
+            <div class="menu-panel">
+              <div class="menu-title">Raporlar</div>
+              <div class="menu-row">
+                <button class="btn btn-pdf" id="btn-pdf">📄 PDF Raporu D&#305;&#351;a Aktar</button>
+              </div>
+            </div>
+          </details>
+          <details class="menu-dd">
+            <summary class="btn" style="cursor:pointer;">▶ Bildirimler</summary>
+            <div class="menu-panel">
+              <div class="menu-title">Bildirimler</div>
+              <div class="menu-row">
+                <button class="btn" id="btn-alerts">Uyar&#305;lar</button>
+              </div>
+            </div>
+          </details>
+        </div>
+      </div>
+    </div>
+    <div id="overview" class="tab-content active">
+    <div class="controls">
+
+
+
+</div>
+    <div id="status" class="status"></div>
+    <!-- PATCH START: OVERVIEW TAB WRAP -->
+    <div id="overview" class="tab-content active">
+      
+<div class="grid two-cols" style="margin-bottom:12px;grid-template-columns:minmax(280px,1fr) minmax(280px,1fr);">
+  <div class="card">
+    <div style="display:flex;justify-content:space-between;align-items:center;">
+      <div style="font-weight:800;color:#02154e;">Executive View</div>
+      <div class="pill" style="border:1px solid #e5e7eb;background:#fff;">ROLE: <span id="roleLabel">MD</span></div>
+    </div>
+    <!-- PATCH REMOVED: MES PANEL INSIDE OVERVIEW -->
+    
+    <div id="roleBrief" style="margin-top:10px;"></div>
+    <div style="margin-top:10px;display:flex;gap:8px;flex-wrap:wrap;">
+      <button class="btn" type="button" onclick="setRole('ceo')">CEO</button>
+      <button class="btn" type="button" onclick="setRole('cfo')">CFO</button>
+      <button class="btn" type="button" onclick="setRole('cto')">CTO</button>
+      <button class="btn" type="button" onclick="setRole('cmo')">CMO</button>
+      <button class="btn" type="button" onclick="setRole('md')">MD</button>
+    </div>
+  </div>
+  <div class="card" id="roleModulesCard">
+    <div style="display:flex;justify-content:space-between;align-items:center;">
+      <div style="font-weight:800;color:#02154e;">Role Modules</div>
+      <div class="pill" style="border:1px solid #e5e7eb;background:#fff;">ACTIVE: <span id="roleLabel2">MD</span></div>
+    </div>
+    <div id="roleModules" style="margin-top:10px;"></div>
+  </div>
+</div>
+      <div class="card"><div style="font-weight:600;color:var(--zero-navy);margin-bottom:.5rem">Üretim Akışı</div>
+        
+<!-- PATCH REMOVED: Timeline + Token Info Cards (HTML duplicate) -->
+
+        <div id="lineView" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:10px"></div>
+      </div>
+      <!-- PATCH START: GREEN_DEAL_VISIBILITY -->
+      <style>
+        .green-snap{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:.75rem;margin-bottom:.75rem}
+        .mini-card{background:#fff;border:1px solid #e0e0e0;border-radius:10px;padding:.5rem .75rem;display:flex;flex-direction:column;gap:.25rem}
+        .mini-title{font-size:.8rem;color:#02154e}
+        .mini-value{font-size:1.2rem;font-weight:800;color:#02154e}
+        .mini-sub{font-size:.75rem;color:#666}
+        .co2-pill{display:inline-block;padding:.1rem .4rem;border:1px solid #e0e0e0;border-radius:999px;font-size:.72rem;margin-left:.4rem}
+      </style>
+      <div class="card">
+        <div style="font-weight:600;color:var(--zero-navy);margin-bottom:.5rem">GREEN DEAL SNAPSHOT <span id="greenSimBadge" class="pill" style="display:none;margin-left:6px">SIM</span></div>
+        <div id="greenSnapHost" class="green-snap"></div>
+      </div>
+      <!-- PATCH END: GREEN_DEAL_VISIBILITY -->
+      <div class="card"><div style="font-weight:600;color:var(--zero-navy);margin-bottom:.5rem">Anahtar Performans Göstergeleri</div><div class="kpi-grid" id="kpi"></div></div>
+      <!-- PATCH START: GREEN_DEAL_VISIBILITY -->
+      <div class="card" id="green-details">
+        <div style="font-weight:600;color:var(--zero-navy);margin-bottom:.5rem">Compliance & Evidence Pack (Green Deal Ready)</div>
+        <div id="compPack" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:.75rem">
+          <div class="mini-card"><div class="mini-title">CSRD Readiness</div><div style="height:8px;background:#eef1f4;border-radius:999px"><div id="csrdBar" style="height:8px;background:#005530;border-radius:999px;width:62%"></div></div><div class="mini-sub" id="csrdLabel">62%</div></div>
+          <div class="mini-card"><div class="mini-title">CBAM Risk</div><span id="cbamPill" class="pill ok">Low</span></div>
+          <div class="mini-card"><div class="mini-title">EcoVadis Leverage</div><span class="pill degraded">Procurement Filter Ready</span></div>
+          <div class="mini-card"><div class="mini-title">Actions</div>
+            <div style="display:flex;gap:.5rem;flex-wrap:wrap">
+              <button class="btn" id="btnBoardPdf">Export Board Slide (PDF)</button>
+              <button class="btn-secondary" id="btnEvidenceZip">Export Evidence Pack (ZIP)</button>
+              <button class="btn-secondary" id="btnCopyEmail">Copy Supplier Request Email</button>
+            </div>
+          </div>
+        </div>
+        <div class="mini-card" style="margin-top:.75rem">
+          <div class="mini-title">Certificates / Documents</div>
+          <ul style="margin:.4rem 0 0 1rem;color:#333">
+            <li>ISO 14001 (Env Mgmt) — <strong id="iso14001">Pending</strong></li>
+            <li>ISO 50001 (Energy) — <strong id="iso50001">Valid</strong></li>
+            <li>EPD / LCA — <strong id="epd">In Progress</strong></li>
+            <li>Waste Contract — <strong id="waste">Valid</strong></li>
+          </ul>
+        </div>
+      </div>
+      <!-- PATCH END: GREEN_DEAL_VISIBILITY -->
+      <div class="card"><div style="font-weight:600;color:var(--zero-navy);margin-bottom:.5rem">İstasyon Performansı</div><div class="stations-grid" id="stations"></div></div>
+      <div class="card"><div style="font-weight:600;color:var(--zero-navy);margin-bottom:.5rem">Trendler</div><canvas id="chartPower" height="150"></canvas><canvas id="chartTemp" height="150" style="margin-top:12px"></canvas></div>
+    <div class="grid">
+      <div class="card" style="grid-column: 1 / -1">
+        <div style="font-weight:600;color:var(--zero-navy);margin-bottom:.5rem">Olay Zaman Çizelgesi</div>
+        <div class="events-timeline" id="events"></div>
+      </div>
+    </div>
+    </div><!-- end overview -->
+    <!-- PATCH END: OVERVIEW TAB WRAP -->
+    <!-- PATCH START: MES PANEL OUTSIDE OVERVIEW -->
+    <div id="mes" class="tab-content">
+      <div id="mes-tab-content"></div>
+    </div>
+    <!-- PATCH END: MES PANEL OUTSIDE OVERVIEW -->
+    <div id="quality" class="tab-content">
+      <div class="card"><div style="font-weight:600;color:var(--zero-navy);margin-bottom:.5rem">Kritik Kalite Metrikleri</div>
+        <div class="kpi-grid" id="qualityMetrics"></div>
+      </div>
+      <div class="card"><div style="font-weight:600;color:var(--zero-navy);margin-bottom:.5rem">Top Defect Reasons</div>
+        <div id="qualityTopReasons" style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px"></div>
+      </div>
+      <div class="card"><div style="font-weight:600;color:var(--zero-navy);margin-bottom:.5rem">Son 10 Kalite Olayı</div>
+        <div id="qualityLast10" class="events-timeline"></div>
+      </div>
+      <div class="card"><div style="font-weight:600;color:var(--zero-navy);margin-bottom:.5rem">Kalite Kriterleri ve Standartlar</div>
+        <ul style="margin:0;padding-left:18px;line-height:1.6;color:#333">
+          <li>Sızdırmazlık testleri (kapak, bağlantılar)</li>
+          <li>Dengesiz yük ve uzun süreli çalışma dayanımı</li>
+          <li>Elektriksel güvenlik: EN 60204-1, izolasyon/kaçak akım testleri</li>
+          <li>Yıkama verimliliği, su/enerji tüketimi performansı</li>
+          <li>Hijyen: deterjan/dezenfektan/sıcaklık döngülerinde malzeme stabilitesi</li>
+        </ul>
+      </div>
+    </div>
+    <div id="maintenance" class="tab-content">
+      <div class="card"><div style="font-weight:600;color:var(--zero-navy);margin-bottom:.5rem">Periyodik Bakım Planı</div>
+        <table class="ms-table"><thead><tr><th>Görev</th><th>Sıklık</th><th>Açıklama</th></tr></thead><tbody id="maintTable">
+          <tr><td>Filtre ve tüy tutucu kontrolü</td><td>Günlük</td><td>Temizlik ve görsel kontrol</td></tr>
+          <tr><td>Su giriş filtreleri</td><td>Haftalık</td><td>Debi ve tıkanma kontrolü</td></tr>
+          <tr><td>Deterjan bölmesi temizliği</td><td>Haftalık</td><td>Kalıntı ve akış kontrolü</td></tr>
+          <tr><td>Rulman/kayış kontrolü</td><td>6–12 Ay</td><td>Aşınma, gürültü ve boşluk</td></tr>
+          <tr><td>Elektrik bağlantıları</td><td>6 Ay</td><td>Sıkılık ve izolasyon</td></tr>
+          <tr><td>Sensör kalibrasyonu</td><td>Yıllık</td><td>Sıcaklık, seviye ve hız sensörleri</td></tr>
+        </tbody></table>
+      </div>
+      <div class="card"><div style="font-weight:600;color:var(--zero-navy);margin-bottom:.5rem">Açık Bakım İşleri</div>
+        <table class="ms-table"><thead><tr><th>ID</th><th>Makine</th><th>İş</th><th>ETA</th></tr></thead><tbody id="maintOpenJobs">
+          <tr><td>MJ-101</td><td>Montaj Hattı</td><td>Kayış değişimi</td><td>+1 gün</td></tr>
+          <tr><td>PA-204</td><td>Paketleme</td><td>Sensör kalibrasyonu</td><td>Bugün 17:00</td></tr>
+          <tr><td>PT-307</td><td>Boya</td><td>Fan bakımı</td><td>+2 gün</td></tr>
+        </tbody></table>
+      </div>
+      <div class="card"><div style="font-weight:600;color:var(--zero-navy);margin-bottom:.5rem">MTBF / MTTR</div>
+        <div id="maintMetrics" class="kpi-grid"></div>
+      </div>
+    </div>
+    <div id="cfo" class="tab-content"><div class="card">Finansal görünüm yakında.</div></div>
+    <div id="materials" class="tab-content">
+      <div class="card"><div style="font-weight:600;color:var(--zero-navy);margin-bottom:.5rem">Tedarik Zinciri Görünürlüğü</div>
+        <table class="ms-table"><thead><tr><th>Bileşen</th><th>Malzeme</th><th>Tipik Termin</th><th>Risk</th><th>Stok</th><th>ETA</th></tr></thead><tbody id="materialsTable">
+          <tr><td>Tambur/Gövde</td><td>AISI 304/316 Paslanmaz</td><td>3–6 Hafta</td><td>Düşük</td><td>120</td><td>+10 gün</td></tr>
+          <tr><td>Rulmanlar</td><td>SKF/NSK Endüstriyel</td><td>2–4 Hafta</td><td>Orta</td><td>60</td><td>+7 gün</td></tr>
+          <tr><td>Kapak Contası</td><td>EPDM/NBR</td><td>1–3 Hafta</td><td>Düşük</td><td>300</td><td>+5 gün</td></tr>
+          <tr><td>Motor/İnverter</td><td>IE3/IE4 + Sürücü</td><td>4–8 Hafta</td><td>Orta</td><td>15</td><td>+21 gün</td></tr>
+          <tr><td>Isıtıcı/Valf/Pompa</td><td>Paslanmaz/Brass</td><td>2–5 Hafta</td><td>Orta</td><td>80</td><td>+9 gün</td></tr>
+          <tr><td>PLC/HMI</td><td>Endüstriyel Kontrol</td><td>3–7 Hafta</td><td>Orta</td><td>25</td><td>+14 gün</td></tr>
+        </tbody></table>
+      </div>
+    </div>
+    <div id="shipping" class="tab-content">
+      <div class="card"><div style="font-weight:600;color:var(--zero-navy);margin-bottom:.5rem">Lojistik ve Sevkiyat</div>
+        <div class="ms-grid">
+          <div>
+            <div style="font-weight:600;margin-bottom:6px">Bugün Sevk</div>
+            <table class="ms-table"><thead><tr><th>Order</th><th>Model</th><th>Qty</th><th>ETA</th></tr></thead><tbody>
+              <tr><td>#A1023</td><td>Smartex Miracle 50</td><td>4</td><td>14:30</td></tr>
+              <tr><td>#A1024</td><td>Carina Dryer 30</td><td>2</td><td>16:00</td></tr>
+            </tbody></table>
+          </div>
+          <div>
+            <div style="font-weight:600;margin-bottom:6px">Geciken Sevkiyat</div>
+            <div class="card" style="background:rgba(213,22,53,.08);border:1px solid rgba(213,22,53,.3)"><div>⚠️ #A1019 — Montaj bekliyor • Yeni ETA 18:00</div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div id="tab-flow-live" class="tab-content">
+      <div class="card"><div style="font-weight:600;color:var(--zero-navy);margin-bottom:.5rem">Flow Live Özet</div><div id="flowSummary" class="kpi-grid"></div></div>
+      <div class="grid">
+        <div class="card" style="grid-column:1/-1"><div style="font-weight:600;color:var(--zero-navy);margin-bottom:.5rem">Factory Flow Live <span id="simBadge" class="pill degraded" style="display:none;margin-left:6px">SIM MODE</span></div><div id="flowHost" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:10px"></div></div>
+        <div class="card" style="grid-column:1/-1"><div style="font-weight:600;color:var(--zero-navy);margin-bottom:.5rem">Active Orders</div><div id="flowPanel" style="max-height:320px;overflow:auto;padding-right:6px"></div></div>
+      </div>
+    </div>
+    <div id="lines" class="tab-content">
+      <div class="card"><div style="font-weight:600;color:var(--zero-navy);margin-bottom:.5rem">Canlı Hat Takibi</div>
+        <table class="ms-table"><thead><tr>
+          <th>Hat</th><th>Durum</th><th>WIP</th><th>Çıkış Hızı (adet/saat)</th><th>CT (dk)</th><th>OEE%</th><th>FPY%</th><th>Darboğaz</th><th>Son Olay</th><th>Aksiyon</th>
+        </tr></thead><tbody id="linesTable"></tbody></table>
+      </div>
+    </div>
+    <div id="tab-historical" class="tab-content">
+      <div class="card">
+        <div class="range-buttons">
+          <button class="range-btn" data-range="hour">Last Hour</button>
+          <button class="range-btn active" data-range="shift">Last Shift (8h)</button>
+          <button class="range-btn" data-range="day">Last Day</button>
+          <button class="range-btn" data-range="week">Last Week</button>
+          <button class="range-btn" data-range="month">Last Month</button>
+        </div>
+        <div class="range-label" id="histLabel"></div>
+        <div class="hist-grid">
+        <div class="card"><div style="font-weight:600;color:var(--zero-navy);margin-bottom:.5rem">OEE Eğilimi</div><canvas id="histOEE" height="180"></canvas></div>
+          <div class="card"><div style="font-weight:600;color:var(--zero-navy);margin-bottom:.5rem">Üretim Hacmi</div><canvas id="histVolume" height="180"></canvas></div>
+          <div class="card"><div style="font-weight:600;color:var(--zero-navy);margin-bottom:.5rem">Kalite — WIP</div><canvas id="histFPY" height="180"></canvas></div>
+          <div class="card"><div style="font-weight:600;color:var(--zero-navy);margin-bottom:.5rem">Downtime/Reason</div><canvas id="histEnergy" height="180"></canvas></div>
+          <div class="card"><div style="font-weight:600;color:var(--zero-navy);margin-bottom:.5rem">Energy (kWh)</div><canvas id="histEnergyKWH" height="180"></canvas></div>
+          <div class="card"><div style="font-weight:600;color:var(--zero-navy);margin-bottom:.5rem">CO₂ (kg)</div><canvas id="histCO2" height="180"></canvas></div>
+        </div>
+      </div>
+    </div>
+    <div id="tab-multisite" class="tab-content">
+      <div class="card">
+        <div class="ms-controls"><select id="siteSelect" class="site-select"><option>All Sites</option><option>Bursa</option><option>Gebze</option><option>Kocaeli</option></select></div>
+        <div class="ms-grid">
+          <div class="card"><div style="font-weight:600;color:var(--zero-navy);margin-bottom:.5rem">Toplu KPI</div><div id="msKPI" class="kpi-grid"></div></div>
+          <div class="card"><div style="font-weight:600;color:var(--zero-navy);margin-bottom:.5rem">Site Karşılaştırma</div><table class="ms-table"><thead><tr><th>Site</th><th>OEE%</th><th>WIP</th><th>FPY%</th><th>Darboğaz</th></tr></thead><tbody id="msTable"></tbody></table></div>
+        </div>
+        <div class="card" style="margin-top:1rem"><div style="font-weight:600;color:var(--zero-navy);margin-bottom:.5rem">Coğrafi Isı Haritası</div><svg id="msMap" class="geo-map" viewBox="0 0 800 260" xmlns="http://www.w3.org/2000/svg"></svg></div>
+      </div>
+    </div>
+  </main>
+  <div class="modal-overlay" id="modalOverlay"><div class="modal"><h3 style="margin-bottom:.75rem">Detay</h3><div id="modalContent"></div></div></div>
+  <div class="modal-overlay" id="alertModal"><div class="modal"><h3 style="margin-bottom:.75rem">Alert Configuration</h3><div class="alert-grid">
+    <div class="field"><label>Recipients</label><input id="alRecipients" placeholder="name@example.com, ..."></div>
+    <div class="field"><label>Frequency</label><select id="alFreq"><option value="immediate">Immediate</option><option value="hourly">Hourly Digest</option><option value="daily">Daily</option></select></div>
+    <div class="field"><label>OEE Threshold (%)</label><input id="alOEE" type="number" min="0" max="100" value="80"></div>
+    <div class="field"><label>FPY Threshold (%)</label><input id="alFPY" type="number" min="0" max="100" value="95"></div>
+    <div class="field"><label>WIP Threshold</label><input id="alWIP" type="number" min="0" value="10"></div>
+    <div class="field"><label>Darboğaz Uyarısını Etkinleştir</label><select id="alBottleneck"><option value="on">Açık</option><option value="off">Kapalı</option></select></div>
+    <div class="field" style="grid-column:1/-1"><label>Email Template Preview</label><textarea id="alTemplate" rows="6"></textarea></div>
+  </div><div class="alert-actions"><button class="btn-secondary" id="alPreview">Preview Email</button><button class="btn" id="alSave">Save</button><button class="btn-secondary" id="alClose">Close</button></div></div></div>
+  <div class="toast" id="toast"></div>
+  <div class="spinner-overlay" id="pdfSpinner"><div style="display:flex;flex-direction:column;align-items:center"><div class="spinner"></div><div class="spinner-text">PDF oluşturuluyor…</div></div></div>
+  <script>
+    window.__API_BASE__ = (location.hostname==='localhost'||location.hostname==='127.0.0.1') ? 'http://127.0.0.1:5000' : location.origin;
+    window.__KEEP_ORIGINAL_LAYOUT__ = true;
+  </script>
+
+ 
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+  <script src="assets/js/auth-wrapper.js"></script>
+  <script src="assets/js/flow_live.js"></script>
+  <script>
+    if(!AUTH.isLoggedIn()) window.location.href='login.html';
+    const statusEl = document.getElementById('status');
+    const stationsEl = document.getElementById('stations');
+    const eventsEl = document.getElementById('events');
+    const toastEl = document.getElementById('toast');
+    const modalEl = document.getElementById('modalOverlay');
+    const alertModalEl = document.getElementById('alertModal');
+    const ALERT_CONFIG = {recipients:'',freq:'immediate',oee:80, fpy:95, wip:10, bottleneck:true};
+    const ALERT_HISTORY = [];
+    const P = new URLSearchParams(location.search);
+    const CLIENT = {
+      name: P.get('client_name')||'',
+      industry: (P.get('industry')||'').toLowerCase(),
+      stationNames: (P.get('stations')||'').split(',').map(s=>s.trim()).filter(Boolean),
+      costs: { scrap: parseFloat(P.get('scrap')||'0')||0, downtime: parseFloat(P.get('downtime')||'0')||0, labor: parseFloat(P.get('labor')||'0')||0 },
+      thresholds: { oee_good: parseFloat(P.get('oee_good')||'80')||80, ct_crit_pct: parseFloat(P.get('ct_crit_pct')||'20')||20 }
+    };
+    if(CLIENT.name){ const f=document.querySelector('.facility-name'); if(f) f.textContent = CLIENT.name; try{ document.title = 'Zero@Green Factory — ' + CLIENT.name; }catch(e){} }
+    let lastSyncTs = null;
+    function setLastSync(ts){ lastSyncTs = ts; CONN.lastSyncAt = ts; applyConnUI(); }
+    const CONN = { state:'OFFLINE', mode:'DEMO', lastSyncAt:null, source:'', latencyMs:0 };
+    function applyConnUI(){
+      try{
+        const hp=document.getElementById('healthPill');
+        const banner=document.getElementById('offlineBanner');
+        const mb=document.getElementById('co2ModeBadge');
+        const ps=document.getElementById('proofSync');
+        const psrc=document.getElementById('proofSource');
+        const plat=document.getElementById('proofLatency');
+        const pm=document.getElementById('proofMode');
+        if(hp){ hp.classList.remove('ok','degraded','offline'); if(CONN.state==='LIVE'){ hp.classList.add('ok'); hp.textContent='Online'; } else if(CONN.state==='DEGRADED'){ hp.classList.add('degraded'); hp.textContent='Degraded'; } else { hp.classList.add('offline'); hp.textContent='Offline'; } }
+        if(banner){ if(CONN.state==='OFFLINE'){ const t=CONN.lastSyncAt? new Date(CONN.lastSyncAt).toLocaleTimeString('tr-TR'):'--:--:--'; banner.style.display='block'; banner.textContent='Offline mod — Son bilinen veri • Son sync: '+t; } else { banner.style.display='none'; } }
+        if(mb){ mb.textContent = (CONN.state==='LIVE' && CONN.mode==='LIVE') ? 'LIVE' : (CONN.mode==='CACHE'?'CACHE':'SIM'); }
+        if(ps){ ps.textContent = CONN.lastSyncAt? new Date(CONN.lastSyncAt).toLocaleTimeString('tr-TR') : '--:--:--'; }
+        if(psrc){ psrc.textContent = CONN.source||'/api'; }
+        if(plat){ plat.textContent = (CONN.latencyMs||0)+'ms'; }
+        if(pm){ pm.textContent = (CONN.mode||'DEMO'); }
+      }catch(e){}
+    }
+    function setHealth(state){ CONN.state = (state==='ok'?'LIVE': (state==='degraded'?'DEGRADED':'OFFLINE')); applyConnUI(); }
+    function toast(t){ toastEl.textContent=t; toastEl.classList.add('show'); setTimeout(()=>toastEl.classList.remove('show'),2000); }
+    /* PATCH START: GREEN_DEAL_VISIBILITY */
+    window.GREEN_KPI = { co2_today:0, co2_unit:0, energy_kwh:0, water_l:0, csrd_score:62, cbam_risk:'Low', ecovadis:'Filter Ready', updated_ts:null, source:'sim' };
+    function seeded(val,mod){ const d=new Date(); return (val + ((d.getDate()%mod)||0)); }
+    async function loadGreenKpi(){ try{
+        let lines=[]; try{ lines = await getLinesV1Safe(); }catch(e){ lines=[]; }
+        let telemetry=null; try{ telemetry = await AUTH.get('/api/telemetry'); }catch(e){ telemetry=null; }
+        let co2_today=0, energy_kwh=0, water_l=0;
+        if(lines && lines.length){ const orders = await getOrdersV1Safe(); const estUnits = (orders.orders||[]).length? (orders.orders||[]).reduce((x,o)=> x+ (o.progress? Math.round((o.progress/100)*(o.plan_min||60)/ (o.plan_min||60) ): 0), 0) : 45; energy_kwh = telemetry && telemetry.energy_kwh ? telemetry.energy_kwh : (lastAvgPower? Math.round(lastAvgPower*8):1240); co2_today = Math.round((energy_kwh||0)*0.42); water_l = Math.round((energy_kwh||0)*2.4); window.GREEN_KPI.source='api'; window.GREEN_KPI.co2_unit = Math.round((co2_today/(estUnits||45))*10)/10; }
+        else { const base = {co2_today:980, co2_unit:21.8, energy_kwh:1240, water_l:2960}; co2_today = seeded(base.co2_today,7); window.GREEN_KPI.co2_unit = base.co2_unit; energy_kwh = base.energy_kwh; water_l = base.water_l; window.GREEN_KPI.source='sim'; }
+        window.GREEN_KPI.co2_today = co2_today; window.GREEN_KPI.energy_kwh = energy_kwh; window.GREEN_KPI.water_l = water_l; window.GREEN_KPI.updated_ts = Date.now(); const cu = window.GREEN_KPI.co2_unit; window.GREEN_KPI.cbam_risk = cu>26? 'High': (cu>=20? 'Medium':'Low'); return window.GREEN_KPI; }
+      catch(e){ const base = {co2_today:980, co2_unit:21.8, energy_kwh:1240, water_l:2960}; window.GREEN_KPI = { ...base, csrd_score:62, cbam_risk:'Medium', ecovadis:'Filter Ready', updated_ts:Date.now(), source:'sim' }; return window.GREEN_KPI; } }
+    function statusBy(val, type){ if(type==='co2_today'){ return val<900?'ok':(val<=1200?'monitor':'action'); } if(type==='co2_unit'){ return val<20?'ok':(val<=26?'monitor':'action'); } if(type==='energy'){ return val<1.0?'ok':(val<=1.2?'monitor':'action'); } if(type==='water'){ return val<1.0?'ok':(val<=1.2?'monitor':'action'); } return 'ok'; }
+    function renderGreenSnapshot(){ const h=document.getElementById('greenSnapHost'); if(!h) return; const d=window.GREEN_KPI||{}; const sim=(d.source||'sim')==='sim'; const b=document.getElementById('greenSimBadge'); if(b) b.style.display = sim? 'inline-block':'none'; h.innerHTML=''; const cards=[
+        {t:'CO₂e Today (kg)', v:d.co2_today, sub:'vs dün: +' + (Math.round(d.co2_today*0.02)||0), s:statusBy(d.co2_today,'co2_today')},
+        {t:'CO₂e / Unit (kg)', v:d.co2_unit, sub:'hedef: 20', s:statusBy(d.co2_unit,'co2_unit')},
+        {t:'Energy (kWh)', v:d.energy_kwh, sub:'intensity ~1.1', s:'monitor'},
+        {t:'Water (L)', v:d.water_l, sub:'intensity ~1.0', s:'ok'}];
+      cards.forEach(c=>{ const div=document.createElement('div'); div.className='mini-card'; div.innerHTML = `<div class='mini-title'>${c.t} <span class='pill ${c.s}' style='margin-left:6px'>${c.s==='ok'?'OK':(c.s==='monitor'?'Monitor':'Action')}</span></div><div class='mini-value'>${c.v}</div><div class='mini-sub'>${c.sub}</div>`; h.appendChild(div); }); }
+    function renderGreenKpiCards(){ const grid=document.getElementById('kpi'); if(!grid) return; const d=window.GREEN_KPI||{}; const co2Shift=document.createElement('div'); co2Shift.className='kpi-card'; co2Shift.innerHTML = `<div class='kpi-label'>Total CO₂e (Shift)</div><div class='kpi-value'>${d.co2_today}<span class='kpi-unit'>kg</span></div>`; const co2Int=document.createElement('div'); co2Int.className='kpi-card'; co2Int.innerHTML = `<div class='kpi-label'>CO₂e Intensity</div><div class='kpi-value'>${d.co2_unit}<span class='kpi-unit'>kg/unit</span></div>`; grid.prepend(co2Int); grid.prepend(co2Shift); }
+    function renderComplianceCards(){ const d=window.GREEN_KPI||{}; const cs=document.getElementById('csrdBar'); if(cs) cs.style.width = (d.csrd_score||62)+'%'; const cl=document.getElementById('csrdLabel'); if(cl) cl.textContent = (d.csrd_score||62)+'%'; const cb=document.getElementById('cbamPill'); if(cb){ const r=d.cbam_risk||'Low'; cb.textContent=r; cb.className='pill '+(r==='High'?'action':(r==='Medium'?'monitor':'ok')); } const bpdf=document.getElementById('btnBoardPdf'); if(bpdf) bpdf.onclick=function(){ const btn=document.getElementById('btn-pdf'); if(btn && btn.onclick) btn.onclick(); else toast('PDF export hazırlanıyor'); }; const bez=document.getElementById('btnEvidenceZip'); if(bez) bez.onclick=function(){ openModal('<div style="padding:1rem">Evidence Pack ZIP — coming soon</div>'); }; const bmail=document.getElementById('btnCopyEmail'); if(bmail) bmail.onclick=function(){ const txt='Dear Supplier, Please provide CSRD/EPD evidence and energy/water footprints for sourcing compliance. Regards.'; navigator.clipboard && navigator.clipboard.writeText(txt).then(()=>toast('Copied')).catch(()=>toast('Copy failed')); } }
+    /* PATCH END: GREEN_DEAL_VISIBILITY */
+    /* PATCH START: MES + CO2 V1 - JS */
+    let __CO2_STRIP_INIT = false, __CO2_LAST = null;
+    function initCO2StripOnce(){ if(__CO2_STRIP_INIT) return; __CO2_STRIP_INIT=true; }
+    function co2RiskPill(v){ return v<20?'ok':(v<=26?'watch':'action'); }
+    async function computeCO2Kpis(){ let mode='sim'; let orders=[]; try{ if(typeof getOrdersV1Safe==='function'){ const o=await getOrdersV1Safe(); orders=(o&&o.orders)||[]; } }catch(e){} let co2_today=980, co2_unit=21.8, energy_kwh=1240, water_l=2960; if(orders && orders.length){ mode='live'; const units = orders.reduce((x,o)=> x + (o.progress? Math.round((o.progress/100)*(o.plan_min||60)/(o.plan_min||60)):0), 0) || 45; energy_kwh = lastAvgPower? Math.round(lastAvgPower*8):1240; co2_today = Math.round(energy_kwh*0.42); co2_unit = Math.round((co2_today/units)*10)/10; water_l = Math.round(energy_kwh*2.4); }
+      return { mode, co2_today, co2_unit, energy_kwh, water_l, orders };
+    }
+    function updateCO2Strip(k){ initCO2StripOnce(); document.getElementById('co2TodayVal').textContent = k.co2_today; document.getElementById('co2UnitVal').textContent = k.co2_unit; document.getElementById('energyVal').textContent = k.energy_kwh; document.getElementById('waterVal').textContent = k.water_l; const tp=document.getElementById('co2TodayPill'); const up=document.getElementById('co2UnitPill'); const mb=document.getElementById('co2ModeBadge'); if(tp){ tp.className='pill '+(k.co2_today<900?'ok':(k.co2_today<=1200?'watch':'action')); tp.textContent = tp.classList.contains('ok')?'OK':(tp.classList.contains('watch')?'Watch':'Action'); } if(up){ const cls=co2RiskPill(k.co2_unit); up.className='pill '+cls; up.textContent = cls==='ok'?'OK':(cls==='watch'?'Watch':'Action'); } // MODE BADGE IS GOVERNED BY CONN/applyConnUI (no override here)
+      __CO2_LAST = k;
+      try{ applyConnUI(); }catch(e){}
+    }
+    function attachCO2ToStationCards(k){ try{ const cards=document.querySelectorAll('#lineView .station-card'); cards.forEach(c=>{ const oee = Array.from(c.querySelectorAll('.station-metric')).find(r=> /OEE/i.test(r.textContent||'')); if(!oee) return; let pill=oee.querySelector('.co2-pill'); if(!pill){ pill=document.createElement('span'); pill.className='co2-pill'; oee.appendChild(pill); } const v=k.co2_unit; pill.textContent='CO₂ '+v+' kg'; const cls=co2RiskPill(v); pill.className='co2-pill pill '+cls; pill.title='CO₂e/unit: '+v+' kg • Energy: '+(k.energy_kwh||'-')+' kWh'; }); }catch(e){} }
+    function renderMES(orders){ return; }
+    function mesSimOrders(){ return [
+      {id:'ORD-1001', line:'Hat-1', station:'S1', status:'AKTİF', progress:65, eta:'+45m', energy:12.4, co2:18.2, risk:'OK'},
+      {id:'ORD-1002', line:'Hat-2', station:'S2', status:'AKTİF', progress:42, eta:'+90m', energy:9.8, co2:22.6, risk:'WATCH'},
+      {id:'ORD-1003', line:'Hat-3', station:'S3', status:'BEKLEMEDE', progress:0, eta:'+2h', energy:0.0, co2:0.0, risk:'OK'},
+      {id:'ORD-1004', line:'Hat-4', station:'S1', status:'TAM', progress:100, eta:'Done', energy:15.2, co2:25.4, risk:'OK'},
+      {id:'ORD-1005', line:'Hat-1', station:'S2', status:'AKTİF', progress:28, eta:'+25m', energy:8.6, co2:19.8, risk:'OK'}
+    ]; }
+    async function getMesOrdersSafe(){ try{ if(typeof getOrdersOrSim==='function'){ const r=await getOrdersOrSim(); const arr = Array.isArray(r)? r : ((r&&r.orders)||[]); if(arr && arr.length){ return arr.map(o=>({ id:o.id||o.order_id||'-', line:o.line||('Hat-'+(o.line_id||'-')), station:o.station||('S'+(o.station_id||'-')), status:o.status||o.state||'-', progress:o.progress||0, eta:o.eta||'+0h', energy:o.energy||o.energy_kwh||0, co2:o.co2||o.co2e_kg||0, risk:o.risk||'OK' })); } } }catch(e){} return mesSimOrders(); }
+    async function initMESTab(){ try{ const orders=await getMesOrdersSafe(); renderMES(orders); }catch(e){} }
+    if((location.hash||'')==='#mes'){ setTimeout(function(){ initMESTab(); },0); setTimeout(function(){ try{ var btn=document.querySelector('#headerBelowNav .tab-btn[href="#mes"]'); switchTab('mes', btn); }catch(e){} }, 200); }
+// MES_AUTO_OFF:     try{ const mo=new MutationObserver(function(){ const p=document.getElementById('mes'); if(p && p.classList && p.classList.contains('active')){ initMESTab(); } }); mo.observe(document.body,{subtree:true,attributes:true,attributeFilter:['class']}); }catch(e){}
+    // 4s loop
+    if(!window.__CO2_LOOP__){ window.__CO2_LOOP__ = setInterval(async()=>{ try{ const k=await computeCO2Kpis(); updateCO2Strip(k); attachCO2ToStationCards(k); const active=(document.querySelector('.tab-content.active')||{}).id; // MES_AUTO_OFF: if(active==='mes') renderMES(k.orders); }catch(e){} }, 4000); }
+    /* PATCH END: MES + CO2 V1 - JS */
+    /* PATCH START: MES PANEL WIRING FIX V1 */
+    function ensureMesPanel(){ var panel=document.getElementById('mes'); if(!panel){ var host=document.querySelector('main .container')||document.body; panel=document.createElement('div'); panel.id='mes'; panel.className='tab-content'; host.appendChild(panel); } var inner=document.getElementById('mes-tab-content'); if(!inner){ inner=document.createElement('div'); inner.id='mes-tab-content'; panel.appendChild(inner); } return {panel, inner}; }
+    function mesPlaceholder(){ var m=document.getElementById('mes-tab-content'); if(!m) return; m.innerHTML = '<div class="card"><div style="font-weight:600;color:#02154e;margin-bottom:.5rem">No Data — SIM/Offline</div><div style="color:#444">Sipariş verisi bulunamadı. SIM modda örnek veriler gösterilir.</div></div>'; }
+    async function onMesActivated(){ try{ const {panel, inner}=ensureMesPanel(); panel.style.display=''; panel.classList.add('active'); const orders = await getOrdersOrSim(); if(!orders || !orders.length){ mesPlaceholder(); } else { renderMES(orders); } console.log('[MES] activated'); }catch(e){ console.log('[MES] error', e); mesPlaceholder(); } }
+    // Hook: existing after-tab callback chain
+    window.__MES_AFTER_TAB__ = function(id){ if(id==='mes'){ onMesActivated(); } };
+    // Hash open support
+    document.addEventListener('DOMContentLoaded', function(){ var h=(location.hash||'').replace('#',''); if(h==='mes'){ setTimeout(()=> onMesActivated(), 0); } });
+    /* PATCH END: MES PANEL WIRING FIX V1 */
+    /* PATCH START: MES Render Functions V2 */
+    async function getMESOrders(){
+      try{
+        const src = await getOrdersOrSim();
+        const arr = Array.isArray(src) ? src : ((src&&src.orders)||[]);
+        if(arr && arr.length){
+          return arr.map(o=>({
+            order_id: o.order_id || o.id || '-',
+            line_id: o.line_id || '-',
+            line_name: o.line_name || undefined,
+            station_id: o.station_id || '-',
+            station_name: o.station_name || undefined,
+            state: o.state || o.status || 'pending',
+            progress: o.progress || 0,
+            eta: o.eta || '+0h',
+            energy_kwh: Number(o.energy_kwh || 0).toFixed(1),
+            co2e_kg: Number(o.co2e_kg || o.co2 || 0).toFixed(1),
+            risk: o.risk || 'OK',
+            reason_code: o.reason_code || ''
+          }));
+        }
+      }catch(e){ console.warn('[MES] getOrdersOrSim failed:', e.message); }
+      const LINES=['Metal & Şase','Boya','Montaj','Final Test','Paketleme & Sevkiyat'];
+      const ST=['M01','P01','A01','T01','PK01'];
+      const demo=[]; for(let i=0;i<12;i++){ const id=1001+i; const li=i%LINES.length; const state = (i%7<5)? 'active' : (i%11===0? 'completed':'queued'); const prog = state==='completed'? 100 : (state==='queued'? 0 : (10+((i*17)%85))); const etaMin = state==='completed'? 0 : (20+((i*23)%160)); const energy = (4 + ((i*7)%17)); const co2 = +(energy*0.42).toFixed(1); const risk = prog<30? 'WATCH' : (co2>22? 'ACTION':'OK'); demo.push({ order_id:'ORD-'+id, line_id:(li+1), line_name:LINES[li], station_id:li+1, station_name:ST[li], state, progress:prog, eta:'+'+etaMin+'m', energy_kwh: energy.toFixed(1), co2e_kg: co2.toFixed(1), risk, reason_code: (risk==='ACTION'?'RC11':'') }); }
+      return demo;
+    }
+    function renderMESPanel(orders){ const container=document.getElementById('mes-tab-content'); if(!container){ console.warn('[MES] Container #mes-tab-content not found'); return; }
+      window.__MES_LAST_ORDERS__ = orders.slice();
+      const shown = orders.filter(o=> o.state==='active').length;
+      const done  = orders.filter(o=> o.state==='completed').length;
+      const queue = orders.length - shown;
+      const metaLine = `<div style="color:#02154e;margin-bottom:.5rem">Gösterilen: ${shown} • Kuyruk: ${queue} • Tamamlanan: ${done}</div>`;
+      const timelineHtml = orders.slice(0,12).map((o,i)=> `<div class="mes-token" data-order="${o.order_id}" title="${o.order_id}" onclick="highlightMESOrder('${o.order_id}')">#${i+1}</div>`).join('');
+      const tableHtml = `<table class="mes-table"><thead><tr><th>Order ID</th><th>Line</th><th>Station</th><th>State</th><th>Progress</th><th>ETA</th><th>Energy (kWh)</th><th>CO₂e (kg)</th><th>Risk</th></tr></thead><tbody>${orders.map(o=>`
+        <tr class="mes-row" data-order="${o.order_id}" onclick="highlightMESOrder('${o.order_id}')">
+          <td><strong>${o.order_id}</strong></td>
+          <td>${o.line_name||('Hat-'+o.line_id)}</td>
+          <td>${o.station_name||('S'+o.station_id)}</td>
+          <td><span class="pill ${o.state==='active'?'ok':(o.state==='completed'?'degraded':'degraded')}">${o.state==='active'?'AKTİF':(o.state==='completed'?'TAM':'BEKLEMEDE')}</span></td>
+          <td><div style="width:100px;height:6px;background:#e0e0e0;border-radius:3px;overflow:hidden"><div style="width:${o.progress}%;height:100%;background:${o.progress<50?'#f9ba00':'#005530'};transition:width .3s"></div></div><small>${o.progress}%</small></td>
+          <td>${o.eta}</td>
+          <td>${o.energy_kwh}</td>
+          <td><strong>${o.co2e_kg}</strong></td>
+          <td><span style="color:${o.risk==='ACTION'?'#D51635':(o.risk==='WATCH'?'#f9ba00':'#005530')};font-weight:600">${o.risk}</span></td>
+        </tr>`).join('')}</tbody></table>`;
+      const html = `<div class="card"><div style="font-weight:600;color:var(--zero-navy);margin-bottom:.5rem">MES — Sipariş Zaman Çizelgesi</div>${metaLine}<div class="mes-timeline">${timelineHtml}</div></div><div class="card" style="margin-top:1rem"><div style="font-weight:600;color:var(--zero-navy);margin-bottom:1rem">Aktif Siparişler</div>${tableHtml}</div>`;
+      container.innerHTML = html;
+    }
+    function findOrderById(orderId){ const arr=window.__MES_LAST_ORDERS__||[]; return arr.find(o=> String(o.order_id)===String(orderId)); }
+    function highlightMESOrder(orderId){ document.querySelectorAll('.mes-row.highlighted, .mes-token.active').forEach(el=> el.classList.remove('highlighted','active')); const row=document.querySelector(`.mes-row[data-order="${orderId}"]`); if(row){ row.classList.add('highlighted'); row.scrollIntoView({behavior:'smooth',block:'center'});} const token=document.querySelector(`.mes-token[data-order="${orderId}"]`); if(token){ token.classList.add('active'); } try{ const ord=findOrderById(orderId); if(ord) openOrderDrawer(ord); }catch(e){} }
+    async function initMESTab(){ try{ const orders=await getMESOrders(); renderMESPanel(orders); console.log('[MES] Panel render', orders.length); }catch(e){ console.warn('[MES] init error', e.message); } }
+    const __origAfterTab = null; window.__MES_AFTER_TAB__ = function(tabId){ if(tabId==='mes'){ setTimeout(()=> initMESTab(), 0); } };
+    document.addEventListener('DOMContentLoaded', function(){ const hash=(location.hash||'').replace('#',''); if(hash==='mes'){ setTimeout(()=> initMESTab(), 100); } });
+    // PATCH START: MES STICKY VISIBILITY FIX
+    function ensureMesVisible(){ try{ const panel=document.getElementById('mes'); const cont=document.getElementById('mes-tab-content'); if(panel && panel.classList.contains('active')){ if(!cont || cont.children.length===0){ initMESTab(); } } }catch(e){} }
+    window.addEventListener('load', function(){ if(location.hash==='#mes'){ setTimeout(()=>{ try{ const btn=document.querySelector('#headerBelowNav .tab-btn[href="#mes"]'); switchTab('mes', btn); }catch(e){} ensureMesVisible(); }, 250); } });
+// MES_AUTO_OFF:     try{ const moMes=new MutationObserver(()=> ensureMesVisible()); const cont=document.getElementById('mes-tab-content')||document.body; moMes.observe(cont,{subtree:true,childList:true}); }catch(e){}
+// MES_AUTO_OFF:     if(!window.__MES_STICKY_LOOP__){ window.__MES_STICKY_LOOP__ = setInterval(()=> ensureMesVisible(), 4000); }
+    // PATCH END: MES STICKY VISIBILITY FIX
+    async function updateCO2StripValues(){ try{ const orders=await getMESOrders(); const activeOrders=orders.filter(o=> ['active','queued'].includes(o.state)); const totalCO2=activeOrders.reduce((s,o)=> s+parseFloat(o.co2e_kg||0),0); const totalEnergy=activeOrders.reduce((s,o)=> s+parseFloat(o.energy_kwh||0),0); const totalWater=Math.round(totalEnergy*2.4); const avgCO2Unit=activeOrders.length? (totalCO2/activeOrders.length).toFixed(1) : '0.0'; const targetCO2=20; const deltaPercent = ((parseFloat(avgCO2Unit)-targetCO2)/targetCO2*100).toFixed(0); let riskClass='ok'; if(parseFloat(avgCO2Unit)>targetCO2*1.2) riskClass='action'; else if(parseFloat(avgCO2Unit)>targetCO2*1.05) riskClass='watch'; const todayVal=document.getElementById('co2TodayVal'); const unitVal=document.getElementById('co2UnitVal'); const energyVal=document.getElementById('energyVal'); const waterVal=document.getElementById('waterVal'); const todayPill=document.getElementById('co2TodayPill'); const unitPill=document.getElementById('co2UnitPill'); if(todayVal) todayVal.textContent=totalCO2.toFixed(1); if(unitVal) unitVal.textContent=avgCO2Unit; if(energyVal) energyVal.textContent=totalEnergy.toFixed(1); if(waterVal) waterVal.textContent=totalWater; if(todayPill){ todayPill.className='pill '+(totalCO2<900?'ok':(totalCO2<=1200?'watch':'action')); todayPill.textContent= totalCO2<900?'OK':(totalCO2<=1200?'Watch':'Action'); } if(unitPill){ unitPill.className='pill '+riskClass; unitPill.textContent= riskClass==='ok'?'OK':(riskClass==='watch'?'Watch':'Action'); } const deltaSub=document.getElementById('co2TodaySub'); if(deltaSub) deltaSub.textContent = `vs hedef: ${deltaPercent>0?'+':''}${deltaPercent}%`; }catch(e){ console.warn('[CO2 Strip] Update failed:', e.message); } }
+// MES_AUTO_OFF:     if(!window.__CO2_UPDATE_LOOP__){ window.__CO2_UPDATE_LOOP__=setInterval(()=>{ updateCO2StripValues(); const mesContent=document.getElementById('mes-tab-content'); if(mesContent && document.getElementById('mes').classList.contains('active')){ initMESTab(); } }, 4000); updateCO2StripValues(); }
+    function attachCO2ToStationCardsV2(){ try{ const cards=document.querySelectorAll('#lineView .station-card, #lineView .track-card'); const co2Values=[18.2,22.6,19.5,18.0,20.1]; cards.forEach((card,idx)=>{ if(card.querySelector('.station-co2-line')) return; const co2=co2Values[idx]||18.0; const co2Line = `<div class="station-co2-line" style="border-top:1px solid #e0e0e0;padding-top:.75rem;margin-top:.75rem;font-size:.85rem;color:${co2>24?'#D51635':(co2>20?'#f9ba00':'#005530')}">CO₂e: <strong>${co2}</strong> kg/birim</div>`; card.insertAdjacentHTML('beforeend', co2Line); }); console.log('[CO2] Attached to', cards.length, 'station cards'); }catch(e){ console.warn('[CO2 Cards] Attachment failed:', e.message); } }
+    const __origLiveAfterTab = window.__LIVE_LINES_AFTER_TAB__ || function(){}; window.__LIVE_LINES_AFTER_TAB__ = function(id){ if(id==='lines' || id==='overview'){ attachCO2ToStationCardsV2(); } try{ __origLiveAfterTab(id); }catch(e){} };
+    setTimeout(()=> attachCO2ToStationCardsV2(), 500);
+    console.log('[MES V2] Integration complete');
+    /* PATCH END: MES Render Functions V2 */
+    /* PATCH START: MES_BLANK_FIX_V1 */
+    async function getOrdersOrSim(){ try{ if(typeof getOrdersV1Safe==='function'){ const r=await getOrdersV1Safe(); if(r && r.orders && r.orders.length) return r.orders; } }catch(e){} try{ const r=await fetch('/api/v1/orders'); if(r.ok){ const j=await r.json(); if(j && j.orders) return j.orders; } }catch(e){} const sim=[]; const lines=['Metal & Şase','Boya Hattı','Montaj','Final Test','Paketleme']; const st=['Running','Paused','Blocked','Down']; for(let i=1;i<=10;i++){ sim.push({ id:'ORD-'+(1000+i), line:lines[i%lines.length], station:['MK-01','BK-01','MH-01','FT-01','PK-01'][i%5], status:st[i%st.length], progress:Math.round(10+i*7)%100, eta:'+'+((i%5)+1)+'h', energy:(10+i*0.6).toFixed(1), co2:(18+i*0.4).toFixed(1), risk:(i%3==0?'Medium':(i%5==0?'High':'Low')) }); }
+      return sim;
+    }
+    let __MES_LOCK__ = false; let __MES_LAST_ACTIVE__ = null;
+    async function openMESTab(){ /* disabled legacy renderer to avoid duplicate tokens */ return; }
+    window.__MES_AFTER_TAB__ = function(id){
+      if(id!=='mes') { __MES_LAST_ACTIVE__ = id; return; }
+      if(__MES_LAST_ACTIVE__==='mes' && __MES_LOCK__) return;
+      __MES_LAST_ACTIVE__ = 'mes';
+      setTimeout(()=>{ initMESTab(); }, 0);
+    };
+    // ensure click binds even if button has different selector
+    document.addEventListener('click', function(ev){ const btn = ev.target.closest('a[href="#mes"], [data-tab="mes"], #mes-tab-btn'); if(!btn) return; setTimeout(()=>{ window.__MES_AFTER_TAB__('mes'); }, 0); });
+    /* PATCH END: MES_BLANK_FIX_V1 */
+
+    /* PATCH START: SYNAPSE_BRAIN_BRIDGE_V1 */
+    function getActiveRole(){ try{ const q=new URLSearchParams(location.search); const r=(q.get('role')||'').toLowerCase(); if(r) return r; const rl=document.getElementById('roleLabel2')||document.getElementById('roleLabel'); return ((rl&&rl.textContent)||'md').toLowerCase(); }catch(e){ return 'md'; } }
+    function isOffline(){ const hp=document.getElementById('healthPill'); return (hp && hp.classList.contains('offline')) || (navigator.onLine===false); }
+    function buildSynapseContext(){ const ctx={ ts:new Date().toISOString(), facility:(document.querySelector('.facility-name')||{}).textContent||'TOLKAR', role:getActiveRole(), offline:isOffline(), kpi:{}, lines:[], alerts:[], ui:{activeTabId:(location.hash||'#overview').replace('#','')} }; try{ const sts=window.lastStations||[]; const total=sts.length; const wip=sts.reduce((x,s)=>x+(s.wip||0),0); const ctAvg= total? Math.round(sts.reduce((x,s)=>x+(s.ct||0),0)/total):0; const oeeAvg= total? Math.round(sts.reduce((x,s)=>x+(s.oee||0),0)/total):0; const fpyAvg= total? Math.round(sts.reduce((x,s)=>x+(s.fpy||0),0)/total):0; ctx.kpi={ oee:oeeAvg, fpy:fpyAvg, wip_total:wip, ct_avg:ctAvg, throughput_ph: ctAvg? Math.round(60/ctAvg):0 }; ctx.lines = sts.map(s=>({ name:s.name, status:s.status, wip:s.wip, ct_min:s.ct, oee:s.oee, fpy:s.fpy, bottleneck:(String(s.status).toLowerCase()==='bottleneck'), last_event:null })); ctx.alerts = ctx.lines.filter(l=> l.bottleneck || String(l.status).toLowerCase()==='down').map(l=> ({type:'bottleneck', line:l.name})); }catch(e){} return ctx; }
+    async function synapseDecide(ctx){ if(isOffline()) return null; try{ const ctrl=new AbortController(); const t=setTimeout(()=>ctrl.abort(),1200); const res= await fetch('/api/brain/decide',{ method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({context:ctx}), signal: ctrl.signal }); clearTimeout(t); if(!res.ok) throw new Error('bad'); const j=await res.json(); return j; }catch(e){ try{ const ctrl=new AbortController(); const t=setTimeout(()=>ctrl.abort(),1200); const res= await fetch('/api/synapse/decide',{ method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ctx}), signal: ctrl.signal }); clearTimeout(t); if(!res.ok) return null; return await res.json(); }catch(e2){ return null; } } }
+    function synapseLocalDecide(ctx){ const bad = (ctx.lines||[]).find(l=> ['down','blocked','bottleneck'].includes(String(l.status).toLowerCase())); let intent='optimization', focus=null; if(bad){ intent='shock'; focus=bad.name; } else if((ctx.kpi||{}).oee<85 || (ctx.kpi||{}).wip_total>=20){ intent='guidance'; } const pr = intent==='shock'? 90 : intent==='guidance'? 70 : 55; const conf = intent==='shock'? 0.8 : intent==='guidance'? 0.7 : 0.6; const headline = intent==='shock'? 'Darboğaz tespit edildi — acil müdahale' : intent==='guidance'? 'Verimlilik yönlendirmesi — WIP dengele' : 'İyileştirme — çevrim hızını optimize et'; const actions = intent==='shock'? ['Bottleneck hattı incele','Operatör dengele','Kısa bakım planı'] : intent==='guidance'? ['CT optimizasyonu','WIP azaltma','Kalite akışını düzelt'] : ['Enerji/OEE optimizasyonu','Akış senkronizasyonu']; return { intent, priority:pr, confidence:conf, headline, actions, focus_line:focus }; }
+    async function updateHealPill(){ try{ const row=document.getElementById('brainHealRow'); const cont = row || (document.getElementById('healthPill')||{}).parentElement; if(!cont) return; let pill=document.getElementById('healPill'); if(!pill){ pill=document.createElement('span'); pill.id='healPill'; cont.appendChild(pill); } const res = isOffline()? null : await fetch('/api/heal/status').then(r=> r.ok? r.json(): null).catch(()=> null); const st = res? String(res.status||'ok').toLowerCase() : (isOffline()?'offline':'degraded'); pill.textContent = 'Heal: ' + (st==='ok'?'OK': st==='offline'?'Offline':'Degraded'); pill.className = 'pill ' + (st==='offline'?'heal-red':'synapse-orange'); }catch(e){} }
+    function applySynapseDecision(dec){
+      try{
+        const row=document.getElementById('brainHealRow'); const cont = row || (document.getElementById('healthPill')||{}).parentElement;
+        if(cont){ let sp=document.getElementById('synapsePill'); if(!sp){ sp=document.createElement('span'); sp.id='synapsePill'; cont.appendChild(sp); }
+          const intent=(dec&&dec.intent)||'optimization'; const conf = Math.round(((dec&&dec.confidence)||0.6)*100);
+          sp.textContent = 'Synapse: ' + intent + ' • ' + conf + '%';
+          sp.className = 'pill synapse-orange';
+        }
+      }catch(e){}
+      try{ const row=document.getElementById('brainHealRow'); if(row){ const off=document.getElementById('healthPill'); const ml=document.getElementById('mlReadyPill'); const syn=document.getElementById('synapsePill'); const heal=document.getElementById('healPill'); [syn,off,ml,heal].forEach(el=>{ if(el && el.parentElement!==row){ row.appendChild(el); if(el===ml){ el.style.marginLeft='0'; } } }); } }catch(e){}
+      const brief=document.getElementById('roleBrief'); if(brief){ brief.innerHTML = `<ul style='margin:0;padding-left:18px;line-height:1.5'><li>${dec.headline||'Dashboard kararı güncellendi'}</li>${(dec.actions||[]).slice(0,3).map(a=>'<li>'+a+'</li>').join('')}</ul>`; }
+      const modules=document.getElementById('roleModules'); if(modules){ let box=modules.querySelector('.synapse-actions'); if(!box){ box=document.createElement('div'); box.className='synapse-actions'; modules.appendChild(box); } box.innerHTML = `<div style='font-weight:600;color:#02154e;margin-bottom:.3rem'>Recommended Actions</div><ul style='margin:0;padding-left:18px'>${(dec.actions||[]).map(a=>'<li>'+a+'</li>').join('')}</ul>`; }
+      if(dec.focus_line){ try{ if(typeof highlightLineRow==='function'){ highlightLineRow(dec.focus_line); } else { const cards=[...document.querySelectorAll('#lineView .station-card')]; const card=cards.find(c=> (c.querySelector('.station-name')||{}).textContent===dec.focus_line); if(card){ card.classList.add('synapse-focus'); setTimeout(()=>card.classList.remove('synapse-focus'),2000); } } }catch(e){} }
+    }
+    async function runSynapseOnceOrLoop(){ if(window.__SYNAPSE_RUN_LOCK__) return; window.__SYNAPSE_RUN_LOCK__=true; try{ const ctx=buildSynapseContext(); let dec = await synapseDecide(ctx); let mode='remote'; if(!dec){ dec = synapseLocalDecide(ctx); mode='local'; } try{ console.log('[Synapse] decision='+JSON.stringify(dec)+' mode='+mode); }catch(e){} applySynapseDecision(dec); await updateHealPill(); }catch(e){} finally{ window.__SYNAPSE_RUN_LOCK__=false; }
+      const interval = isOffline()? 20000 : 10000; if(!window.__SYNAPSE_LOOP__){ window.__SYNAPSE_LOOP__ = setInterval(()=>{ runSynapseOnceOrLoop(); }, interval); } }
+    // hook after tab switch
+    // after-tab hook (non-invasive)
+    window.__SYNAPSE_AFTER_TAB__ = function(id){ try{ runSynapseOnceOrLoop(); }catch(e){} };
+    /* PATCH END: SYNAPSE_BRAIN_BRIDGE_V1 */
+    function turkishStatus(st){ switch(String(st)){ case 'Running': return 'Çalışıyor'; case 'Down': return 'Duruş'; case 'Idle': return 'Beklemede'; case 'ok': return 'İyi'; case 'monitor': return 'İzleme'; case 'action': return 'Aksiyon'; default: return String(st||'-'); } }
+    function switchTab(id,src){
+      document.querySelectorAll('.tab-content').forEach(x=>{ x.classList.remove('active'); x.style.display='none'; });
+      document.querySelectorAll('#headerBelowNav .tab-btn').forEach(x=>x.classList.remove('active'));
+      var el=document.getElementById(id); if(el){ el.classList.add('active'); el.style.display='block'; }
+      if(src){ var t = (src.target)? src.target : src; if(t && t.classList) t.classList.add('active'); }
+      try{ location.hash = '#'+id; }catch(e){}
+      if(id==='mes'){ try{ initMESTab(); }catch(e){ try{ console.warn('MES init fail', e); }catch(_){} } }
+    }
+
+    // Hash ile gelen dış linkler için başlangıç sekmesi
+    document.addEventListener('DOMContentLoaded', function(){
+      var hash = (location.hash||'').replace('#','');
+      if(hash){
+        var btn = document.querySelector('#headerBelowNav .tab-btn[href="#'+hash+'"]') || null;
+        switchTab(hash, btn);
+      }
+      let __LAST_TAB_CLICKED = null;
+      function ensureActiveTab(id){ try{ const panel=document.getElementById(id); const btn=document.querySelector('#headerBelowNav .tab-btn[href="#'+id+'"]'); if(panel && !panel.classList.contains('active')){ switchTab(id, btn); } }catch(e){} }
+      document.addEventListener('click', function(ev){ const a=ev.target.closest('#headerBelowNav .tab-btn'); if(!a) return; const href=a.getAttribute('href')||''; if(href.startsWith('#')){ ev.preventDefault(); const id=href.slice(1); __LAST_TAB_CLICKED = id; switchTab(id,a); try{ location.hash = '#'+id; }catch(e){} setTimeout(()=> ensureActiveTab(id), 50); setTimeout(()=> { if(__LAST_TAB_CLICKED===id) ensureActiveTab(id); }, 250); setTimeout(()=> { if(__LAST_TAB_CLICKED===id) ensureActiveTab(id); }, 800); try{ if(window.__SYNAPSE_AFTER_TAB__) window.__SYNAPSE_AFTER_TAB__(id); if(window.__LIVE_LINES_AFTER_TAB__) window.__LIVE_LINES_AFTER_TAB__(id); if(window.__DEMO_AFTER_TAB__) window.__DEMO_AFTER_TAB__(id); if(window.__MES_AFTER_TAB__) window.__MES_AFTER_TAB__(id); }catch(e){} } });
+      window.addEventListener('hashchange', function(){ const id=(location.hash||'').replace('#',''); if(id) ensureActiveTab(id); });
+      // observe active tab changes (programmatic calls)
+// MES_AUTO_OFF:       try{ const mo=new MutationObserver(()=>{ const active=(document.querySelector('.tab-content.active')||{}).id; if(active){ try{ if(window.__SYNAPSE_AFTER_TAB__) window.__SYNAPSE_AFTER_TAB__(active); if(window.__LIVE_LINES_AFTER_TAB__) window.__LIVE_LINES_AFTER_TAB__(active); if(window.__DEMO_AFTER_TAB__) window.__DEMO_AFTER_TAB__(active); if(window.__MES_AFTER_TAB__) window.__MES_AFTER_TAB__(active); }catch(e){} } }); mo.observe(document.body,{subtree:true,childList:true,attributes:true,attributeFilter:['class']}); }catch(e){}
+    });
+    /* PATCH START: MACHINE_CARDS_CO2 */
+    function co2Color(v){ return v<20?'ok':(v<=26?'monitor':'action'); }
+    function getCo2ForMachine(machineId, stationName, lineId){ const simMap={ 'MK-01':16.8,'MK-02':17.2,'MK-03':18.1,'BK-01':22.4,'BK-02':26.8,'MH-01':19.5,'MH-02':20.1,'FT-01':18.0,'FT-02':18.6 }; const k = simMap[machineId||'']!=null? simMap[machineId||''] : (window.GREEN_KPI && window.GREEN_KPI.co2_unit ? window.GREEN_KPI.co2_unit : null); return k; }
+    function renderMachineCo2Pills(){ const cards = document.querySelectorAll('#lineView .station-card'); cards.forEach(card=>{ const oeeRow = Array.from(card.querySelectorAll('.station-metric')).find(r=> /OEE/i.test(r.textContent||'')); if(!oeeRow){ return; } const name = (card.querySelector('.station-name')||{}).textContent||''; const mid = (name.includes('Boya')?'BK-01': name.includes('Final')?'FT-01': name.includes('Metal')?'MK-01': name.includes('Montaj')?'MH-01':''); const v = getCo2ForMachine(mid, name, null); let pill = oeeRow.querySelector('.co2-pill'); if(!pill){ pill = document.createElement('span'); pill.className='co2-pill'; oeeRow.appendChild(pill); } if(v==null){ pill.textContent = 'CO₂ —'; pill.className='co2-pill'; pill.title=''; } else { pill.textContent = 'CO₂ '+v+' kg'; pill.className='co2-pill pill '+co2Color(v); pill.title='CO₂e/unit: '+v+' kg'; } }); }
+    /* PATCH END: MACHINE_CARDS_CO2 */
+    /* PATCH START: Live Lines Simulation */
+    (function(){
+      function hhmm(){ var d=new Date(); return String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0'); }
+      var NAMES=['Metal & Şase','Boya Hattı','Montaj','Final Test','Paketleme & Sevkiyat'];
+      var REASONS={ RC10:'Sevkiyat kuyruğu', RC11:'Boya bekleme', RC12:'Montaj parça eksik', RC14:'Final test kapasite', RC20:'Bakım/arıza' };
+      var ACTION_MAP={ 'Metal & Şase':'WIP’i düşür, iş yükünü dengele', 'Boya Hattı':'Beklemeyi azalt, ısı/akış kontrolü', 'Montaj':'Operatör dengele, parça akışını düzelt', 'Final Test':'Test kapasitesini artır, çevrimi hızlandır', 'Paketleme & Sevkiyat':'Çıkış kuyruğunu boşalt, sevkiyatı hızlandır' };
+      function makeDemoLines(){ return NAMES.map(function(n){ var ct=40+Math.round(Math.random()*15); var oee=88+Math.round(Math.random()*6); var fpy=93+Math.round(Math.random()*4); var wip=3+Math.round(Math.random()*5); return { name:n, status:'OK', wip:wip, throughput_ph: Math.max(0, 120 - (ct-30)*2), ct_min:ct, oee:oee, fpy:fpy, bottleneck:false, last_event:{ ts: Date.now(), reason_code:'', message:'Başlangıç' }, action: ACTION_MAP[n] }; }); }
+      function decide(l){ var s='OK', bn=false; if(l.wip>=12 || l.oee<75){ s='BLOCKED'; bn=true; } else if(l.wip>=8 || l.ct_min>=55 || l.oee<85){ s='ACTION'; } return {status:s, bottleneck:bn}; }
+      function tickLines(lines,t){ for(var i=0;i<lines.length;i++){ var l=lines[i]; var dw=(Math.random()>0.5?1:-1)*Math.round(Math.random()*2); l.wip=Math.max(0,Math.min(20,l.wip+dw)); var dct=(Math.random()>0.5?1:-1)*Math.round(Math.random()*2); l.ct_min=Math.max(30,Math.min(75,l.ct_min+dct)); l.throughput_ph=Math.max(0,Math.min(120, Math.round(120-(l.ct_min-30)*2 + (Math.random()*6-3)))); l.oee=Math.max(60,Math.min(98, Math.round(l.oee + (Math.random()*4-2)))); l.fpy=Math.max(85,Math.min(99, Math.round(l.fpy + (Math.random()*3-1.5)))); if(t%Math.round(4+Math.random()*2)===0){ var rKeys=['RC10','RC11','RC12','RC14','RC20']; var rc=rKeys[Math.floor(Math.random()*rKeys.length)]; l.last_event={ ts:Date.now(), reason_code:rc, message:REASONS[rc] }; if(rc==='RC20'){ l.action='Bakım planı + hızlı arıza giderme'; } } var ds=decide(l); l.status=ds.status; l.bottleneck=ds.bottleneck; } return lines; }
+      function findTbody(){ var tb=document.getElementById('linesTable'); if(tb) return tb; var cards=Array.from(document.querySelectorAll('.card')); for(var i=0;i<cards.length;i++){ var c=cards[i]; var txt=(c.firstElementChild||{}).textContent||''; if(/Canlı Hat Takibi/i.test(txt)){ var t=c.querySelector('table tbody'); if(t) return t; } } return null; }
+      function ensureSimBadge(){ var cards=Array.from(document.querySelectorAll('.card')); for(var i=0;i<cards.length;i++){ var c=cards[i]; var txt=(c.firstElementChild||{}).textContent||''; if(/Canlı Hat Takibi/i.test(txt)){ var hdr=c.firstElementChild; if(hdr && !hdr.querySelector('.sim-pill')){ var p=document.createElement('span'); p.className='pill sim-pill'; p.style.marginLeft='6px'; p.textContent='Simülasyon'; hdr.appendChild(p); } } } }
+      function pillClass(st){ st=String(st).toUpperCase(); return st==='OK'?'ok':(st==='ACTION'?'monitor':'action'); }
+      function renderLiveLines(lines){ var tbody=findTbody(); if(!tbody) return; tbody.innerHTML=''; ensureSimBadge(); var host=tbody.parentElement; var ov=host.querySelector('.no-data-overlay'); if(ov) ov.remove(); for(var i=0;i<lines.length;i++){ var l=lines[i]; var evLbl=hhmm()+' • '+(l.last_event && l.last_event.message? (l.last_event.message+' ('+(l.last_event.reason_code||'-')+')'):'-'); var tr=document.createElement('tr'); tr.innerHTML='<td>'+l.name+'</td>'+'<td><span class="status-pill '+pillClass(l.status)+'">'+(l.status==='OK'?'İyi':(l.status==='ACTION'?'Aksiyon':'Bloke'))+'</span></td>'+'<td>'+l.wip+'</td>'+'<td>'+l.throughput_ph+'</td>'+'<td>'+l.ct_min+'</td>'+'<td>'+l.oee+'</td>'+'<td>'+l.fpy+'</td>'+'<td>'+(l.bottleneck?'🔴':'—')+'</td>'+'<td>'+evLbl+'</td>'+'<td>'+l.action+'</td>'; tbody.appendChild(tr); } }
+      function initLiveLinesOnce(){ if(window.__LIVE_LINES_INIT__) return; window.__LIVE_LINES_INIT__=true; window.__LIVE_LINES__={ lines: makeDemoLines(), t:0 }; renderLiveLines(window.__LIVE_LINES__.lines); if(!window.__LIVE_LINES_LOOP__){ window.__LIVE_LINES_LOOP__=setInterval(function(){ var S=window.__LIVE_LINES__; S.t++; renderLiveLines(tickLines(S.lines,S.t)); },4000); } }
+      // after-tab hook (non-invasive)
+      window.__LIVE_LINES_AFTER_TAB__ = function(id){ if(id==='lines'){ try{ initLiveLinesOnce(); }catch(e){} } };
+      document.addEventListener('DOMContentLoaded', function(){ if((location.hash||'').replace('#','')==='lines'){ initLiveLinesOnce(); } });
+    })();
+    /* PATCH END: Live Lines Simulation */
+    function openModal(html){ document.getElementById('modalContent').innerHTML=html; modalEl.classList.add('visible'); }
+    modalEl.addEventListener('click', (e)=>{ if(e.target===modalEl) modalEl.classList.remove('visible'); });
+    async function load(){
+      const data = await getStateSafe();
+      renderStations(data.stations||[]);
+      const stationsV1 = await getStationsV1Safe();
+      let lines = await getLinesV1Safe();
+      let stableLines = (lines && lines.length)
+        ? lines
+        : computeLinesFromStations(
+            (stationsV1 && stationsV1.length) ? stationsV1 : (data.stations||lastStations||[])
+          );
+      if(!stableLines || !stableLines.length){
+        if(window.lastLinesStable && window.lastLinesStable.length){ stableLines = window.lastLinesStable; }
+      }
+      renderLineView(stableLines, (stationsV1 && stationsV1.length)? stationsV1 : (data.stations||lastStations||[]));
+      window.lastLinesStable = stableLines;
+      await renderCharts();
+      CONN.state='LIVE'; CONN.mode='LIVE'; CONN.lastSyncAt = Date.now(); CONN.source='/api/state'; CONN.latencyMs=0; applyConnUI(); statusEl.textContent = 'Son güncelleme: ' + new Date().toLocaleTimeString('tr-TR') + (data.demo ? ' • Demo' : '');
+      try{ const st = await AUTH.get('/api/v1/status'); if(st && st.health){ setHealth(st.health); const bar=document.querySelector('.health-bar'); if(bar && st.reason){ const el=document.getElementById('healthReason'); if(!el){ const r=document.createElement('span'); r.id='healthReason'; r.className='pill'; r.textContent = st.reason; bar.appendChild(r); } else { el.textContent = st.reason; } } } }catch(e){}
+      await renderEventsV1();
+      lastEvents = (await getEventsSafe()).events||[];
+      const kpi = await getKpiSafe(data.stations||[]);
+      renderKPI(kpi);
+      if((data.stations||[]).some(s=>String(s.status).toLowerCase()==='bottleneck')){ toast('⚠️ Bottleneck uyarısı'); }
+      evaluateAlerts(data.stations||[]);
+      buildSites(data.stations||[]);
+      renderMultiSite();
+      /* PATCH START: GREEN_DEAL_VISIBILITY */
+      try{ await loadGreenKpi(); renderGreenSnapshot(); renderGreenKpiCards(); renderComplianceCards(); }catch(e){}
+      /* PATCH END: GREEN_DEAL_VISIBILITY */
+      /* PATCH START: SYNAPSE_BRAIN_BRIDGE_V1 */
+      try{ await runSynapseOnceOrLoop(); }catch(e){}
+      /* PATCH END: SYNAPSE_BRAIN_BRIDGE_V1 */
+      const lines2 = await getLinesV1Safe();
+      lastLines = lines2;
+      renderLines(lines2);
+      initFlowLive();
+    }
+    if(typeof window.renderTrack!== 'function'){
+      window.renderTrack = async function(stations){
+        try{
+          const lines = await getLinesV1Safe();
+          const data = (lines && lines.length) ? lines : computeLinesFromStations(stations||[]);
+          renderLineView(data, stations||[]);
+        }catch(e){
+          const data = computeLinesFromStations(stations||[]);
+          renderLineView(data, stations||[]);
+        }
+      };
+    }
+    let lastEvents = [];
+    let lastStations = [];
+    let lastAvgPower = 0;
+    let histCharts = { oee:null, volume:null, fpy:null, energy:null };
+    let histRange = 'shift';
+    let sitesData = [];
+    let lastLines = [];
+    function hasFields(obj, fields){ return fields.every(f=> obj && (obj[f]!==undefined && obj[f]!==null && obj[f]!=='')); }
+    async function getLinesV1Safe(){
+      try{
+        const r = await AUTH.get('/api/v1/lines');
+        const required = ['ts','site_id','last_sync','lines'];
+        if(!hasFields(r, required)){ setHealth('degraded'); return []; }
+        const out = (r.lines||[]).map(x=>({
+          name: x.line_name,
+          status: x.status,
+          wip: x.wip,
+          throughput: x.throughput_ph,
+          ct: x.ct_min,
+          oee: x.oee,
+          fpy: x.fpy,
+          bottlenecks: x.bottleneck_station?1:0,
+          lastEvent: x.last_event
+        }));
+        const valid = out.every(x=> hasFields(x, ['name','status','wip','throughput','ct','oee','fpy']));
+        if(!valid) setHealth('degraded'); else setHealth('ok');
+        return out;
+      }catch(e){ setHealth('offline'); return []; }
+    }
+    async function getStationsV1Safe(){
+      try{
+        const r = await AUTH.get('/api/v1/stations');
+        const required = ['ts','site_id','last_sync','stations'];
+        if(!hasFields(r, required)){ setHealth('degraded'); return []; }
+        return (r.stations||[]).map(s=>({ name: s.station_name, status: s.status, wip: s.wip, ct: Math.round((s.ct_sec||0)/60), oee: 0, fpy: 0 }));
+      }catch(e){ setHealth('offline'); return []; }
+    }
+    async function getOrdersV1Safe(){
+  try{
+    const r = await AUTH.get('/api/v1/orders');
+    const required = ['ts','site_id','last_sync','orders'];
+    if(!hasFields(r, required)) return {orders:[], last_sync:null};
+    return r;
+  }catch(e){
+    return {orders:[], last_sync:null};
+  }
+}
+
+async function initFlowLive(){ const r = await getOrdersV1Safe(); const orders=(r.orders||[]); const lines = await getLinesV1Safe(); renderFlowSummary(lines); const sim = (!orders.length); document.getElementById('simBadge').style.display = sim? 'inline-block':'none'; FLOW_LIVE.start(document.getElementById('flowHost'), null);
+ }
+    function renderFlowSummary(lines){ const el=document.getElementById('flowSummary'); if(!el) return; el.innerHTML=''; ['Metal & Şase','Boya Hattı','Montaj','Final Test','Paketleme & Sevkiyat'].forEach(name=>{ const l = lines.find(x=> x.name===name) || {name, status:'Idle', wip:0, throughput:0, oee:0, fpy:0, bottlenecks:0}; const div=document.createElement('div'); const pill = (l.status==='Running')?'ok':(l.status==='Down')?'offline':(l.status==='Idle')?'degraded':'degraded'; div.className='kpi-card'; div.innerHTML = `<div class='kpi-label'>${l.name}</div><div class='kpi-value'>${l.throughput}<span class='kpi-unit'>/h</span></div><div class='kpi-delta ${l.bottlenecks?'delta-down':'delta-up'}'>${l.bottlenecks? '⚠️ Darboğaz':'WIP '+l.wip}</div>`; const badge=document.createElement('span'); badge.className='pill '+pill; badge.textContent=turkishStatus(l.status); div.appendChild(badge); el.appendChild(div); }); }
+    function reasonLabel(code){ const map={ 'RC10':'Malzeme bekliyor', 'RC11':'Makine arızası', 'RC12':'Operatör bekliyor', 'RC13':'Kalite red bekliyor', 'RC14':'Bakım planlı duruş' }; return map[code]||'Bilinmiyor'; }
+    const LINE_STANDARD = [
+      {id:1, name:'Metal & Şase', keywords:['metal','şase','sase','sasi','sase','şasi']},
+      {id:2, name:'Boya Hattı', keywords:['boya','paint']},
+      {id:3, name:'Montaj', keywords:['montaj','assembly']},
+      {id:4, name:'Final Test', keywords:['test','final']},
+      {id:5, name:'Paketleme & Sevkiyat', keywords:['paket','sevkiyat','pack','shipping']}
+    ];
+    function mapStationToLineName(stationName){
+      const n=(stationName||'').toLowerCase();
+      for(const line of LINE_STANDARD){ if(line.keywords.some(k=> n.includes(k))) return line.name; }
+      return 'Montaj';
+    }
+    function computeLinesFromStations(stations){
+      stations = stations || lastStations || [];
+      const agg = {};
+      (stations||[]).forEach(s=>{
+        const ln = mapStationToLineName(s.name);
+        if(!agg[ln]) agg[ln] = { name: ln, status: 'Idle', wip:0, ct:0, oee:0, fpy:0, count:0, bottlenecks:0 };
+        const a = agg[ln];
+        a.wip += (+s.wip||0);
+        a.ct  += (+s.ct||0);
+        a.oee += (+s.oee||0);
+        a.fpy += (+s.fpy||0);
+        a.count += 1;
+        if(String(s.status).toLowerCase()==='bottleneck') a.bottlenecks += 1;
+      });
+      return LINE_STANDARD.map(ls=>{
+        const a = agg[ls.name];
+        if(!a) return { name: ls.name, status:'Idle', wip:0, throughput:0, ct:0, oee:0, fpy:0, bottlenecks:0, lastEvent:null };
+        const ctAvg = a.count? Math.round(a.ct/a.count) : 0;
+        const oeeAvg = a.count? Math.round(a.oee/a.count) : 0;
+        const fpyAvg = a.count? Math.round(a.fpy/a.count) : 0;
+        const thrPH  = ctAvg? Math.round(60/ctAvg) : 0;
+        const status = a.bottlenecks>0? 'Down' : (oeeAvg>=80? 'Running':'Idle');
+        return { name: ls.name, status, wip:a.wip, throughput:thrPH, ct:ctAvg, oee:oeeAvg, fpy:fpyAvg, bottlenecks:a.bottlenecks, lastEvent:null };
+      });
+    }
+    function renderLines(lines){
+      const tbody = document.getElementById('linesTable'); if(!tbody) return;
+      const host = tbody.parentElement;
+      const simActive = !!window.__LIVE_LINES_INIT__;
+      if(simActive){ const ov=host.querySelector('.no-data-overlay'); if(ov) ov.remove(); return; }
+      tbody.innerHTML='';
+      if(!lines.length){
+        let ov = host.querySelector('.no-data-overlay');
+        if(!ov){ ov=document.createElement('div'); ov.className='no-data-overlay'; ov.innerHTML=`No Data — Hat Takip<div style='font-size:.9rem;color:#444;margin-top:.5rem'>Reason: İstasyon verisi eksik</div>`; host.appendChild(ov);} 
+        return;
+      } else {
+        const ov = host.querySelector('.no-data-overlay'); if(ov) ov.remove();
+      }
+      lines.forEach(l=>{
+        const tr = document.createElement('tr');
+        const pillClass = (l.status==='Running')?'ok':(l.status==='Down')?'offline':(l.status==='Idle')?'degraded':'degraded';
+        const last = l.lastEvent ? `${l.lastEvent.reason_code||'-'} — ${reasonLabel(l.lastEvent.reason_code||'')} • ${l.lastEvent.since_ts? new Date(l.lastEvent.since_ts).toLocaleTimeString('tr-TR'):''}` : '-';
+        tr.innerHTML = `<td>${l.name}</td>
+          <td><span class='pill ${pillClass}'>${l.status}</span></td>
+          <td>${l.wip}</td>
+          <td>${l.throughput}</td>
+          <td>${l.ct}</td>
+          <td>${l.oee}</td>
+          <td>${l.fpy}</td>
+          <td>${l.bottlenecks}</td>
+          <td>${last}</td>
+          <td><a href='#' onclick="focusLane('${l.name}');return false;">Focus</a></td>`;
+        tbody.appendChild(tr);
+      });
+    }
+    function focusLane(lineName){ const host=document.getElementById('lineView'); const lanes=[...host.querySelectorAll('[data-line]')]; const lane=lanes.find(x=> (x.getAttribute('data-line')||'')===lineName); if(lane){ lane.classList.add('line-highlight'); lane.scrollIntoView({behavior:'smooth',block:'center'}); setTimeout(()=>lane.classList.remove('line-highlight'),1500); } }
+    async function getStateSafe(){
+      try{ const r = await AUTH.get('/api/state'); setHealth('ok'); setLastSync(Date.now()); const stations=(r.stations||[]).map(s=>({
+        id: s.id||s.station_id||s.station_number||Math.random(),
+        name: s.name,
+        wip: s.wip ?? (s.telemetry?s.telemetry.wip:0) ?? 0,
+        ct: s.ct ?? Math.round(((s.cycle_time_sec ?? s.target_cycle_time_sec ?? 0))/60) ?? 0,
+        oee: s.oee ?? 0,
+        fpy: s.fpy ?? 0,
+        status: (s.bottleneck ? 'bottleneck' : (String(s.status||'ok')).toLowerCase()),
+        position_on_track: s.position_on_track ?? null
+      })); statusEl.textContent = 'Son güncelleme: ' + new Date().toLocaleTimeString('tr-TR'); return {stations, demo:false}; }
+      catch(e){ const d = makeDemoState(); CONN.state='OFFLINE'; CONN.mode= lastSyncTs? 'CACHE':'DEMO'; CONN.source='/api/state'; CONN.lastSyncAt= lastSyncTs || Date.now(); applyConnUI(); statusEl.textContent = 'Offline mod — Son bilinen veri • Son sync: ' + (CONN.lastSyncAt?new Date(CONN.lastSyncAt).toLocaleTimeString('tr-TR'):new Date().toLocaleTimeString('tr-TR'));
+      return {stations:d.stations, demo:true}; }
+    }
+    // Drawer — idempotent creation and open/close
+    function ensureOrderDrawer(){ let overlay=document.getElementById('mesOrderOverlay'); let drawer=document.getElementById('mesOrderDrawer'); if(!overlay){ overlay=document.createElement('div'); overlay.id='mesOrderOverlay'; overlay.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.12);opacity:0;pointer-events:none;transition:opacity .2s;z-index:999'; overlay.onclick=closeOrderDrawer; document.body.appendChild(overlay); } if(!drawer){ drawer=document.createElement('div'); drawer.id='mesOrderDrawer'; drawer.style.cssText='position:fixed;right:-420px;top:0;height:100vh;width:420px;background:#fff;border-left:1px solid #e0e0e0;box-shadow:-8px 0 20px rgba(0,0,0,.12);transition:right .25s;z-index:1000;display:flex;flex-direction:column'; drawer.innerHTML='<div style="padding:12px;border-bottom:1px solid #e0e0e0"><button id="mesOrderClose" style="float:right;border:none;background:#02154e;color:#fff;border-radius:6px;padding:.3rem .6rem;font-weight:700">×</button><div id="mesOrderTitle" style="font-weight:800;color:#02154e"></div></div><div id="mesOrderBody" style="padding:10px;overflow:auto;height:calc(100vh - 120px)"></div><div style="position:sticky;bottom:0;background:#fff;border-top:1px solid #e0e0e0;padding:10px"><button onclick="closeOrderDrawer()" style="border:none;background:#02154e;color:#fff;border-radius:8px;padding:.4rem .8rem;font-weight:700">Kapat</button></div>'; document.body.appendChild(drawer); document.getElementById('mesOrderClose').onclick=closeOrderDrawer; document.addEventListener('keydown', function(ev){ if(ev.key==='Escape') closeOrderDrawer(); }); }
+      return {overlay, drawer}; }
+    function openOrderDrawer(order){ const {overlay, drawer}=ensureOrderDrawer(); const title=document.getElementById('mesOrderTitle'); const body=document.getElementById('mesOrderBody'); if(title) title.textContent=`${order.order_id} — ${order.line_name||('Hat-'+order.line_id)} / ${order.station_name||('S'+order.station_id)}`; if(body){ const riskColor = order.risk==='ACTION'?'#D51635':(order.risk==='WATCH'?'#f9ba00':'#005530'); body.innerHTML=''; const kpi=`<div style="display:grid;grid-template-columns:repeat(2,1fr);gap:8px"><div class="card"><div>Progress</div><div><strong>${order.progress}%</strong></div></div><div class="card"><div>ETA</div><div><strong>${order.eta}</strong></div></div><div class="card"><div>Enerji (kWh)</div><div><strong>${order.energy_kwh}</strong></div></div><div class="card"><div>CO₂e (kg)</div><div><strong>${order.co2e_kg}</strong></div></div></div>`; const flow=`<div style="margin-top:.6rem">${['Metal & Şase','Boya','Montaj','Final Test','Paketleme'].map((s,i)=>{ const live = (i<=2 && order.progress> (i*20)); return `<div style='display:flex;gap:.5rem;align-items:center;margin:.25rem 0'><span style='width:12px;height:12px;border-radius:50%;background:${live?'#005530':'#e0e0e0'}'></span><span>${s}</span></div>`; }).join('')}</div>`; const events=`<div style="margin-top:.6rem">${[...Array(6)].map((_,ix)=>{ const ts=new Date(Date.now()-ix*600000).toLocaleTimeString('tr-TR'); return `<div class='event-item'>${ts} — event #${ix+1} • ${order.order_id}</div>`; }).join('')}</div>`; const risk=`<div style="margin-top:.6rem;color:${riskColor};font-weight:700">Risk: ${order.risk}</div>`; body.innerHTML = kpi+risk+flow+events; }
+      overlay.style.opacity='1'; overlay.style.pointerEvents='auto'; drawer.style.right='0'; }
+    function closeOrderDrawer(){ const overlay=document.getElementById('mesOrderOverlay'); const drawer=document.getElementById('mesOrderDrawer'); if(overlay){ overlay.style.opacity='0'; overlay.style.pointerEvents='none'; } if(drawer){ drawer.style.right='-420px'; } }
+    window.openOrderDrawer=openOrderDrawer; window.closeOrderDrawer=closeOrderDrawer;
+    async function getEventsSafe(){
+      try{ return await AUTH.get('/api/v1/events?limit=200'); }
+      catch(e){ return { events:[{ts:new Date().toISOString(), type:'shock', status:'critical', reason_code:'RC12', payload:{message:'Demo Olay: Dar boğaz algılandı'}}] }; }
+    }
+    async function renderEventsV1(filter){
+      const r = await getEventsSafe();
+      const items = (r.events||[]).filter(e=>{
+        if(!filter) return true; if(filter.station_name) return (e.payload?.message||'').includes(filter.station_name)|| String(e.station_id||'')===String(filter.station_id||''); return true; });
+      renderEvents(items.map(e=>({
+        severity: e.status, event_type: e.type, timestamp: e.ts, message: `${e.reason_code||''} — ${reasonLabel(e.reason_code||'')}`
+      })));
+    }
+    async function getKpiSafe(stations){
+      try{
+        // KPI endpoint yoksa lines'tan KPI türet
+        const r = await AUTH.get('/api/v1/lines');
+        const lines = (r && r.lines) ? r.lines : [];
+        const wip = sum(lines.map(x=> +x.wip||0));
+        const throughput_ph = sum(lines.map(x=> +x.throughput_ph||+x.throughput||0));
+        const oee = lines.length ? Math.round(sum(lines.map(x=> +x.oee||0))/lines.length) : 0;
+        const fpy = lines.length ? Math.round(sum(lines.map(x=> +x.fpy||0))/lines.length) : 0;
+        return { ts:r.ts||new Date().toISOString(), site_id:r.site_id||'', last_sync:r.last_sync||null, wip, throughput_ph, oee, fpy, kpi:{wip, throughput_ph, oee, fpy} };
+      }catch(e){ const total=stations.length; const wip=stations.reduce((x,s)=>x+(s.wip||0),0); const ct = total? Math.round(stations.reduce((x,s)=>x+(s.ct||0),0)/total):0; const fpy = total? Math.round(stations.reduce((x,s)=>x+(s.fpy||0),0)/total):0; const oee = total? Math.round(stations.reduce((x,s)=>x+(s.oee||0),0)/total):0; const bottlenecks = stations.filter(s=>String(s.status).toLowerCase()==='bottleneck').length; return { summary:{stations:total,bottlenecks}, kpi:{wip_sum:wip, ct_avg:ct, fpy_avg:fpy, oee_avg:oee} }; }
+    }
+    function makeDemoState(){
+      const names=['Metal & Şase','Boya Hattı','Montaj','Final Test','Paketleme & Sevkiyat'];
+      const arr=names.map((n,i)=>({
+        id:i+1,
+        name:n,
+        wip:i===2?8:(i+1),
+        ct:i===2?50:(40+i*5),
+        fpy:i===2?92:97,
+        oee:i===2?84:92,
+        status:i===2?'bottleneck':'ok'
+      }));
+      return {stations:arr};
+    }
+    function renderKPI(r){
+      const el=document.getElementById('kpi'); if(!el) return;
+      const stations=(r.summary&&r.summary.stations)||0; const ct=(r.kpi&&r.kpi.ct_avg)||0; const wip=(r.kpi&&r.kpi.wip_sum)||0; const fpy=(r.kpi&&r.kpi.fpy_avg)||0; const oee=(r.kpi&&r.kpi.oee_avg)||0;
+      if(!stations){ el.innerHTML = `<div class='no-data-overlay'>No Data — KPI<div style='font-size:.9rem;color:#444;margin-top:.5rem'>Reason: Veri kaynağı boş</div></div>`; return; }
+      const throughput=Math.round((ct? (60/ct):0) * (stations||1));
+      const dWip='▼ 2 birim'; const dThr='▲ 1.2 birim'; const dOee='▲ 2%'; const dFpy='▼ 1%';
+      el.innerHTML=`
+        <div class='kpi-card'><div class='kpi-label'>WIP Total</div><div class='kpi-value'>${wip}</div><div class='kpi-delta delta-down'>${dWip}</div></div>
+        <div class='kpi-card'><div class='kpi-label'>Daily Throughput</div><div class='kpi-value'>${throughput}<span class='kpi-unit'>/day</span></div><div class='kpi-delta delta-up'>${dThr}</div></div>
+        <div class='kpi-card'><div class='kpi-label'>OEE Average</div><div class='kpi-value'>${oee}<span class='kpi-unit'>%</span></div><div class='kpi-delta delta-up'>${dOee}</div></div>
+        <div class='kpi-card'><div class='kpi-label'>FPY Average</div><div class='kpi-value'>${fpy}<span class='kpi-unit'>%</span></div><div class='kpi-delta delta-down'>${dFpy}</div></div>
+      `;
+      if(CLIENT.industry==='automotive'){
+        const andonRate = (lastEvents.filter(e=>String(e.severity).toLowerCase()==='critical').length) + ' çağrı';
+        const jph = Math.round(ct? (60/ct):0);
+        const ftt = Math.round(fpy);
+        el.innerHTML += `
+          <div class='kpi-card'><div class='kpi-label'>JPH (Saatlik İş Sayısı)</div><div class='kpi-value'>${jph}</div><div class='kpi-delta delta-up'>▲ iyileşti</div></div>
+          <div class='kpi-card'><div class='kpi-label'>Andon Çağrı Oranı</div><div class='kpi-value'>${andonRate}</div><div class='kpi-delta delta-down'>▼ daha az çağrı</div></div>
+          <div class='kpi-card'><div class='kpi-label'>İlk Geçişte Başarı (FTT)</div><div class='kpi-value'>${ftt}<span class='kpi-unit'>%</span></div><div class='kpi-delta delta-up'>▲ iyileşti</div></div>
+        `;
+      }
+      if (window.ACTIVE_ROLE==='cfo') { renderCFO(); }
+      renderQuality();
+    }
+    async function renderCFO(){
+      const el = document.getElementById('cfo'); if(!el) return;
+      const COST = { downtime_ph: 2500, scrap_per_unit: 120, labor_ph: 900 };
+      const lines = lastLines||[]; const evs = lastEvents||[];
+      const downtimeH = evs.filter(e=> (e.type||'')==='downtime' || (e.status||'')==='critical').length * 0.75; // pilot approx
+      const defects = evs.filter(e=> String(e.type||'').includes('quality')).length * 10; // pilot approx
+      const idleBlockedH = lines.filter(l=> ['Idle','Blocked'].includes(l.status)).length * 0.5; // pilot approx
+      const monthlyScrap = defects * COST.scrap_per_unit;
+      const downtimeCost = Math.round(downtimeH * COST.downtime_ph);
+      const laborIneff = Math.round(idleBlockedH * COST.labor_ph);
+      const total = monthlyScrap + downtimeCost + laborIneff;
+      el.innerHTML = `<div class='card'><h3>Finansal Etki ve Senaryo Analizi</h3>
+        <div class='kpi-grid'>
+          <div class='kpi-card'><div class='kpi-label'>Aylık Hurda Maliyeti</div><div class='kpi-value'>₺${(monthlyScrap).toLocaleString('tr-TR')}</div></div>
+          <div class='kpi-card'><div class='kpi-label'>Duruş Maliyeti / Saat</div><div class='kpi-value'>₺${(downtimeCost).toLocaleString('tr-TR')}</div></div>
+          <div class='kpi-card'><div class='kpi-label'>İşgücü Verimsizlik</div><div class='kpi-value'>₺${(laborIneff).toLocaleString('tr-TR')}</div></div>
+          <div class='kpi-card'><div class='kpi-label'>Toplam Baz Maliyet</div><div class='kpi-value'>₺${total.toLocaleString('tr-TR')}</div></div>
+        </div>
+        <div style='margin-top:12px;display:flex;gap:8px'>
+          <button class='btn-secondary' id='cfoKaizen'>Kaizen</button>
+          <button class='btn-secondary' id='cfoShock'>Şok</button>
+        </div>
+        <table class='ms-table' style='margin-top:10px'><thead><tr><th>Senaryo</th><th>Downtime (h)</th><th>FPY (%)</th><th>Energy Cost</th><th>Carbon Cost</th><th>Maliyet</th></tr></thead><tbody id='cfoTable'></tbody></table>
+      </div>`;
+      const orders = (await getOrdersV1Safe()).orders||[];
+      const energyKwh = Math.round(orders.reduce((x,o)=>x+(o.energy_kwh||0),0));
+      const co2kg = Math.round(orders.reduce((x,o)=>x+(o.co2e_kg||0),0));
+      const energyCost = Math.round(energyKwh * 3.2);
+      const carbonCost = Math.round(co2kg * 0.9);
+      const base = { downtimeH, fpy: Math.round((lines.reduce((x,l)=>x+(l.fpy||0),0)/(lines.length||1))||95), cost: total + energyCost + carbonCost, energyCost, carbonCost };
+      function renderRows(rows){ const tb=document.getElementById('cfoTable'); tb.innerHTML=''; rows.forEach(r=>{ const tr=document.createElement('tr'); tr.innerHTML=`<td>${r.name}</td><td>${r.downtimeH.toFixed(2)}</td><td>${r.fpy}</td><td>₺${(r.energyCost||energyCost).toLocaleString('tr-TR')}</td><td>₺${(r.carbonCost||carbonCost).toLocaleString('tr-TR')}</td><td>₺${r.cost.toLocaleString('tr-TR')}</td>`; tb.appendChild(tr); }); }
+      const rows=[{name:'Baz',...base}]; renderRows(rows);
+      document.getElementById('cfoKaizen').onclick=()=>{ const d=base.downtimeH*0.8; const f=base.fpy+1; const e=Math.round(energyCost*0.92); const co=Math.round(carbonCost*0.95); const c=Math.round(d*COST.downtime_ph + monthlyScrap + laborIneff*0.9 + e + co); renderRows([{name:'Baz',...base},{name:'Kaizen',downtimeH:d,fpy:f,energyCost:e,carbonCost:co,cost:c}]); };
+      document.getElementById('cfoShock').onclick=()=>{ const d=base.downtimeH+0.75; const f=Math.max(0,base.fpy-2); const e=Math.round(energyCost*1.03); const co=Math.round(carbonCost*1.02); const c=Math.round(d*COST.downtime_ph + monthlyScrap + laborIneff + 15*COST.scrap_per_unit + e + co); renderRows([{name:'Baz',...base},{name:'Şok',downtimeH:d,fpy:f,energyCost:e,carbonCost:co,cost:c}]); };
+    }
+    async function renderQuality(){
+      const host=document.getElementById('qualityMetrics'); if(!host) return;
+      const avgOEE = lastStations.length? Math.round(lastStations.reduce((x,s)=>x+(s.oee||0),0)/lastStations.length):0;
+      const leakPass = 98; const elecPass = 99; const balancePass = 97; const hygienePass = 98;
+      host.innerHTML = `
+        <div class='kpi-card'><div class='kpi-label'>OEE Ortalama</div><div class='kpi-value'>${avgOEE}<span class='kpi-unit'>%</span></div></div>
+        <div class='kpi-card'><div class='kpi-label'>Sızdırmazlık Testi</div><div class='kpi-value'>${leakPass}<span class='kpi-unit'>%</span></div></div>
+        <div class='kpi-card'><div class='kpi-label'>Elektriksel Güvenlik</div><div class='kpi-value'>${elecPass}<span class='kpi-unit'>%</span></div></div>
+        <div class='kpi-card'><div class='kpi-label'>Denge Testi</div><div class='kpi-value'>${balancePass}<span class='kpi-unit'>%</span></div></div>
+        <div class='kpi-card'><div class='kpi-label'>Hijyen Dayanımı</div><div class='kpi-value'>${hygienePass}<span class='kpi-unit'>%</span></div></div>`;
+      // Top reasons & last 10
+      (async()=>{
+        const r = await getEventsSafe(); const evs=(r.events||[]).filter(e=> String(e.type||'').includes('quality'));
+        const counts={}; evs.forEach(e=>{ const rc=e.reason_code||'N/A'; counts[rc]=(counts[rc]||0)+1; });
+        const top = Object.entries(counts).sort((a,b)=>b[1]-a[1]).slice(0,3);
+        const topHost=document.getElementById('qualityTopReasons'); if(topHost){ topHost.innerHTML=''; top.forEach(([rc,n])=>{ const d=document.createElement('div'); d.className='card'; d.style.padding='8px'; d.innerHTML=`<div style='font-weight:600'>${rc} — ${reasonLabel(rc)}</div><div>Count: ${n}</div>`; topHost.appendChild(d); }); }
+        const lastHost=document.getElementById('qualityLast10'); if(lastHost){ lastHost.innerHTML=''; evs.slice(0,10).forEach(e=>{ const pill=document.createElement('div'); pill.className='event-pill info'; const dot=document.createElement('span'); dot.className='event-dot'; const label=document.createElement('span'); label.textContent=`${e.reason_code||'-'} — ${reasonLabel(e.reason_code||'')} • ${new Date(e.ts).toLocaleTimeString('tr-TR')}`; pill.appendChild(dot); pill.appendChild(label); lastHost.appendChild(pill); }); }
+      })();
+    }
+ 
+(function(){
+  try{
+    // 1) If renderTrack already exists, do nothing
+    if(typeof window.renderTrack === 'function') return;
+
+    // 2) If an alternate function exists, alias it
+    if(typeof window.renderProductionTrack === 'function'){
+      window.renderTrack = window.renderProductionTrack;
+      return;
+    }
+    if(typeof window.renderProdTrack === 'function'){
+      window.renderTrack = window.renderProdTrack;
+      return;
+    }
+
+    // 3) Fallback: no-op + friendly overlay (prevents crash)
+    window.renderTrack = function(){
+      try{
+        var host =
+          document.getElementById('trackHost') ||
+          document.getElementById('prodTrack') ||
+          document.querySelector('[data-track-host]') ||
+          document.querySelector('#tab-track, #tab-production-track, #production-track') ||
+          null;
+
+        if(!host) return;
+
+        // ensure positioned container for overlay
+        var cs = window.getComputedStyle(host);
+        if(cs && cs.position === 'static') host.style.position = 'relative';
+
+        var ov = host.querySelector('.no-data-overlay');
+        if(!ov){
+          ov = document.createElement('div');
+          ov.className = 'no-data-overlay';
+          ov.innerHTML = "No Data — Üretim Pisti<div style='font-size:.9rem;color:#444;margin-top:.5rem'>Reason: renderTrack missing</div>";
+          host.appendChild(ov);
+        }
+      }catch(e){}
+    };
+  }catch(e){}
+})();
+ 
+
+
+    function renderStations(stations){
+      stationsEl.innerHTML = '';
+      stations.forEach((s,idx)=>{
+        const card = document.createElement('div');
+        const oeeGood = CLIENT.thresholds.oee_good||80;
+        let cls = String(s.status||'ok').toLowerCase();
+        if(cls!=='bottleneck') cls = (s.oee>=oeeGood && s.fpy>=95)?'ok':'risk';
+        card.className = 'station-card ' + cls;
+        const displayName = CLIENT.stationNames[idx] || s.name;
+        card.innerHTML = `<div class="station-name">${displayName}</div>
+          <div class="station-metric">WIP <strong>${s.wip}</strong></div>
+          <div class="station-metric">CT <strong>${s.ct}m</strong></div>
+          <div class="station-metric">OEE <strong>${s.oee}%</strong></div>
+          <div class="station-metric">FPY <strong>${s.fpy}%</strong></div>`;
+        card.onclick = ()=>{
+          const html = `<div style='font-size:.9rem'><p><strong>${displayName}</strong></p><p>WIP: ${s.wip}</p><p>CT: ${s.ct}m</p><p>OEE: ${s.oee}%</p><p>FPY: ${s.fpy}%</p><p>Durum: ${cls}</p></div>`;
+          openModal(html);
+        };
+        stationsEl.appendChild(card);
+      });
+      renderTrack(stations); renderMachineCo2Pills();
+      lastStations = stations;
+    }
+    async function renderLineView(lines, stations){
+      const host = document.getElementById('lineView'); if(!host) return; host.innerHTML='';
+      const statusClass = (st)=> st==='Running'?'ok':(st==='Down'?'offline':(st==='Idle'?'degraded':'degraded'));
+      if(!lines || !lines.length){
+        // Skeleton lanes
+        LINE_STANDARD.forEach(ls=>{
+          const lane=document.createElement('div'); lane.className='lane degraded'; lane.style.border='1px solid #e0e0e0'; lane.style.borderRadius='8px'; lane.style.padding='8px';
+          lane.innerHTML = `<div style="font-weight:600;margin-bottom:6px">${ls.name}</div><div style="font-size:.85rem;color:#666">No Data</div>`;
+          host.appendChild(lane);
+        });
+        const ov=host.parentElement.querySelector('.no-data-overlay'); if(!ov){ const ov2=document.createElement('div'); ov2.className='no-data-overlay'; ov2.innerHTML=`No Data — Üretim Akışı<div style='font-size:.9rem;color:#444;margin-top:.5rem'>Reason: Hat verisi eksik</div>`; host.parentElement.appendChild(ov2);} return;
+      } else { const ov=host.parentElement.querySelector('.no-data-overlay'); if(ov) ov.remove(); }
+      const byLine = {}; (stations||[]).forEach(s=>{ const ln = mapStationToLineName(s.name); byLine[ln] = byLine[ln]||[]; byLine[ln].push(s); });
+      lines.forEach(l=>{
+        const lane=document.createElement('div'); lane.className='lane '+statusClass(l.status); lane.style.border='1px solid #e0e0e0'; lane.style.borderRadius='8px'; lane.style.padding='8px';
+        lane.setAttribute('data-line', l.name);
+        const header=document.createElement('div'); header.style.display='flex'; header.style.justifyContent='space-between'; header.style.alignItems='center'; header.innerHTML = `<div style="font-weight:600">${l.name}</div><div><span class='pill ${statusClass(l.status)}'>${l.status}</span></div>`; lane.appendChild(header);
+        const body=document.createElement('div'); body.style.display='grid'; body.style.gridTemplateColumns='1fr'; body.style.gap='6px';
+        const ss = byLine[l.name]||[];
+        if(!ss.length){ const empty=document.createElement('div'); empty.style.fontSize='.85rem'; empty.style.color='#666'; empty.textContent='No stations'; body.appendChild(empty); }
+        ss.forEach(s=>{
+          const stBox=document.createElement('div'); stBox.className='station-box'; stBox.style.border='1px solid #e0e0e0'; stBox.style.borderRadius='6px'; stBox.style.padding='6px'; stBox.style.background='#fafbfc';
+          const bott = String(s.status).toLowerCase()==='bottleneck'; if(bott){ stBox.style.borderColor='#D51635'; stBox.style.boxShadow='0 0 0 2px rgba(213,22,53,.15)'; stBox.style.animation='pulse 1.8s infinite'; }
+          stBox.innerHTML = `
+            <div style='display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:6px'>
+              <div class='station-metric'>WIP <strong>${s.wip||0}</strong></div>
+              <div class='station-metric'>CT <strong>${s.ct||0}m</strong></div>
+              <div class='station-metric'>OEE <strong>${s.oee||0}%</strong></div>
+              <div class='station-metric'>FPY <strong>${s.fpy||0}%</strong></div>
+              <div class='station-metric'>Durum <strong>${turkishStatus(s.status)}</strong></div>
+            </div>`;
+          stBox.onclick = ()=>{ renderEventsV1({station_name:s.name}); const evCard = document.getElementById('events'); evCard && evCard.scrollIntoView({behavior:'smooth',block:'center'}); };
+          body.appendChild(stBox);
+        });
+        lane.appendChild(body);
+        host.appendChild(lane);
+      });
+    }
+    let powerChart,tempChart;
+    async function renderCharts(){
+      try{
+        const lines = await getLinesV1Safe(); const evs = (await getEventsSafe()).events||[];
+        function hours(range){ return range==='hour'?1: range==='shift'?8: range==='day'?24: range==='week'?7*24: 30*24; }
+        const H = hours(histRange); const now=Date.now(); const binMs = Math.max(10*60*1000, Math.floor((H*60*60*1000)/60));
+        const bins=[]; for(let t=now-H*60*60*1000; t<=now; t+=binMs){ bins.push(t); }
+        function ds(arr){ if(arr.length<=60) return arr; const step=Math.ceil(arr.length/60); const out=[]; for(let i=0;i<arr.length;i+=step){ out.push(arr[i]); } return out; }
+        const oeeBase = Math.round((lines.reduce((x,l)=>x+(l.oee||0),0)/(lines.length||1))||85);
+        const thrBase = Math.round((lines.reduce((x,l)=>x+(l.throughput||0),0)/(lines.length||1))||40);
+        const wipBase = lines.reduce((x,l)=>x+(l.wip||0),0)||50;
+        const labels = bins.map(b=> new Date(b).toLocaleTimeString('tr-TR'));
+        const oee = bins.map(b=>{ const c = evs.filter(e=> (new Date(e.ts).getTime()>=b && new Date(e.ts).getTime()<b+binMs) && (e.status||'')==='critical').length; return Math.max(60, oeeBase - c*2); });
+        const thr = bins.map(b=>{ const c = evs.filter(e=> (new Date(e.ts).getTime()>=b && new Date(e.ts).getTime()<b+binMs) && (e.type||'')==='downtime').length; return Math.max(10, thrBase - c*3); });
+        const wip = bins.map(b=>{ const q = evs.filter(e=> (new Date(e.ts).getTime()>=b && new Date(e.ts).getTime()<b+binMs) && (String(e.type||'').includes('quality'))).length; return wipBase + q; });
+        const reasonCounts = {}; evs.forEach(e=>{ const rc=e.reason_code||'N/A'; reasonCounts[rc]=(reasonCounts[rc]||0)+1; });
+        const labelsDS = ds(labels), oeeDS = ds(oee), thrDS = ds(thr), wipDS = ds(wip);
+        const pc = document.getElementById('histOEE').getContext('2d');
+        const vc = document.getElementById('histVolume').getContext('2d');
+        const wc = document.getElementById('histFPY').getContext('2d');
+        const ec = document.getElementById('histEnergy').getContext('2d');
+        const ek = document.getElementById('histEnergyKWH').getContext('2d');
+        const cc = document.getElementById('histCO2').getContext('2d');
+        if(histCharts.oee) histCharts.oee.destroy(); if(histCharts.volume) histCharts.volume.destroy(); if(histCharts.fpy) histCharts.fpy.destroy(); if(histCharts.energy) histCharts.energy.destroy(); if(histCharts.energyKwh) histCharts.energyKwh.destroy(); if(histCharts.co2) histCharts.co2.destroy();
+        histCharts.oee = new Chart(pc,{type:'line',data:{labels:labelsDS,datasets:[{label:'OEE',data:oeeDS,borderColor:'#005530'}]},options:{responsive:true}});
+        histCharts.volume = new Chart(vc,{type:'line',data:{labels:labelsDS,datasets:[{label:'Throughput',data:thrDS,borderColor:'#02154e'}]},options:{responsive:true}});
+        histCharts.fpy = new Chart(wc,{type:'bar',data:{labels:labelsDS,datasets:[{label:'WIP',data:wipDS,backgroundColor:'#f9ba00'}]},options:{responsive:true}});
+        const rcLabels = Object.keys(reasonCounts); const rcVals = rcLabels.map(k=>reasonCounts[k]);
+        histCharts.energy = new Chart(ec,{type:'bar',data:{labels:rcLabels,datasets:[{label:'Downtime/Reasons',data:rcVals,backgroundColor:'#D51635'}]},options:{responsive:true}});
+        const orders = (await getOrdersV1Safe()).orders||[];
+        const energy = bins.map(b=> orders.filter(o=> new Date(o.updated_ts).getTime()>=b && new Date(o.updated_ts).getTime()<b+binMs).reduce((x,o)=>x+(o.energy_kwh||0),0));
+        const co2 = bins.map(b=> orders.filter(o=> new Date(o.updated_ts).getTime()>=b && new Date(o.updated_ts).getTime()<b+binMs).reduce((x,o)=>x+(o.co2e_kg||0),0));
+        const eDS = ds(energy), cDS = ds(co2);
+        histCharts.energyKwh = new Chart(ek,{type:'line',data:{labels:labelsDS,datasets:[{label:'Energy kWh',data:eDS,borderColor:'#16a34a'}]},options:{responsive:true}});
+        histCharts.co2 = new Chart(cc,{type:'line',data:{labels:labelsDS,datasets:[{label:'CO₂ kg',data:cDS,borderColor:'#6b7280'}]},options:{responsive:true}});
+        const avgOEE = Math.round(oee.reduce((x,y)=>x+y,0)/oee.length); const lbl=document.getElementById('histLabel'); if(lbl) lbl.textContent = `OEE ort: ${avgOEE}% • hedef 80%`;
+      }catch(e){ try{
+        const pc = document.getElementById('histOEE').getContext('2d');
+        const vc = document.getElementById('histVolume').getContext('2d');
+        const wc = document.getElementById('histFPY').getContext('2d');
+        const ec = document.getElementById('histEnergy').getContext('2d');
+        const ek = document.getElementById('histEnergyKWH').getContext('2d');
+        const cc = document.getElementById('histCO2').getContext('2d');
+        const n=24; const labels=Array.from({length:n},(_,i)=>{ const d=new Date(Date.now()- (n-i)*15*60*1000); return d.toLocaleTimeString('tr-TR'); });
+        function gen(n, start, vol, drift, min, max){ const a=[]; let v=start; for(let i=0;i<n;i++){ v = v + (Math.random()-0.5)*vol + drift; v = Math.max(min, Math.min(max, v)); a.push(Number(v.toFixed(1))); } return a; }
+        const oee = gen(n, 85, 4, 0, 60, 95);
+        const thr = gen(n, 40, 6, 0, 10, 80);
+        const wip = gen(n, 50, 3, 0, 30, 90);
+        const energy = gen(n, 140, 8, 0, 90, 200);
+        const co2 = energy.map(x=> Number((x*0.42).toFixed(1)));
+        if(histCharts.oee) histCharts.oee.destroy(); if(histCharts.volume) histCharts.volume.destroy(); if(histCharts.fpy) histCharts.fpy.destroy(); if(histCharts.energy) histCharts.energy.destroy(); if(histCharts.energyKwh) histCharts.energyKwh.destroy(); if(histCharts.co2) histCharts.co2.destroy();
+        histCharts.oee = new Chart(pc,{type:'line',data:{labels,datasets:[{label:'OEE',data:oee,borderColor:'#005530'}]},options:{responsive:true}});
+        histCharts.volume = new Chart(vc,{type:'line',data:{labels,datasets:[{label:'Throughput',data:thr,borderColor:'#02154e'}]},options:{responsive:true}});
+        histCharts.fpy = new Chart(wc,{type:'bar',data:{labels,datasets:[{label:'WIP',data:wip,backgroundColor:'#f9ba00'}]},options:{responsive:true}});
+        histCharts.energy = new Chart(ec,{type:'bar',data:{labels:['RC10','RC11','RC12','RC14','RC20'],datasets:[{label:'Downtime/Reasons',data:[2,1,3,0,1],backgroundColor:'#D51635'}]},options:{responsive:true}});
+        histCharts.energyKwh = new Chart(ek,{type:'line',data:{labels,datasets:[{label:'Energy kWh',data:energy,borderColor:'#16a34a'}]},options:{responsive:true}});
+        histCharts.co2 = new Chart(cc,{type:'line',data:{labels,datasets:[{label:'CO₂ kg',data:co2,borderColor:'#6b7280'}]},options:{responsive:true}});
+        const lbl=document.getElementById('histLabel'); if(lbl) lbl.textContent = `OEE ort (SIM): ${Math.round(oee.reduce((x,y)=>x+y,0)/oee.length)}%`;
+        // remove overlays if any
+        ['histOEE','histVolume','histFPY','histEnergy','histEnergyKWH','histCO2'].forEach(id=>{ const c=document.getElementById(id); const host=c.parentElement; const ov=host.querySelector('.no-data-overlay'); if(ov) ov.remove(); });
+      }catch(_){ /* keep silent */ }
+      }
+    }
+    document.querySelectorAll('.range-btn').forEach(btn=>{ btn.onclick=()=>{ document.querySelectorAll('.range-btn').forEach(b=>b.classList.remove('active')); btn.classList.add('active'); histRange = btn.getAttribute('data-range'); renderCharts(); }; });
+    var elRefresh=document.getElementById('btn-refresh'); if(elRefresh) elRefresh.onclick = ()=>{ load(); toast('Yenilendi'); };
+    var elReset=document.getElementById('btn-reset'); if(elReset) elReset.onclick = async()=>{ try{ const r=await AUTH.post('/api/reset',{}); statusEl.textContent=r.message; toast('Sıfırlandı'); load(); }catch(e){ statusEl.textContent=e.message; localResetDemo(); toast('Demo: Sıfırlandı'); } };
+    var elShock=document.getElementById('btn-shock'); if(elShock) elShock.onclick = async()=>{ try{ const r=await AUTH.post('/api/shock',{}); statusEl.textContent=r.message; toast('Şok uygulandı'); load(); }catch(e){ statusEl.textContent=e.message; localShockDemo(); toast('Demo: Şok uygulandı'); } };
+    var elKaizen=document.getElementById('btn-kaizen'); if(elKaizen) elKaizen.onclick = async()=>{ try{ const r=await AUTH.post('/api/kaizen',{}); statusEl.textContent=r.message; toast('Kaizen tamamlandı'); load(); }catch(e){ statusEl.textContent=e.message; localKaizenDemo(); toast('Demo: Kaizen uygulandı'); } };
+    var elReports=document.getElementById('btn-reports'); if(elReports) elReports.onclick = ()=>{ const qs = location.search || ''; location.href = 'reports.html' + qs; };
+    var elTheme=document.getElementById('btn-theme'); if(elTheme) elTheme.onclick = ()=>{ const d=document.documentElement; const cur=getComputedStyle(document.body).backgroundColor; document.body.style.background = (cur==='rgb(255, 255, 255)')? '#0f172a':'#ffffff'; toast('Tema değiştirildi'); };
+    document.getElementById('btn-pdf').onclick = async()=>{
+      const ov = document.getElementById('overview');
+      const spinner = document.getElementById('pdfSpinner');
+      try{
+        spinner.classList.add('visible');
+        const { jsPDF } = window.jspdf;
+        const doc = new jsPDF('p','pt','a4');
+        const now = new Date();
+        const fn = `TOLKAR_Report_${CLIENT.name||'Factory'}_${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')}_${String(now.getHours()).padStart(2,'0')}${String(now.getMinutes()).padStart(2,'0')}`;
+        const addFooter=(page,total)=>{ doc.setFontSize(10); doc.setTextColor(120); doc.text('TOLKAR ZERO@FACTORY Platformu tarafından oluşturuldu',40,820); doc.text(now.toLocaleString('tr-TR'),300,820); doc.text(`Sayfa ${page}/${total}`,520,820); };
+        doc.setFontSize(16); doc.setTextColor(20); doc.text('TOLKAR ZERO@FACTORY — Yönetici Özeti',40,60);
+        doc.setFontSize(12); doc.text(`${CLIENT.name||'Fabrika'} • ${now.toLocaleDateString('tr-TR')}`,40,80);
+        let y=110;
+        const grid=[
+          ['Güncel OEE', `${(document.getElementById('kpi').querySelectorAll('.kpi-card .kpi-value')[2]?.textContent||'').trim()}`],
+          ['Toplam WIP', `${(document.getElementById('kpi').querySelectorAll('.kpi-card .kpi-value')[0]?.textContent||'').trim()}`],
+          ['Genel FPY', `${(document.getElementById('kpi').querySelectorAll('.kpi-card .kpi-value')[3]?.textContent||'').trim()}`],
+          ['Aktif Dar Boğaz', String(lastStations.filter(s=>String(s.status).toLowerCase()==='bottleneck').length)],
+          ['Andon Çağrı Oranı', String(lastEvents.filter(e=>String(e.severity).toLowerCase()==='critical').length)+' çağrı'],
+          ['Enerji Verimliliği', `${lastAvgPower} güç indeksi`],
+          ['Maliyet Etkisi', `$${(CLIENT.costs.scrap+CLIENT.costs.downtime+CLIENT.costs.labor)||0}`],
+          ['Kaizen Olayları', String(lastEvents.filter(e=>String(e.event_type)==='kaizen').length)]
+        ];
+        doc.setFontSize(11);
+        for(let i=0;i<grid.length;i++){
+          const col=i%2; const row=Math.floor(i/2); const x=40+col*260; const yy=y+row*60;
+          doc.setDrawColor(230); doc.rect(x,yy,240,50);
+          doc.text(grid[i][0],x+10,yy+18); doc.setFontSize(14); doc.text(String(grid[i][1]),x+10,yy+40); doc.setFontSize(11);
+        }
+        addFooter(1,4);
+        doc.addPage();
+        doc.setFontSize(16); doc.text('Üretim Durumu',40,60);
+        const track = document.getElementById('f1Track');
+        const trackCanvas = await html2canvas(track,{scale:2});
+        doc.addImage(trackCanvas.toDataURL('image/png'),'PNG',40,80,520,200);
+        doc.setFontSize(12); let ty=300; doc.text('İstasyon Performansı',40,ty);
+        ty+=20; const header=['Station','Status','OEE%','CT','WIP','FPY'];
+        doc.setFontSize(10); doc.setTextColor(100); doc.text(header.join('    '),40,ty);
+        doc.setTextColor(20); ty+=14;
+        lastStations.forEach((s,idx)=>{ const row=[s.name,String(s.status),String(s.oee),String(s.ct),String(s.wip),String(s.fpy)]; if(idx%2===0){ doc.setFillColor(245); doc.rect(38,ty-10,520,16,'F'); } doc.text(row.join('    '),40,ty); ty+=16; });
+        addFooter(2,4);
+        doc.addPage();
+        doc.setFontSize(16); doc.text('Kalite ve Sorunlar',40,60);
+        doc.setFontSize(12); doc.text('Kalite Özeti',40,80);
+        const byDef = [...lastStations].sort((a,b)=> (100-a.fpy) - (100-b.fpy)).slice(0,3);
+        let qy=110; byDef.forEach((s)=>{ doc.text(`${s.name} • Defect Rate ~ ${Math.round(100-s.fpy)}%`,40,qy); qy+=18; });
+        doc.text('Son Kritik Olaylar',40,qy+10);
+        let ey=qy+28; lastEvents.filter(e=>String(e.severity).toLowerCase()==='critical').slice(0,10).forEach(e=>{ doc.text(`${e.label} • ${e.created_at?new Date(e.created_at).toLocaleString('tr-TR'):''}`,40,ey); ey+=16; });
+        doc.text('Önerilen Aksiyonlar',40,ey+12);
+        let ay=ey+30; lastStations.filter(s=>String(s.status).toLowerCase()!=='ok').forEach(s=>{ doc.text(`• ${s.name}: reduce WIP, inspect quality, review CT`,40,ay); ay+=16; });
+        addFooter(3,4);
+        doc.addPage();
+        doc.setFontSize(16); doc.text('Finansal Etki',40,60);
+        const c = CLIENT.costs; const total = (c.scrap||0)+(c.downtime||0)+(c.labor||0);
+        doc.setFontSize(12); doc.text(`Baseline Monthly Scrap: $${(c.scrap||0).toLocaleString()}`,40,90);
+        doc.text(`Avg Downtime Cost/Hour: $${(c.downtime||0).toLocaleString()}`,40,110);
+        doc.text(`Labor Inefficiency: $${(c.labor||0).toLocaleString()}`,40,130);
+        doc.text(`Total Baseline: $${total.toLocaleString()}`,40,150);
+        doc.text('Aylık Tasarruf Projeksiyonu',40,180);
+        doc.text(`%10 iyileşme → $${Math.round(total*0.10).toLocaleString()}`,40,200);
+        doc.text('ROI Projeksiyonu',40,230);
+        doc.text('Kaizen girişimleri beklenen ROI ~ %340',40,250);
+        addFooter(4,4);
+        doc.save(fn + '.pdf');
+      }catch(e){ console.error(e); toast('PDF oluşturulamadı — Tarayıcıdan “Yazdır > PDF” deneyin'); window.print(); }
+      finally{ spinner.classList.remove('visible'); }
+    };
+    document.getElementById('btn-alerts').onclick = ()=>{ setupAlertTemplate(); alertModalEl.classList.add('visible'); };
+    document.getElementById('alClose').onclick = ()=>{ alertModalEl.classList.remove('visible'); };
+    document.getElementById('alSave').onclick = ()=>{ ALERT_CONFIG.recipients=document.getElementById('alRecipients').value.trim(); ALERT_CONFIG.freq=document.getElementById('alFreq').value; ALERT_CONFIG.oee=parseFloat(document.getElementById('alOEE').value||'80'); ALERT_CONFIG.fpy=parseFloat(document.getElementById('alFPY').value||'95'); ALERT_CONFIG.wip=parseInt(document.getElementById('alWIP').value||'10'); ALERT_CONFIG.bottleneck=document.getElementById('alBottleneck').value==='on'; toast('Alerts saved'); alertModalEl.classList.remove('visible'); };
+    document.getElementById('alPreview').onclick = ()=>{ const w=window.open('','_blank'); w.document.write(document.getElementById('alTemplate').value); w.document.close(); };
+    alertModalEl.addEventListener('click',(e)=>{ if(e.target===alertModalEl) alertModalEl.classList.remove('visible'); });
+    function setupAlertTemplate(){ const now=new Date(); const html = `<!DOCTYPE html><html><head><meta charset='utf-8'><title>Zero Factory — TOLKAR Facility</title></head><body style="font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#f5f7fa;padding:20px"><table style="max-width:700px;margin:auto;background:#ffffff;border:1px solid #e0e0e0;border-radius:12px"><tr><td style="padding:20px"><h2 style="color:#02154e;margin:0">TOLKAR ZERO@FACTORY Alert</h2><p style="color:#888;margin:4px 0">${now.toLocaleString('tr-TR')}</p><hr style="border:none;border-top:1px solid #eee;margin:12px 0"/><h3 style="color:#02154e;margin-bottom:6px">Triggers</h3><ul style="color:#333;margin:0;padding-left:18px"><li>Bottleneck: ${ALERT_CONFIG.bottleneck?'Enabled':'Disabled'}</li><li>OEE Threshold: ${ALERT_CONFIG.oee}%</li><li>FPY Threshold: ${ALERT_CONFIG.fpy}%</li><li>WIP Threshold: ${ALERT_CONFIG.wip}</li></ul><hr style="border:none;border-top:1px solid #eee;margin:12px 0"/><p style="color:#333">Recipients: ${ALERT_CONFIG.recipients||'-'}</p><p style="color:#333">Frequency: ${ALERT_CONFIG.freq}</p><p style="color:#999;font-size:.85rem;margin-top:16px">Generated by TOLKAR ZERO@FACTORY Platform</p></td></tr></table></body></html>`; document.getElementById('alTemplate').value = html; }
+/*
+window.ZERO_ROLE_DECK = [
+  {
+    "role": "ceo",
+    "title": "CEO — Günün Fotoğrafı",
+    "kpis": [
+      {
+        "label": "Overall Health",
+        "value": "86%",
+        "hint": "OEE ağırlıklı"
+      },
+      {
+        "label": "On-Time (ETA)",
+        "value": "Stable",
+        "hint": "sapma yok"
+      },
+      {
+        "label": "Bottleneck",
+        "value": "Boya Hattı",
+        "hint": "WIP birikiyor"
+      }
+    ],
+    "alerts": [
+      "Boya hattı darboğaz: WIP artışı → akış gecikmesi riski",
+      "Final Test kapasitesi sınırda: sıraya dikkat"
+    ],
+    "actions": [
+      {
+        "label": "Hat Takip’e Git",
+        "fn": "switchTab('lines')"
+      },
+      {
+        "label": "1-Sayfa Board Slide (PDF)",
+        "fn": "exportBoardSlide()"
+      }
+    ]
+  },
+  {
+    "role": "cfo",
+    "title": "CFO — Maliyet & Marj Etkisi",
+    "kpis": [
+      {
+        "label": "Cost / unit",
+        "value": "€ 118",
+        "hint": "demo hesap"
+      },
+      {
+        "label": "Scrap + Rework",
+        "value": "€ 6.4/u",
+        "hint": "kalite kaynaklı"
+      },
+      {
+        "label": "Energy+Water",
+        "value": "€ 3.1/u",
+        "hint": "hat bazlı dağıtım"
+      }
+    ],
+    "alerts": [
+      "Hurda/Rework ↑ → marj erozyonu (öncelik: Final Test + Boya)",
+      "Enerji sapması: Boya kabini tüketimi norm üstü"
+    ],
+    "actions": [
+      {
+        "label": "CFO Impact (€/gün)",
+        "fn": "openCfoImpact()"
+      },
+      {
+        "label": "Tasarruf Senaryosu",
+        "fn": "openSavingsScenario()"
+      }
+    ]
+  },
+  {
+    "role": "cto",
+    "title": "CTO — Operasyon & Bakım",
+    "kpis": [
+      {
+        "label": "Downtime",
+        "value": "Low",
+        "hint": "kritik duruş yok"
+      },
+      {
+        "label": "MTTR",
+        "value": "~24m",
+        "hint": "demo"
+      },
+      {
+        "label": "Critical Assets",
+        "value": "BK-01 / MH-01",
+        "hint": "izle"
+      }
+    ],
+    "alerts": [
+      "Planlı bakım gecikirse: Boya kabini arıza riski ↑",
+      "Montaj istasyonunda küçük duruşlar birikiyor (mikro-duruş)"
+    ],
+    "actions": [
+      {
+        "label": "Bakım Sekmesine Git",
+        "fn": "switchTab('maintenance')"
+      },
+      {
+        "label": "Reason Codes (RC)",
+        "fn": "openReasonCodes()"
+      }
+    ]
+  },
+  {
+    "role": "cmo",
+    "title": "CMO — Kalite & FPY",
+    "kpis": [
+      {
+        "label": "FPY",
+        "value": "96%",
+        "hint": "demo"
+      },
+      {
+        "label": "Rework",
+        "value": "2.1%",
+        "hint": "Boya etkisi"
+      },
+      {
+        "label": "Top Defect",
+        "value": "Paint finish",
+        "hint": "yüzey"
+      }
+    ],
+    "alerts": [
+      "Final Test red trendi: kök neden analizi başlat",
+      "Boya kalite riski: proses parametrelerini sabitle"
+    ],
+    "actions": [
+      {
+        "label": "Kalite Sekmesine Git",
+        "fn": "switchTab('quality')"
+      },
+      {
+        "label": "Containment Checklist",
+        "fn": "openContainment()"
+      }
+    ]
+  },
+  {
+    "role": "md",
+    "title": "MD — Vardiya Yönetimi",
+    "kpis": [
+      {
+        "label": "Throughput",
+        "value": "~28 u/h",
+        "hint": "demo"
+      },
+      {
+        "label": "WIP Balance",
+        "value": "OK",
+        "hint": "hatlar dengede"
+      },
+      {
+        "label": "Staffing",
+        "value": "Stable",
+        "hint": "operatör uygun"
+      }
+    ],
+    "alerts": [
+      "WIP Boya’da birikirse: Montaj aç kalır → akış kırılır",
+      "Operatör dengesizliği: hatlar arası kaydırma gerekebilir"
+    ],
+    "actions": [
+      {
+        "label": "Akışı Dengele (Kaizen)",
+        "fn": "openKaizen()"
+      },
+      {
+        "label": "Gün Sonu Özet",
+        "fn": "exportShiftSummary()"
+      }
+    ]
+  }
+];
+*/
+
+
+/* PATCH: move CEO/CFO/CTO/CMO/MD role buttons to top of both modules (clone + hide original) */
+(function(){
+  if(window.__KEEP_ORIGINAL_LAYOUT__) return;
+  function norm(t){ return (t||'').replace(/\s+/g,' ').trim().toUpperCase(); }
+
+  function findRoleBar(root){
+    root = root || document;
+    const candidates = Array.from(root.querySelectorAll('div,nav,section,header'));
+    for(const el of candidates){
+      const btns = Array.from(el.querySelectorAll('button,a'));
+      if(btns.length < 5) continue;
+      const txt = btns.map(b => norm(b.textContent));
+      const hasAll = ['CEO','CFO','CTO','CMO','MD'].every(x => txt.includes(x));
+      if(hasAll) return el;
+    }
+    return null;
+  }
+
+  function findModuleContainerByText(label){
+    const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_ELEMENT);
+    let node;
+    label = norm(label);
+    while((node = walker.nextNode())){
+      const t = norm(node.textContent);
+      if(t.includes(label)){
+        return node.closest('.card,.panel,.box,section,main,div') || node;
+      }
+    }
+    return null;
+  }
+
+  function insertRoleBarAtTop(moduleEl){
+    if(!moduleEl) return false;
+    // zaten eklediysek tekrar ekleme
+    if(moduleEl.querySelector('[data-rolebar-top="1"]')) return true;
+
+    // mevcut role bar'ı bul (modül içinde varsa onu, yoksa sayfada genel olanı)
+    const localBar = findRoleBar(moduleEl);
+    const bar = localBar || findRoleBar(document);
+    if(!bar) return false;
+
+    const clone = bar.cloneNode(true);
+    clone.setAttribute('data-rolebar-top','1');
+    clone.style.margin = "10px 0 12px 0";
+    clone.style.display = "flex";
+    clone.style.gap = "10px";
+    clone.style.flexWrap = "wrap";
+    clone.style.justifyContent = "flex-start";
+    clone.style.alignItems = "center";
+
+    // modülün en üstüne koy (başlıktan hemen sonra gibi davranır)
+    moduleEl.insertBefore(clone, moduleEl.firstChild);
+
+    // orijinali gizle (özellikle modül içindeyse)
+    if(localBar) localBar.style.display = "none";
+
+    return true;
+  }
+
+  function run(){
+    if(window.__KEEP_ORIGINAL_LAYOUT__) return;
+    // iki modül: Executive View & Role Modules
+    const exec = findModuleContainerByText('Executive View');
+    const roles = findModuleContainerByText('Role Modules');
+
+    // ikisine de koy
+    insertRoleBarAtTop(exec);
+    insertRoleBarAtTop(roles);
+  }
+
+  if(document.readyState === 'loading'){
+    document.addEventListener('DOMContentLoaded', run);
+  } else {
+    run();
+  }
+})();
+
+/* */
+    /* PATCH START: Timeline + Token Info Cards */
+    function initOrderTimelineOnce(){ if(window.__ORDER_TIMELINE_INIT__) return; window.__ORDER_TIMELINE_INIT__=true; try{
+      var live=document.getElementById('fwLive'), rep=document.getElementById('fwReplay');
+      live.onclick=function(){ this.classList.add('active'); rep.classList.remove('active'); document.getElementById('fwETA').style.opacity='1'; };
+      rep.onclick=function(){ this.classList.add('active'); live.classList.remove('active'); document.getElementById('fwETA').style.opacity='0.85'; };
+      renderOrderTimeline();
+      if(!window.__ORDER_LOOP__){ window.__ORDER_LOOP__ = setInterval(renderOrderTimeline, 4000); }
+    }catch(e){}
+    }
+    function makeDemoOrdersQueue(){ const now=Date.now(); const mk=(id,len)=>({id,model:'Industrial Washer',machine_id:'WM-'+String(id).slice(-3),plan_min:len,progress:Math.round(Math.random()*40+20),status:'ok',co2_unit: Math.round((18 + 12*0.42)*10)/10, energy_kwh:12, water_l:28, updated_ts:new Date(now).toISOString()}); return [mk('SO-10492',120), mk('SO-10493',90), mk('SO-10494',110), mk('SO-10495',80)]; }
+    function renderOrderTimeline(){ (async()=>{
+      let orders=[]; try{ const r=await getOrdersV1Safe(); orders = (r.orders||[]); }catch(e){ orders=[]; }
+      if(!orders.length){ const d = makeDemoOrdersQueue(); orders = d.map((o,i)=> ({ order_id:o.id, plan_min:o.plan_min, progress:o.progress, status: i===0?'ok':(i===1?'warning':'critical'), energy_kwh:o.energy_kwh, co2e_kg:o.co2_unit, machine_id:o.machine_id, updated_ts:o.updated_ts })); }
+      const active = orders[0] || { order_id:'-', plan_min:60, progress:0, status:'ok', updated_ts:new Date().toISOString(), energy_kwh:12, co2e_kg:18.4, machine_id:'-' };
+      const queue = orders.slice(1);
+      const etaMin = Math.max(0, Math.round(((100-active.progress)/100)*active.plan_min));
+      document.getElementById('fwOrder').textContent = 'Order ' + (active.order_id||'-');
+      document.getElementById('fwPerc').textContent = Math.min(100,Math.round(active.progress)) + '%';
+      document.getElementById('fwETA').textContent = 'ETA: ' + etaMin + 'm';
+      document.getElementById('fwQueueLbl').textContent = 'Queue: ' + queue.length;
+      // fwSync hidden
+      var prog=document.getElementById('fwProg'), now=document.getElementById('fwNow');
+      var pct=Math.min(100,Math.round(active.progress)); prog.style.width=pct+'%'; now.style.left=pct+'%';
+      var qHost=document.getElementById('fwQueue'); qHost.innerHTML='';
+      queue.slice(0,3).forEach(function(o){ var t=document.createElement('span'); t.className='fw-q-token'; t.textContent=o.order_id||'-'; t.onclick=function(){ openTokenPopup({ id:o.order_id, machine:o.machine_id, co2:o.co2e_kg, energy:o.energy_kwh, plan:o.plan_min, progress:o.progress, status:o.status }); }; qHost.appendChild(t); });
+      if(queue.length>3){ var more=document.createElement('span'); more.className='fw-q-more'; more.textContent='…'; qHost.appendChild(more); }
+    })(); }
+    function initTokenUIOnce(){ if(window.__TOKEN_UI_INIT__) return; window.__TOKEN_UI_INIT__=true; try{
+      var host=document.getElementById('lineView'); if(!host) return;
+      function ensureTokens(){ var cards=[...host.querySelectorAll('.track-card')]; cards.forEach(function(c,idx){ if(c.querySelector('.flow-token')) return; var t=document.createElement('div'); t.className='flow-token ok'; t.setAttribute('data-order','SO-'+String(10490+idx)); t.setAttribute('data-machine','WM-'+String(10+idx)); t.setAttribute('data-co2',''+(18.4+idx)); t.setAttribute('data-line',(c.querySelector('.station-name')||{}).textContent||'-'); t.innerHTML='<span style="width:12px;height:12px;border:2px solid #02154e;border-radius:50%;display:block"></span>'; c.appendChild(t); }); }
+      ensureTokens();
+      if(!window.__TOKEN_OBS__){ window.__TOKEN_OBS__ = new MutationObserver(function(){ ensureTokens(); }); window.__TOKEN_OBS__.observe(host,{childList:true,subtree:true}); }
+      host.addEventListener('mouseenter',function(e){ var t=e.target.closest('.flow-token'); if(!t) return; var chip=t.parentElement.querySelector('.token-chip'); if(!chip){ chip=document.createElement('div'); chip.className='token-chip'; chip.textContent=t.getAttribute('data-order')+' • '+t.getAttribute('data-machine')+' • CO₂ '+(t.getAttribute('data-co2')||'-')+'kg'; t.parentElement.appendChild(chip); }
+      },true);
+      host.addEventListener('mouseleave',function(e){ var t=e.target.closest('.flow-token'); if(!t) return; var chip=t.parentElement.querySelector('.token-chip'); if(chip) chip.remove(); },true);
+      host.addEventListener('click',function(e){ var t=e.target.closest('.flow-token'); if(!t) return; openTokenPopup({ id:t.getAttribute('data-order'), machine:t.getAttribute('data-machine'), co2:parseFloat(t.getAttribute('data-co2')||'18.4'), energy:12, plan:60, progress:50, status:'ok', line:t.getAttribute('data-line') }); },true);
+      document.addEventListener('click',function(e){ var p=document.getElementById('orderPopup'); if(!p) return; if(e.target===p || p.contains(e.target)) return; closeTokenPopup(); },true);
+    }catch(e){}
+    }
+    if(typeof openTokenPopup!== 'function'){
+      function openTokenPopup(t){ try{ closeTokenPopup(); var p=document.createElement('div'); p.className='order-popup'; p.id='orderPopup'; var co2 = Math.round(((t&&t.co2)||18.4)*10)/10; var energy=(t&&t.energy)||12; var water=28; var quick='<div class=\'op-body\'><div style=\'font-size:1.4rem;font-weight:700;color:#02154e\'>CO₂e / Unit: '+co2+' kg</div><div style=\'margin-top:.4rem;color:#333\'>Energy: '+energy+' kWh • Water: '+water+' L</div><div style=\'margin-top:.4rem;color:#333\'>Line/Step: '+(t&&t.line||'-')+' • ETA ~ '+Math.max(0,Math.round(((100-(t.progress||0))/100)*(t.plan||60)))+'m</div><div style=\'margin-top:.4rem;color:#333\'>Durum: '+turkishStatus((t&&t.status)||'-')+' • OEE ~</div></div>'; var details='<div class=\'op-body\'><div>Energy kWh/unit: '+energy+'</div><div>Water L/unit: '+water+'</div><div>Quality FPY: ~</div><div>Downtime: -</div></div>'; p.innerHTML = '<div class=\'op-head\'><div>Order '+(t&&t.id||'-')+'</div><button onclick=\'closeTokenPopup()\' class=\'fw-btn\'>X</button></div><div class=\'op-tabs\'><button id=\'tabQ\' class=\'op-tab active\'>Quick</button><button id=\'tabD\' class=\'op-tab\'>Details</button></div><div id=\'opCont\'>'+quick+'</div>'; var anchor = document.querySelector('.flow-token[data-order="'+(t&&t.id)+'"]'); if(anchor){ var rect=anchor.getBoundingClientRect(); p.style.left = (rect.left+window.scrollX) + 'px'; p.style.top = (rect.bottom+window.scrollY+8) + 'px'; document.body.appendChild(p); var overflow = (rect.left+280>window.innerWidth || rect.top+220>window.innerHeight); if(overflow){ p.classList.add('center'); p.style.left=''; p.style.top=''; }
+        } else { p.classList.add('center'); document.body.appendChild(p); }
+        document.getElementById('tabQ').onclick=function(){ this.classList.add('active'); document.getElementById('tabD').classList.remove('active'); document.getElementById('opCont').innerHTML=quick; };
+        document.getElementById('tabD').onclick=function(){ this.classList.add('active'); document.getElementById('tabQ').classList.remove('active'); document.getElementById('opCont').innerHTML=details; };
+      }catch(e){}
+      }
+      function closeTokenPopup(){ const p=document.getElementById('orderPopup'); if(p) p.remove(); }
+    }
+    /* PATCH END: Timeline + Token Info Cards */
+    function pushAlert(msg,type,meta){ const t={message:msg,type,ts:new Date(),meta:meta||{}}; ALERT_HISTORY.unshift(t);
+      if(Notification && Notification.permission!=='denied'){
+        const body = msg + (t.meta && t.meta.action ? `\nÖnerilen Aksiyon: ${t.meta.action}` : '');
+        if(Notification.permission!=='granted'){ Notification.requestPermission().then(()=>{ new Notification('TOLKAR Alert',{body}); }); } else { new Notification('TOLKAR Alert',{body}); }
+      }
+      toast(msg); renderAlertHistory(); }
+    function renderAlertHistory(){ let host = document.getElementById('alertHistory'); if(!host){ const wrap = document.createElement('div'); wrap.className='card'; wrap.innerHTML = `<div style="font-weight:600;color:var(--zero-navy);margin-bottom:.5rem">Uyarı Geçmişi</div><div id="alertHistory" class="alert-list"></div>`; document.querySelector('main.container').appendChild(wrap); host = document.getElementById('alertHistory'); }
+      host.innerHTML = ''; ALERT_HISTORY.slice(0,20).forEach(a=>{ const el=document.createElement('div'); el.className='alert-item'; const badge=document.createElement('span'); badge.textContent = a.type==='critical'?'⚠️':'ℹ️'; const txt=document.createElement('span'); txt.textContent=a.message; const ts=document.createElement('span'); ts.className='ts'; ts.textContent = a.ts.toLocaleString('tr-TR'); el.appendChild(badge); el.appendChild(txt); el.appendChild(ts);
+        if(a.meta && a.meta.action){ const sub=document.createElement('div'); sub.style.fontSize='.8rem'; sub.style.color='#555'; sub.textContent='Önerilen Aksiyon: ' + a.meta.action; el.appendChild(sub); }
+        if(a.meta && a.meta.line){ el.style.cursor='pointer'; el.onclick = ()=>{ highlightLineRow(a.meta.line); } }
+        host.appendChild(el); }); }
+    function recommendedAction(line){ const map={ 'Metal & Şase':'WIP’i düşür, iş yükünü dengele', 'Boya Hattı':'Akış/ısı kontrolü, beklemeyi azalt', 'Montaj':'Operatör dengeleme ve takt uyumu', 'Final Test':'Test kapasitesini artır/çevrimi hızlandır', 'Paketleme & Sevkiyat':'Çıkış kuyruğunu boşalt, sevkiyatı hızlandır' }; return map[line]||'Akış dengeleme ve kök neden analizi'; }
+    function highlightLineRow(lineName){ const tbody=document.getElementById('linesTable'); if(!tbody) return; const rows=[...tbody.querySelectorAll('tr')]; const r=rows.find(row=> (row.children[0]?.textContent||'').trim()===lineName); if(r){ r.classList.add('line-highlight'); r.scrollIntoView({behavior:'smooth',block:'center'}); setTimeout(()=>r.classList.remove('line-highlight'),1500); } }
+    function evaluateAlerts(stations){ if(!stations || !stations.length){ return; } const avgOEE = Math.round(stations.reduce((x,s)=>x+(s.oee||0),0)/stations.length);
+      if(avgOEE < ALERT_CONFIG.oee){ pushAlert(`Genel OEE ${ALERT_CONFIG.oee}% altına düştü (şu an ${avgOEE}%)`,'critical',{line:'-',action:'Takt/süreç dengelemesi'}); }
+      const lines = lastLines||[];
+      lines.forEach(l=>{
+        if(!l || !l.name) return;
+        const ev = l.lastEvent || {};
+        const rc = ev.reason_code || '';
+        const reason = rc ? (rc + ' — ' + reasonLabel(rc)) : 'Bottleneck';
+        const since = ev.since_ts ? new Date(ev.since_ts).toLocaleTimeString('tr-TR') : (lastSyncTs? new Date(lastSyncTs).toLocaleTimeString('tr-TR') : '');
+        if(l.status==='Blocked'){
+          const msg = `[${l.name}] • [${l.bottlenecks? 'Dar boğaz': 'Durum'}] • ${reason} • Since ${since}`;
+          pushAlert(msg,'critical',{line:l.name,action:recommendedAction(l.name)});
+        }
+      }); }
+    function localResetDemo(){ lastStations = makeDemoState().stations; renderStations(lastStations); renderMultiSite(); }
+    function localShockDemo(){ if(!lastStations.length) lastStations = makeDemoState().stations; const s = lastStations[2]; s.status='bottleneck'; s.wip=8; s.fpy=92; s.oee=84; renderStations(lastStations); renderMultiSite(); }
+    function localKaizenDemo(){ if(!lastStations.length) lastStations = makeDemoState().stations; lastStations.forEach(s=>{ s.status='ok'; s.wip=Math.max(1,s.wip-1); s.fpy=Math.min(99,s.fpy+1); s.oee=Math.min(96,s.oee+1); }); renderStations(lastStations); renderMultiSite(); }
+    async function renderEvents(items){
+      eventsEl.innerHTML = '';
+      items.forEach(i=>{
+        const pill = document.createElement('div');
+        pill.className = 'event-pill ' + String(i.severity||'info').toLowerCase();
+        const dot = document.createElement('span'); dot.className='event-dot';
+        const when = i.timestamp || i.created_at;
+        const title = i.message || i.label || `${i.event_type||'event'}`;
+        const label = document.createElement('span'); label.textContent = title + ' • ' + (when?new Date(when).toLocaleTimeString('tr-TR'):'');
+        pill.appendChild(dot); pill.appendChild(label);
+        pill.onclick = ()=>{ openModal(`<div style='font-size:.9rem'><p><strong>${title}</strong></p><p>Tür: ${i.event_type||'-'}</p><p>Zaman: ${when?new Date(when).toLocaleString('tr-TR'):''}</p><p>Önem: ${i.severity||'-'}</p></div>`); };
+        eventsEl.appendChild(pill);
+      });
+    }
+    const u = AUTH.currentUser();
+    if(u && !(['admin','supervisor'].includes(u.role))){ document.getElementById('btn-reset').style.display='none'; document.getElementById('btn-kaizen').style.display='none'; }
+    load(); initOrderTimelineOnce(); initTokenUIOnce();
+    setInterval(load, 5000);
+    /* PATCH START: GREEN_DEAL_VISIBILITY */
+    setInterval(async()=>{ try{ await loadGreenKpi(); renderGreenSnapshot(); renderComplianceCards(); }catch(e){} }, 10000);
+    /* PATCH END: GREEN_DEAL_VISIBILITY */
+    
+    document.querySelectorAll('.range-btn').forEach(btn=>{
+      btn.addEventListener('click', async ()=>{
+        document.querySelectorAll('.range-btn').forEach(b=>b.classList.remove('active'));
+        btn.classList.add('active');
+        histRange = btn.getAttribute('data-range');
+        await renderHistorical();
+      });
+    });
+
+    async function renderHistorical(){
+      const now = new Date();
+      const hours = histRange==='hour'?1:histRange==='shift'?8:histRange==='day'?24:histRange==='week'?24*7:24*30;
+      const start = new Date(now.getTime()-hours*3600*1000);
+      const labelEl = document.getElementById('histLabel');
+      labelEl.textContent = `Showing data from ${start.toLocaleTimeString('tr-TR',{hour:'2-digit',minute:'2-digit'})} to ${now.toLocaleTimeString('tr-TR',{hour:'2-digit',minute:'2-digit'})} (${hours} hours)`;
+      const labels = [];
+      for(let i=hours;i>=0;i--){ const t=new Date(now.getTime()-i*3600*1000); labels.push(`${String(t.getHours()).padStart(2,'0')}:00`); }
+      await renderHistoricalOEE(labels);
+      await renderHistoricalVolume(labels);
+      await renderHistoricalFPY(labels);
+      await renderHistoricalEnergy(labels, start, now);
+    }
+
+    async function renderHistoricalOEE(labels){
+      const overall = labels.map((_,i)=> Math.max(60, Math.min(100, (lastStations.reduce((x,s)=>x+s.oee,0)/(lastStations.length||1)) + (i%3===0?-4:(i%3===1?2:0)))));
+      const colors = ['#02154e','#005530','#f9ba00','#D51635','#644bcc'];
+      const ds = [ {label:'Overall OEE', data:overall, borderColor:colors[0], tension:.2, borderWidth:2} ];
+      for(let k=0;k<Math.min(4,lastStations.length);k++){ const s=lastStations[k]; const arr=labels.map((_,i)=> Math.max(50, Math.min(100, s.oee + ((i%4===0)?-5:((i%4===1)?3:0))))); ds.push({label:`Station ${k+1} OEE`, data:arr, borderColor:colors[k+1], tension:.2, hidden:false}); }
+      ds.push({label:'Target OEE 80%', data:labels.map(()=>80), borderColor:'#999', borderDash:[6,4], pointRadius:0});
+      const ctx=document.getElementById('histOEE').getContext('2d'); if(histCharts.oee) histCharts.oee.destroy();
+      histCharts.oee = new Chart(ctx,{type:'line',data:{labels,datasets:ds},options:{responsive:true,plugins:{legend:{display:true}},scales:{y:{min:0,max:100}}}});
+    }
+
+    async function renderHistoricalVolume(labels){
+      const stationColors = ['#005530','#f9ba00','#D51635','#644bcc','#02154e'];
+      const planned = labels.map(()=> 50);
+      const perStation = lastStations.slice(0,4).map((s,idx)=> ({label:(CLIENT.stationNames[idx]||s.name), data: labels.map(()=> Math.max(0, Math.round((60/(s.ct||60))* (idx+1)*2))), backgroundColor: stationColors[idx], stack:'prod'}));
+      const totals = labels.map((_,i)=> perStation.reduce((x,d)=> x + (d.data[i]||0),0));
+      const ctx=document.getElementById('histVolume').getContext('2d'); if(histCharts.volume) histCharts.volume.destroy();
+      histCharts.volume = new Chart(ctx,{type:'bar',data:{labels,datasets:[...perStation,{type:'line',label:'Plan',data:planned,borderColor:'#02154e',pointRadius:0,tension:.2} ]},options:{responsive:true,plugins:{tooltip:{callbacks:{label:(c)=>{ if(c.dataset.type==='line'){ return `Plan: ${c.formattedValue}` } const total=totals[c.dataIndex]; return `${c.dataset.label}: ${c.formattedValue} (Total: ${total})`; }}}},scales:{x:{stacked:true},y:{stacked:true}}}});
+    }
+
+    async function renderHistoricalFPY(labels){
+      const fpy = labels.map((_,i)=> Math.max(70, Math.min(100, (lastStations.reduce((x,s)=>x+s.fpy,0)/(lastStations.length||1)) + ((i%3===0)?-2:((i%3===1)?1:0)))));
+      const defects = labels.map(()=> Math.floor(Math.max(0, (100-(lastStations.reduce((x,s)=>x+s.fpy,0)/(lastStations.length||1)))/5)));
+      const ctx=document.getElementById('histFPY').getContext('2d'); if(histCharts.fpy) histCharts.fpy.destroy();
+      histCharts.fpy = new Chart(ctx,{data:{labels,datasets:[{type:'line',label:'FPY %',data:fpy,borderColor:'#005530',yAxisID:'y',tension:.2},{type:'bar',label:'Defects',data:defects,backgroundColor:'rgba(213,22,53,.6)',yAxisID:'y1'}]},options:{responsive:true,plugins:{legend:{display:true}},scales:{y:{min:0,max:100,position:'left'},y1:{beginAtZero:true,position:'right'}}}});
+    }
+
+    async function renderHistoricalEnergy(labels, start, end){
+      const qs = `?start=${start.toISOString()}&end=${end.toISOString()}`;
+      let rows=[]; try{ rows = await AUTH.get('/api/telemetry'+qs); }catch(e){ rows=[]; }
+      const buckets = {}; labels.forEach(l=> buckets[l]=[]);
+      rows.forEach(r=>{ const d=new Date(r.recorded_at); const k=`${String(d.getHours()).padStart(2,'0')}:00`; if(buckets[k]) buckets[k].push(r.power_kw_idx||0); });
+      const series = labels.map(l=>{ const a=buckets[l]; return a.length? Math.round(a.reduce((x,y)=>x+y,0)/a.length):lastAvgPower; });
+      const ctx=document.getElementById('histEnergy').getContext('2d'); if(histCharts.energy) histCharts.energy.destroy();
+      histCharts.energy = new Chart(ctx,{type:'line',data:{labels,datasets:[{label:'Power Index',data:series,borderColor:'#644bcc',tension:.2}]},options:{responsive:true}});
+    }
+
+    renderHistorical();
+    document.getElementById('siteSelect').addEventListener('change', renderMultiSite);
+    function buildSites(stations){ const agg = (arr, f)=> arr.reduce((x,y)=>x+(f(y)||0),0); const avg = (arr, f)=> arr.length? Math.round((arr.reduce((x,y)=>x+(f(y)||0),0)/arr.length)*10)/10:0; const bCount = (arr)=> arr.filter(s=>String(s.status).toLowerCase()==='bottleneck').length; const clone = (multOEE, addWIP, multFPY)=> stations.map(s=>({name:s.name,status:s.status,oee:Math.max(60,Math.min(99, s.oee*multOEE)), wip:Math.max(0, s.wip+addWIP), fpy:Math.max(80,Math.min(99, s.fpy*multFPY))})); const bursa = stations.map(s=>({name:s.name,status:s.status,oee:s.oee,wip:s.wip,fpy:s.fpy})); const gebze = clone(0.97,2,0.99); const kocaeli = clone(1.03,-1,1.01); sitesData = [{site:'Bursa', stations:bursa, oee:avg(bursa,s=>s.oee), wip:agg(bursa,s=>s.wip), fpy:avg(bursa,s=>s.fpy), bottlenecks:bCount(bursa)},{site:'Gebze', stations:gebze, oee:avg(gebze,s=>s.oee), wip:agg(gebze,s=>s.wip), fpy:avg(gebze,s=>s.fpy), bottlenecks:bCount(gebze)},{site:'Kocaeli', stations:kocaeli, oee:avg(kocaeli,s=>s.oee), wip:agg(kocaeli,s=>s.wip), fpy:avg(kocaeli,s=>s.fpy), bottlenecks:bCount(kocaeli)}]; }
+    function renderMultiSite(){ const sel = document.getElementById('siteSelect').value; const rows = sel==='All Sites'? sitesData : sitesData.filter(x=>x.site===sel); const totalWip = rows.reduce((x,y)=>x+y.wip,0); const avgOEE = rows.length? Math.round(rows.reduce((x,y)=>x+y.oee,0)/rows.length):0; const avgFPY = rows.length? Math.round(rows.reduce((x,y)=>x+y.fpy,0)/rows.length):0; const bottlenecks = rows.reduce((x,y)=>x+y.bottlenecks,0); const kpi = document.getElementById('msKPI'); kpi.innerHTML = `<div class='kpi-card'><div class='kpi-label'>Overall OEE</div><div class='kpi-value'>${avgOEE}<span class='kpi-unit'>%</span></div></div><div class='kpi-card'><div class='kpi-label'>Total WIP</div><div class='kpi-value'>${totalWip}</div></div><div class='kpi-card'><div class='kpi-label'>Overall FPY</div><div class='kpi-value'>${avgFPY}<span class='kpi-unit'>%</span></div></div><div class='kpi-card'><div class='kpi-label'>Bottlenecks</div><div class='kpi-value'>${bottlenecks}</div></div>`; const tbody=document.getElementById('msTable'); tbody.innerHTML=''; rows.forEach(r=>{ const tr=document.createElement('tr'); tr.innerHTML = `<td>${r.site}</td><td>${r.oee}</td><td>${r.wip}</td><td>${r.fpy}</td><td>${r.bottlenecks}</td>`; tbody.appendChild(tr); }); renderGeo(rows); }
+    function renderGeo(rows){ const svg=document.getElementById('msMap'); svg.innerHTML=''; const bg=document.createElementNS('http://www.w3.org/2000/svg','rect'); bg.setAttribute('x','0'); bg.setAttribute('y','0'); bg.setAttribute('width','800'); bg.setAttribute('height','260'); bg.setAttribute('fill','#fafbfc'); svg.appendChild(bg); const coords={Bursa:[300,140],Gebze:[540,160],Kocaeli:[520,130]}; rows.forEach(r=>{ const c=document.createElementNS('http://www.w3.org/2000/svg','circle'); const color = r.bottlenecks>0? '#D51635' : (r.oee>=85? '#005530':'#f9ba00'); c.setAttribute('cx',coords[r.site][0]); c.setAttribute('cy',coords[r.site][1]); c.setAttribute('r','12'); c.setAttribute('fill',color); c.setAttribute('class','site-marker'); svg.appendChild(c); const t=document.createElementNS('http://www.w3.org/2000/svg','text'); t.setAttribute('x',coords[r.site][0]+18); t.setAttribute('y',coords[r.site][1]+4); t.setAttribute('fill','#02154e'); t.setAttribute('font-size','12'); t.setAttribute('font-weight','600'); t.textContent = `${r.site} • OEE ${r.oee}%`; svg.appendChild(t); }); }
+ 
+async function renderCFOOnce(){
+  try{ if (window.ACTIVE_ROLE==='cfo') { await renderCFO(); } }
+  catch(e){ console.warn('[CFO] render failed', e); }
+}
+ 
+ 
+(function(){
+  const __tabInit = { flow:false, hist:false, cfo:false };
+  const __origSwitchTab = (typeof switchTab==='function') ? switchTab : null;
+  if(!__origSwitchTab){ console.warn('[PATCH] switchTab not found'); return; }
+  switchTab = function(id, ev){
+  ev = ev || window.event || null;
+
+    __origSwitchTab(id, ev);
+    // enforce visibility to avoid race conditions
+    try{ const el=document.getElementById(id); if(el){ el.classList.add('active'); el.style.display='block'; } }catch(e){}
+    try{
+      if(id==='tab-flow-live' && !__tabInit.flow){
+        __tabInit.flow = true;
+        if(typeof initFlowLiveOnce==='function') initFlowLiveOnce();
+      }
+      if(id==='tab-historical' && !__tabInit.hist){
+        __tabInit.hist = true;
+        if(typeof renderHistoricalOnce==='function') renderHistoricalOnce();
+      }
+      if(id==='cfo' && !__tabInit.cfo){
+        __tabInit.cfo = true;
+        if(typeof renderCFOOnce==='function') if (window.ACTIVE_ROLE==='cfo') { renderCFOOnce(); }
+        else if(typeof renderCFO==='function') if (window.ACTIVE_ROLE==='cfo') { renderCFO(); } // fallback
+      }
+      if(id==='mes'){
+        try{ initMESTab(); }catch(e){ console.warn('MES init fail', e); }
+      }
+    }catch(e){
+      console.warn('[PATCH] lazy-init failed', e);
+    }
+  };
+})();
+ 
+ 
+async function getOrdersOrSim(){
+  try{
+    const r = await getOrdersV1Safe();
+    const orders = (r && r.orders) ? r.orders : [];
+    if(orders.length) return { orders, sim:false, last_sync:r.last_sync||null };
+  }catch(e){}
+  const now = Date.now();
+  const mk = (id,lid,sid,state,energy,co2,risk,rc,note)=>({
+    order_id:id,line_id:lid,station_id:sid,state,
+    start_ts:new Date(now-45*60000).toISOString(),
+    updated_ts:new Date(now).toISOString(),
+    elapsed_min:45, energy_kwh:energy, co2e_kg:co2,
+    scrap_units:0, rework_units:0,
+    eta_ts:new Date(now+60*60000).toISOString(),
+    risk, reason_code:rc, payload:{note}
+  });
+  const simOrders = [
+    mk('SIM-0001',1,1,'moving',3.1,1.3,'ok','',     'Metal akışta'),
+    mk('SIM-0002',2,2,'blocked',2.0,0.9,'at_risk','RC11','Boya bekliyor'),
+    mk('SIM-0003',2,2,'down',   2.8,1.2,'late',  'RC11','Boya arıza'),
+    mk('SIM-0004',3,3,'processing',4.5,2.0,'ok',  'RC12','Montaj istasyonda'),
+    mk('SIM-0005',3,3,'moving',4.0,1.8,'ok','',     'Montaj akışta'),
+    mk('SIM-0006',4,1,'waiting',1.7,0.7,'at_risk','RC14','Final Test bekliyor'),
+    mk('SIM-0007',5,1,'moving',2.2,1.0,'ok','RC10','Paketleme akışta'),
+    mk('SIM-0008',5,1,'waiting',2.0,0.9,'at_risk','RC10','Paketleme bekliyor')
+  ];
+  return { orders: simOrders, sim:true, last_sync:new Date(now).toISOString() };
+}
+
+function renderActiveOrders(orders){
+  const panel = document.getElementById('flowPanel');
+  if(!panel) return;
+  panel.innerHTML = '';
+  orders.slice(0,10).forEach(o=>{
+    const row = document.createElement('div');
+    row.className = 'order-row';
+    row.style.border = '1px solid #e0e0e0';
+    row.style.borderRadius = '8px';
+    row.style.padding = '8px';
+    row.style.marginBottom = '8px';
+    const pillCls = (o.state==='down')?'offline':(o.state==='blocked'?'degraded':(o.state==='waiting'?'degraded':'ok'));
+    row.innerHTML = `
+      <div style="display:flex;justify-content:space-between;align-items:center;gap:8px">
+        <div style="font-weight:700">${o.order_id||'-'}</div>
+        <span class="pill ${pillCls}">${o.state||'-'}</span>
+      </div>
+      <div style="font-size:.85rem;color:#444;margin-top:4px">
+        Line ${o.line_id||'-'} • Station ${o.station_id||'-'} •
+        Energy ${(o.energy_kwh||0).toFixed(1)} kWh • CO₂ ${(o.co2e_kg||0).toFixed(1)} kg •
+        Risk ${(o.risk||'ok')}${o.reason_code?(' • '+o.reason_code):''}
+      </div>
+    `;
+    row.onclick = ()=>{
+      const host=document.getElementById('flowHost'); if(!host) return;
+      const map={1:'Metal & Şase',2:'Boya Hattı',3:'Montaj',4:'Final Test',5:'Paketleme & Sevkiyat'};
+      const target = host.querySelector(`[data-line="${map[o.line_id]||''}"]`);
+      if(target){
+        target.classList.add('line-highlight');
+        target.scrollIntoView({behavior:'smooth',block:'center'});
+        setTimeout(()=>target.classList.remove('line-highlight'),1500);
+      }
+    };
+    panel.appendChild(row);
+  });
+}
+
+let __flowStarted = false;
+let __flowTimer = null;
+
+async function initFlowLiveOnce(){
+  const data = await getOrdersOrSim();
+  try{
+    const lines = await getLinesV1Safe();
+    if(typeof renderFlowSummary==='function') renderFlowSummary(lines||[]);
+  }catch(e){}
+  const badge = document.getElementById('simBadge');
+  if(badge) badge.style.display = data.sim ? 'inline-block' : 'none';
+
+  renderActiveOrders(data.orders||[]);
+
+  if(!__flowStarted){
+    __flowStarted = true;
+    try{
+      if(window.FLOW_LIVE && typeof FLOW_LIVE.start==='function'){
+        FLOW_LIVE.start(document.getElementById('flowHost'), null);
+
+      }
+    }catch(e){ console.warn('[FlowLive] start failed', e); }
+
+    __flowTimer = setInterval(async()=>{
+      const d = await getOrdersOrSim();
+      renderActiveOrders(d.orders||[]);
+      const b = document.getElementById('simBadge');
+      if(b) b.style.display = d.sim ? 'inline-block' : 'none';
+    }, 5000);
+  }
+}
+ 
+ 
+function downsampleSeries(labels, values, maxPoints){
+  const n = labels.length;
+  if(n<=maxPoints) return {labels, values};
+  const step = Math.ceil(n/maxPoints);
+  const dl=[], dv=[];
+  for(let i=0;i<n;i+=step){ dl.push(labels[i]); dv.push(values[i]); }
+  return {labels:dl, values:dv};
+}
+
+async function renderHistoricalOnce(){
+  // existing renderCharts draws OEE/Throughput/WIP/Reasons (+ energy/co2 if orders exist)
+  try{ await renderCharts(); }catch(e){ console.warn('[Historical] renderCharts failed', e); }
+
+  let orders = [];
+  try{ const r = await getOrdersV1Safe(); orders = (r && r.orders) ? r.orders : []; }catch(e){}
+  const hasOrders = orders.length > 0;
+
+  const addOverlay=(id,name)=>{
+    const el=document.getElementById(id); if(!el) return;
+    const host=el.parentElement; if(!host) return;
+    let ov=host.querySelector('.no-data-overlay');
+    if(!ov){
+      ov=document.createElement('div');
+      ov.className='no-data-overlay';
+      ov.innerHTML=`SIM / No Data — ${name}<div style='font-size:.9rem;color:#444;margin-top:.5rem'>Reason: Orders boş</div>`;
+      host.appendChild(ov);
+    }
+  };
+  const removeOverlay=(id)=>{
+    const el=document.getElementById(id); if(!el) return;
+    const host=el.parentElement; if(!host) return;
+    const ov=host.querySelector('.no-data-overlay'); if(ov) ov.remove();
+  };
+
+  const ek=document.getElementById('histEnergyKWH');
+  const cc=document.getElementById('histCO2');
+  if(!(ek && cc)) return;
+
+  if(hasOrders){
+    removeOverlay('histEnergyKWH'); removeOverlay('histCO2');
+    return; // real data already drawn by renderCharts()
+  }
+
+  // draw demo curves + overlay
+  addOverlay('histEnergyKWH','Energy'); addOverlay('histCO2','CO₂');
+
+  const labels = Array.from({length:30},(_,i)=> String(i+1));
+  const demoE = labels.map((_,i)=> Math.max(0, 20 + 5*Math.sin(i/4)));
+  const demoC = labels.map((_,i)=> Math.max(0, 8 + 2*Math.cos(i/3)));
+
+  // safe histCharts holder
+  window.histCharts = window.histCharts || {};
+  try{
+    if(window.histCharts.energyKwh) window.histCharts.energyKwh.destroy();
+    if(window.histCharts.co2) window.histCharts.co2.destroy();
+  }catch(e){}
+
+  const ekx = ek.getContext('2d');
+  const ccx = cc.getContext('2d');
+  window.histCharts.energyKwh = new Chart(ekx,{type:'line',data:{labels,datasets:[{label:'Energy kWh (SIM)',data:demoE,borderColor:'#16a34a'}]},options:{responsive:true}});
+  window.histCharts.co2 = new Chart(ccx,{type:'line',data:{labels,datasets:[{label:'CO₂ kg (SIM)',data:demoC,borderColor:'#6b7280'}]},options:{responsive:true}});
+}
+ 
+ 
+if(typeof renderCFOOnce!=='function'){
+  async function renderCFOOnce(){
+    try{ if (window.ACTIVE_ROLE==='cfo') { await renderCFO(); } }
+    catch(e){ console.warn('[CFO] render failed', e); }
+  }
+}
+ 
+ 
+(function(){
+  try{
+    if(!window.AUTH || typeof AUTH.get !== 'function') return;
+    if(window.__ZERO_KPI_ALIAS_DONE) return;
+    window.__ZERO_KPI_ALIAS_DONE = true;
+
+    const _get = AUTH.get.bind(AUTH);
+
+    AUTH.get = async function(url, opts){
+      // normalize
+      const u = String(url||'');
+      if(u === '/api/reports/kpi' || u.startsWith('/api/reports/kpi?')){
+        // Build KPI-ish response from /api/v1/lines (available)
+        try{
+          const r = await _get('/api/v1/lines');
+          const lines = (r && r.lines) ? r.lines : [];
+          const wip = lines.reduce((a,x)=>a+(+x.wip||0),0);
+          const throughput = lines.reduce((a,x)=>a+(+x.throughput_ph||0),0);
+          const oee = lines.length ? Math.round(lines.reduce((a,x)=>a+(+x.oee||0),0)/lines.length) : 0;
+          const fpy = lines.length ? Math.round(lines.reduce((a,x)=>a+(+x.fpy||0),0)/lines.length) : 0;
+
+          // Return both shapes (some UIs expect r.kpi, some expect top-level)
+          return {
+            ts: r.ts || new Date().toISOString(),
+            site_id: r.site_id || (window.SITE_ID||'tolkar_aosb'),
+            last_sync: r.last_sync || null,
+            kpi: { wip, throughput_ph: throughput, oee, fpy },
+            wip, throughput_ph: throughput, oee, fpy
+          };
+        }catch(e){
+          // hard fallback: never crash the UI
+          return { kpi:{wip:0,throughput_ph:0,oee:0,fpy:0}, wip:0,throughput_ph:0,oee:0,fpy:0 };
+        }
+      }
+      return _get(url, opts);
+    };
+
+    // Optional: tiny console hint once
+    try{ console.log('[Zero@Factory] KPI alias active: /api/reports/kpi -> /api/v1/lines'); }catch(e){}
+  }catch(e){}
+})();
+ 
+ 
+(function(){
+  if(window.__KEEP_ORIGINAL_LAYOUT__) return;
+  function findCard(el){
+    if(!el) return null;
+    let n = el;
+    for(let i=0;i<10 && n;i++){
+      const cls = (n.className||'')+'';
+      if(n.id && (n.id==='flowCard' || n.id==='ordersCard')) return n;
+      if(/\b(card|panel|box|module|kpi-card|content-card|section-card|col)\b/i.test(cls)) return n;
+      n = n.parentElement;
+    }
+    return el.parentElement;
+  }
+
+  function apply(){
+    const flowHost = document.getElementById('flowHost');
+    const flowPanel = document.getElementById('flowPanel');
+    if(!flowHost || !flowPanel) return;
+
+    const flowCard = findCard(flowHost);
+    const ordersCard = findCard(flowPanel);
+    if(!flowCard || !ordersCard) return;
+
+    const parent = flowCard.parentElement;
+    if(!parent) return;
+
+    // 1) Parent'ı tek kolon yap (grid/flex neyse override)
+    parent.style.display = 'block';
+    parent.style.gridTemplateColumns = 'none';
+    parent.style.gridAutoFlow = 'row';
+    parent.style.flexDirection = 'column';
+    parent.style.alignItems = 'stretch';
+
+    // 2) Kartları tam en yap
+    flowCard.style.width = '100%';
+    ordersCard.style.width = '100%';
+
+    // 3) Active Orders'ı Flow'un altına taşı
+    if(ordersCard.parentElement === parent){
+      parent.insertBefore(ordersCard, flowCard.nextSibling);
+    }
+
+    // 4) Biraz boşluk
+    ordersCard.style.marginTop = '12px';
+
+    // 5) İç panel genişliği
+    flowPanel.style.width = '100%';
+  }
+
+  // hem load hem de ilk tab switch sonrası garanti
+  try{ apply(); }catch(e){}
+  window.addEventListener('load', ()=>{ try{ apply(); }catch(e){} });
+
+  // Eğer switchTab varsa, tab'a girince de uygula
+  try{
+    if(typeof switchTab === 'function'){
+      const __orig = switchTab;
+      switchTab = function(id, ev){
+        __orig(id, ev);
+        if(id==='tab-flow-live'){
+          try{ apply(); }catch(e){}
+        }
+      };
+    }
+  }catch(e){}
+})();
+ 
+
+</script>
+
+<script>
+  function ensureBadge(hdr, text){
+    if(!hdr) return;
+    if(hdr.querySelector('.demo-pill')) return;
+    var pill=document.createElement('span');
+    pill.className='demo-pill';
+    pill.textContent=text;
+    hdr.appendChild(pill);
+  }
+
+  function renderTrackDemo(){
+    var host = document.getElementById('lineView');
+    if(!host) return;
+    if(host.querySelector('[data-real="1"]')) return;
+    if(window.__DEMO_RENDERED_TRACK__){
+      var lc = host.closest('.card');
+      if(lc){ var hdr = lc.firstElementChild; ensureBadge(hdr, 'Örnek Akış'); }
+      return;
+    }
+    host.classList.add('track-demo');
+    var steps = [
+      {name:'Metal & Şase', wip:1, ct:40, oee:92, fpy:97, comp:65},
+      {name:'Boya Hattı', wip:2, ct:45, oee:92, fpy:97, comp:52},
+      {name:'Montaj', wip:8, ct:50, oee:84, fpy:92, comp:35},
+      {name:'Final Test', wip:4, ct:55, oee:92, fpy:97, comp:40},
+      {name:'Paketleme & Sevkiyat', wip:5, ct:60, oee:92, fpy:97, comp:28}
+    ];
+    var maxCT = steps.reduce(function(m,s){ return Math.max(m,s.ct); },0);
+    var maxWIP = steps.reduce(function(m,s){ return Math.max(m,s.wip); },0);
+    var oeeGood = (window.CLIENT && window.CLIENT.thresholds && window.CLIENT.thresholds.oee_good) ? window.CLIENT.thresholds.oee_good : 80;
+    host.innerHTML = '';
+    for(var i=0;i<steps.length;i++){
+      var s = steps[i];
+      var isBottleneck = (s.ct===maxCT) || (s.wip===maxWIP);
+      var status = isBottleneck ? 'action' : ((s.oee>=oeeGood && s.fpy>=95) ? 'ok' : 'monitor');
+      var card = document.createElement('div');
+      card.className = 'station-card track-card ' + (isBottleneck ? 'bottleneck' : (status==='monitor'?'monitor':'ok'));
+      var html = ''+
+        '<div class="station-name">'+s.name+'<span class="status-pill '+status+'">'+(status==='ok'?'OK':(status==='monitor'?'Monitor':'Action'))+'</span></div>'+
+        '<div class="station-metric">WIP <strong>'+s.wip+'</strong></div>'+
+        '<div class="station-metric">CT <strong>'+s.ct+'m</strong></div>'+
+        '<div class="station-metric">OEE <strong>'+s.oee+'%</strong></div>'+
+        '<div class="station-metric">FPY <strong>'+s.fpy+'%</strong></div>'+
+        '<div class="progress-wrap"><div class="progress-bar" style="width:'+Math.max(0,Math.min(100,s.comp))+'%"></div></div>';
+      card.innerHTML = html;
+      if(isBottleneck){
+        var bn = document.createElement('div');
+        bn.className = 'bottleneck-badge';
+        bn.textContent = 'Bottleneck';
+        card.appendChild(bn);
+      }
+      host.appendChild(card);
+    }
+    var lc = host.closest('.card');
+    if(lc){
+      var hdr = lc.firstElementChild;
+      ensureBadge(hdr, 'Simülasyon');
+      var ovs = lc.querySelectorAll('.no-data-overlay');
+      for(var j=0;j<ovs.length;j++){ if(/Üretim Akışı|Üretim Pisti|Trendler/i.test(ovs[j].innerText||'')) ovs[j].remove(); }
+    }
+    window.__DEMO_RENDERED_TRACK__ = true;
+  }
+
+  function renderTrendsDemo(){
+    var p = document.getElementById('chartPower');
+    var t = document.getElementById('chartTemp');
+    if(!p && !t) return;
+    var card = (p||t) ? (p||t).closest('.card') : null;
+    if(card){ var hdr = card.firstElementChild; ensureBadge(hdr, 'Simülasyon'); var ovs = card.querySelectorAll('.no-data-overlay'); for(var k=0;k<ovs.length;k++){ if(/Üretim Akışı|Üretim Pisti|Trendler/i.test(ovs[k].innerText||'')) ovs[k].remove(); } }
+
+    if(window.__SIM_TRENDS_BUILT__) { window.__DEMO_RENDERED_TRENDS__ = true; return; }
+
+    var N = 60; var seriesP = [], seriesC = [], seriesT = [], labels = []; var idx = 0;
+    function push(vp, vc, vt){ if(seriesP.length>=N){ seriesP.shift(); seriesC.shift(); seriesT.shift(); labels.shift(); } seriesP.push(vp); seriesC.push(vc); seriesT.push(vt); labels.push(String(Date.now()%100000)); }
+    function baseSim(){ var kwh = 140 + 10*Math.sin(idx/6); var co2 = kwh * 0.42; var temp = 24 + 1.5*Math.sin(idx/10); return {kwh:Math.round(kwh), co2:Math.round(co2), temp:Math.round(temp)}; }
+    function fetchReal(){ return getOrdersV1Safe().then(function(r){ var orders = (r && r.orders) ? r.orders : []; if(orders.length){ var avgK = Math.round(orders.reduce(function(x,o){return x+(o.energy_kwh||0);},0)/(orders.length||1)); var avgC = Math.round(orders.reduce(function(x,o){return x+(o.co2e_kg||0);},0)/(orders.length||1)); return {kwh:avgK||150, co2:avgC||Math.round((avgK||150)*0.42), temp:24}; } return baseSim(); }).catch(function(){ return baseSim(); }); }
+
+    var chartP = null, chartT = null;
+    function ensureCharts(){ if(typeof Chart!=='undefined'){ if(p && !chartP){ chartP = new Chart(p.getContext('2d'), { type:'line', data:{ labels:labels, datasets:[ {label:'Energy kWh', data:seriesP, borderColor:'#02154e', tension:.2}, {label:'CO₂e (kg)', data:seriesC, borderColor:'#6b7280', tension:.2 } ] }, options:{ responsive:true } }); } if(t && !chartT){ chartT = new Chart(t.getContext('2d'), { type:'line', data:{ labels:labels, datasets:[ {label:'Temp C', data:seriesT, borderColor:'#f9ba00', tension:.2 } ] }, options:{ responsive:true } }); } } }
+
+    // seed initial window
+    for(var i=0;i<20;i++){ idx++; var v = baseSim(); push(v.kwh,v.co2,v.temp); }
+    ensureCharts(); if(chartP){ chartP.update(); } if(chartT){ chartT.update(); }
+
+    if(!window.__SIM_LOOP_RUNNING__){
+      window.__SIM_LOOP_RUNNING__ = setInterval(function(){ idx++; fetchReal().then(function(v){ push(v.kwh,v.co2,v.temp); if(chartP){ chartP.data.labels = labels; chartP.data.datasets[0].data = seriesP; chartP.data.datasets[1].data = seriesC; chartP.update(); } if(chartT){ chartT.data.labels = labels; chartT.data.datasets[0].data = seriesT; chartT.update(); } }); }, 4000);
+    }
+
+    window.__SIM_TRENDS_BUILT__ = true;
+    window.__DEMO_RENDERED_TRENDS__ = true;
+  }
+
+  (function(){
+    var timer = null;
+    function hasReal(){
+      var lv = document.getElementById('lineView');
+      var realAttr = lv && lv.querySelector('[data-real="1"]');
+      var realCards = lv && lv.querySelector('.station-card') && !lv.classList.contains('track-demo');
+      var stationsOk = (typeof window.lastStations!=='undefined' && window.lastStations && window.lastStations.length>0);
+      var off = (typeof isOffline==='function') ? isOffline() : false;
+      return !!(realAttr || (!off && realCards) || (!off && stationsOk));
+    }
+    function cleanup(){
+      var lvCard = document.getElementById('lineView');
+      lvCard = lvCard ? lvCard.closest('.card') : null;
+      if(lvCard){ var ovs = lvCard.querySelectorAll('.no-data-overlay'); for(var i=0;i<ovs.length;i++){ if(/Üretim Akışı|Üretim Pisti/i.test(ovs[i].innerText||'')) ovs[i].remove(); } }
+      var trCard = document.getElementById('chartPower');
+      trCard = trCard ? trCard.closest('.card') : null;
+      if(trCard){ var ovs2 = trCard.querySelectorAll('.no-data-overlay'); for(var j=0;j<ovs2.length;j++){ if(/Trendler/i.test(ovs2[j].innerText||'')) ovs2[j].remove(); } }
+    }
+    function maybeRunDemo(){
+      if(hasReal()){ if(timer){ clearInterval(timer); timer=null; } return; }
+      if(!window.__DEMO_RENDERED_TRACK__) renderTrackDemo(); else { var host=document.getElementById('lineView'); if(host){ var lc=host.closest('.card'); if(lc){ ensureBadge(lc.firstElementChild,'Örnek Akış'); } } }
+      if(!window.__DEMO_RENDERED_TRENDS__) renderTrendsDemo(); else { var cp=document.getElementById('chartPower'); if(cp){ var cc=cp.closest('.card'); if(cc){ ensureBadge(cc.firstElementChild,'Simülasyon'); } } }
+      cleanup();
+    }
+    window.addEventListener('load', function(){ maybeRunDemo(); });
+    window.__DEMO_AFTER_TAB__ = function(id){ try{ maybeRunDemo(); }catch(e){} };
+    if(!timer){ timer = setInterval(function(){ maybeRunDemo(); }, 5000); }
+  })();
+
+// ---- ROLE LAYER (CEO/CFO/CTO/CMO/MD) ----
+let ACTIVE_ROLE = 'md';
+
+function getRoleFromUrl(){
+  try{
+    const u = new URL(location.href);
+    const r = (u.searchParams.get('role') || '').toLowerCase();
+    if(['ceo','cfo','cto','cmo','md'].includes(r)) return r;
+  }catch(e){}
+  return 'md';
+}
+
+function setRole(r){
+  r = String(r||'md').toLowerCase();
+  if(!(['ceo','cfo','cto','cmo','md'].includes(r))) r='md';
+  ACTIVE_ROLE = r;
+
+  // reflect to URL without reload
+  try{
+    const u = new URL(location.href);
+    u.searchParams.set('role', r);
+    history.replaceState({}, '', u.toString());
+  }catch(e){}
+
+  applyRoleUI();
+}
+
+function applyRoleUI(){
+  const label = document.getElementById('roleLabel');
+  const label2 = document.getElementById('roleLabel2');
+  // sync global (some code checks window.ACTIVE_ROLE)
+  window.ACTIVE_ROLE = ACTIVE_ROLE;
+  if(label)  label.textContent  = ACTIVE_ROLE.toUpperCase();
+  if(label2) label2.textContent = ACTIVE_ROLE.toUpperCase();
+
+  const brief = document.getElementById('roleBrief');
+  if(!brief) return;
+
+  const map = {
+    ceo: { title:"CEO — Executive Brief", lines:["Risk: Bottleneck etkisi büyüyor","Hedef: OEE +2pt / 14 gün","Karar: Boya hattı aksiyon planı"] },
+    cfo: { title:"CFO — Financial Brief", lines:["Maliyet sürücüsü: Durüş + hurda","Hedef: ₺/gün kaybı görünür olsun","Aksiyon: Şok/Kaizen senaryoları"] },
+    cto: { title:"CTO — Systems Brief", lines:["Risk: veri akışı & sensör güvenilirliği","Hedef: same-origin API contract v1","Aksiyon: health + offline degrade"] },
+    cmo: { title:"CMO — Story Brief", lines:["Mesaj: sürdürülebilir üretim kontrol merkezi","Hedef: müşteri güveni + kanıt","Aksiyon: rapor + sertifika narrative"] },
+    md:  { title:"MD — Shift Brief", lines:["Bugün: Hat 2 kritik","Hedef: WIP dengesi","Aksiyon: iş gücü + bakım planı"] },
+  };
+
+  const d = map[ACTIVE_ROLE] || map.md;
+  brief.innerHTML = `
+    <div style="font-weight:800;color:#02154e;margin-bottom:6px;">${d.title}</div>
+    <ul style="margin:0;padding-left:18px;color:#0f172a;">
+      ${d.lines.map(x=>`<li>${x}</li>`).join('')}
+    </ul>
+  `;
+}
+
+document.addEventListener('DOMContentLoaded', ()=>{
+  setRole(getRoleFromUrl());
+});
+
+
+function renderRoleModules(role){
+  const box = document.getElementById('roleModules');
+  const lab = document.getElementById('roleLabel2');
+  if(lab) lab.textContent = (role||'md').toUpperCase();
+
+  if(!box) return;
+
+  const cards = {
+    ceo: {
+      title: "CEO — Board Snapshot",
+      lines: [
+        "Bugün: üretim akışı + risk özeti",
+        "Hedef: kapasite / teslimat güveni",
+        "Aksiyon: bottleneck + kritik aksiyon onayı"
+      ],
+      actions: [
+        {label:"Bottleneck’leri Gör", fn:"document.getElementById('tab-hattrack')?.scrollIntoView({behavior:'smooth'})"}
+      ]
+    },
+    cfo: {
+      title: "CFO — Finansal Etki",
+      lines: [
+        "Bugün: downtime maliyeti + baz senaryo",
+        "Hedef: hurda + enerji maliyetini aşağı çek",
+        "Aksiyon: Şok / Kaizen senaryosu ile kıyasla"
+      ],
+      actions: [
+        {label:"Finansal Modülü Aç", fn:"(window.renderCFOOnce?renderCFOOnce():renderCFO())"}
+      ]
+    },
+    cto: {
+      title: "CTO — Operasyon & Bakım",
+      lines: [
+        "Bugün: bakım riskleri + OEE etkisi",
+        "Hedef: arıza süresini azalt",
+        "Aksiyon: bakım planı + kök neden"
+      ],
+      actions: [
+        {label:"Bakım Sekmesine Git", fn:"switchTab('bakim')"}
+      ]
+    },
+    cmo: {
+      title: "CMO — Kalite & FPY",
+      lines: [
+        "Bugün: FPY sapmaları + kalite riskleri",
+        "Hedef: ilk seferde doğru üretim",
+        "Aksiyon: kalite hotspot’ları"
+      ],
+      actions: [
+        {label:"Kalite Sekmesine Git", fn:"switchTab('kalite')"}
+      ]
+    },
+    md: {
+      title: "MD — Shift Brief",
+      lines: [
+        "Bugün: hat dengesi + WIP kontrolü",
+        "Hedef: akışı düzleştir",
+        "Aksiyon: iş gücü + kısa bakım planı"
+      ],
+      actions: [
+        {label:"Üretim Akışına Git", fn:"document.querySelector('#tab-genel')?.scrollIntoView({behavior:'smooth'})"}
+      ]
+    }
+  };
+
+  const d = cards[role] || cards.md;
+
+  const actHtml = (d.actions||[]).map(a => (
+    `<button class="btn" type="button" style="margin-right:8px" onclick="${a.fn}">${a.label}</button>`
+  )).join('');
+
+  box.innerHTML = `
+    <div style="font-weight:800;color:#02154e;margin-bottom:6px;">${d.title}</div>
+    <ul style="margin:0;padding-left:18px;color:#0f172a;">
+      ${d.lines.map(x=>`<li>${x}</li>`).join('')}
+    </ul>
+    <div style="margin-top:10px;display:flex;gap:8px;flex-wrap:wrap;">
+      ${actHtml}
+    </div>
+  `;
+}
+
+// Hook into setRole (append renderRoleModules call once)
+(function(){
+  const src = document.documentElement.outerHTML;
+  // no-op guard: if already patched, skip
+})();
+
+
+/* === PATCH: Role Modules auto-render wrapper (safe) === */
+(function(){
+  function safeRender(role){
+    try{
+      if(typeof window.renderRoleModules === 'function'){
+        window.renderRoleModules(role || window.ACTIVE_ROLE || 'md');
+      }
+    }catch(e){ console.warn('[roleModules] render failed', e); }
+  }
+
+  // Wrap setRole once
+  try{
+    if(typeof window.setRole === 'function' && !window.setRole.__wrapped){
+      const _setRole = window.setRole;
+      const wrapped = function(role){
+        const r = role || window.ACTIVE_ROLE || 'md';
+        const out = _setRole.call(this, r);
+        safeRender(r);
+        return out;
+      };
+      wrapped.__wrapped = true;
+      window.setRole = wrapped;
+    }
+  }catch(e){ console.warn('[roleModules] setRole wrap failed', e); }
+
+  // First paint
+  document.addEventListener('DOMContentLoaded', function(){
+    safeRender(window.ACTIVE_ROLE || 'md');
+  });
+})();
+
+</script>
+ 
+
+</body>
+</html>
