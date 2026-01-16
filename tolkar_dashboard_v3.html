@@ -1,0 +1,1161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Zero@Factory — TOLKAR Pilot</title>
+  <style>
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', sans-serif;
+  background: linear-gradient(135deg, #f5f7fa 0%, #e8ecf1 100%);
+  color: #333;
+  padding: 24px;
+  min-height: 100vh;
+}
+
+.container {
+  max-width: 1900px;
+  margin: 0 auto;
+}
+
+/* HEADER */
+header {
+  background: linear-gradient(135deg, #02154e 0%, #0b1222 100%);
+  padding: 32px 40px;
+  border-radius: 12px;
+  margin-bottom: 32px;
+  box-shadow: 0 8px 24px rgba(2, 21, 78, 0.2);
+  color: #fff;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.header-left {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.logo-badge {
+  width: 72px;
+  height: 72px;
+  background: rgba(255, 255, 255, 0.1);
+  border: 2px solid #f9ba00;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 20px;
+  color: #f9ba00;
+  backdrop-filter: blur(10px);
+}
+
+.header-text h1 {
+  font-size: 32px;
+  font-weight: 700;
+  margin-bottom: 4px;
+  letter-spacing: -0.5px;
+}
+
+.header-text .at-symbol {
+  color: #f9ba00;
+  font-weight: 700;
+}
+
+.header-text p {
+  font-size: 14px;
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.controls {
+  display: flex;
+  gap: 14px;
+}
+
+button {
+  padding: 12px 26px;
+  border: none;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  text-transform: uppercase;
+  letter-spacing: 0.7px;
+}
+
+.btn-reset {
+  background: #f5f7fa;
+  color: #02154e;
+}
+
+.btn-reset:hover {
+  background: #fff;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.btn-shock {
+  background: #D51635;
+  color: #fff;
+}
+
+.btn-shock:hover {
+  background: #b80a2a;
+  box-shadow: 0 6px 18px rgba(213, 22, 53, 0.4);
+}
+
+.btn-kaizen {
+  background: #005530;
+  color: #fff;
+}
+
+.btn-kaizen:hover {
+  background: #003d22;
+  box-shadow: 0 6px 18px rgba(0, 85, 48, 0.4);
+}
+
+/* SUBTITLE */
+.subtitle-section {
+  text-align: center;
+  margin-bottom: 28px;
+  padding: 16px;
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+}
+
+.subtitle-section h2 {
+  font-size: 18px;
+  color: #02154e;
+  font-weight: 600;
+  letter-spacing: 0.3px;
+}
+
+/* TABS */
+.tabs {
+  display: flex;
+  gap: 2px;
+  margin-bottom: 24px;
+  background: #fff;
+  padding: 8px;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+  overflow-x: auto;
+}
+
+.tab-btn {
+  padding: 12px 18px;
+  border: none;
+  background: transparent;
+  color: #666;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  border-bottom: 3px solid transparent;
+  white-space: nowrap;
+}
+
+.tab-btn:hover {
+  color: #02154e;
+}
+
+.tab-btn.active {
+  color: #005530;
+  border-bottom-color: #005530;
+}
+
+.tab-content {
+  display: none;
+}
+
+.tab-content.active {
+  display: block;
+}
+
+/* CARDS */
+.card {
+  background: #fff;
+  border-radius: 12px;
+  padding: 28px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+  margin-bottom: 24px;
+}
+
+.card h3 {
+  font-size: 14px;
+  font-weight: 700;
+  color: #02154e;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  margin-bottom: 20px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.icon-mono {
+  width: 18px;
+  height: 18px;
+  stroke: #02154e;
+  stroke-width: 1.5;
+  fill: none;
+  flex-shrink: 0;
+}
+
+/* KPI GRID */
+.kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.kpi-card {
+  background: linear-gradient(135deg, #f9fafb 0%, #f5f7fa 100%);
+  border: 1px solid #e0e6ed;
+  border-radius: 10px;
+  padding: 20px;
+  position: relative;
+  overflow: hidden;
+}
+
+.kpi-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: linear-gradient(90deg, #02154e, #644bcc);
+}
+
+.kpi-label {
+  font-size: 11px;
+  text-transform: uppercase;
+  color: #666;
+  margin-bottom: 10px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+}
+
+.kpi-value {
+  font-size: 36px;
+  font-weight: 700;
+  color: #02154e;
+  margin-bottom: 8px;
+}
+
+.kpi-delta {
+  font-size: 13px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.delta-up {
+  color: #D51635;
+}
+
+.delta-down {
+  color: #005530;
+}
+
+.delta-neutral {
+  color: #999;
+}
+
+.kpi-unit {
+  font-size: 12px;
+  color: #999;
+}
+
+/* STATIONS */
+.stations-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.station-card {
+  background: linear-gradient(135deg, #f9fafb 0%, #f5f7fa 100%);
+  border: 1px solid #e0e6ed;
+  border-radius: 10px;
+  padding: 16px;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  border-left: 4px solid transparent;
+}
+
+.station-card:hover {
+  background: linear-gradient(135deg, #e8ecf1 0%, #dde4ed 100%);
+  box-shadow: 0 4px 12px rgba(2, 21, 78, 0.1);
+  transform: translateY(-2px);
+}
+
+.station-card.ok {
+  border-left-color: #005530;
+}
+
+.station-card.risk {
+  border-left-color: #f9ba00;
+}
+
+.station-card.bottleneck {
+  border-left-color: #D51635;
+}
+
+.station-name {
+  font-size: 13px;
+  font-weight: 700;
+  color: #02154e;
+  margin-bottom: 12px;
+  text-transform: uppercase;
+}
+
+.station-metric {
+  font-size: 12px;
+  color: #666;
+  margin: 6px 0;
+  display: flex;
+  justify-content: space-between;
+}
+
+.station-metric strong {
+  color: #02154e;
+  font-weight: 700;
+}
+
+/* PRODUCTION TRACK */
+#f1Track {
+  width: 100%;
+  height: 340px;
+  background: linear-gradient(180deg, #f9fafb 0%, #f5f7fa 100%);
+  border-radius: 8px;
+  border: 1px solid #e0e6ed;
+}
+
+/* EVENTS TIMELINE */
+.events-timeline {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  max-height: 400px;
+  overflow-y: auto;
+}
+
+.event-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 14px;
+  background: #f5f7fa;
+  border: 1px solid #e0e6ed;
+  border-radius: 8px;
+  font-size: 12px;
+  color: #02154e;
+  width: fit-content;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.event-pill:hover {
+  background: #e8ecf1;
+  border-color: #02154e;
+}
+
+.event-pill.bottleneck {
+  background: rgba(213, 22, 53, 0.08);
+  border-color: rgba(213, 22, 53, 0.3);
+  color: #D51635;
+}
+
+.event-pill.quality {
+  background: rgba(249, 186, 0, 0.08);
+  border-color: rgba(249, 186, 0, 0.3);
+  color: #f9ba00;
+}
+
+.event-pill.sync {
+  background: rgba(0, 85, 48, 0.08);
+  border-color: rgba(0, 85, 48, 0.3);
+  color: #005530;
+}
+
+.event-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: currentColor;
+  flex-shrink: 0;
+}
+
+/* GRID LAYOUT */
+.grid-2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+  margin-bottom: 24px;
+}
+
+@media (max-width: 1200px) {
+  .grid-2 {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* MODAL */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  z-index: 2000;
+  padding: 20px;
+}
+
+.modal-overlay.visible {
+  display: flex;
+}
+
+.modal {
+  background: #fff;
+  border-radius: 12px;
+  padding: 32px;
+  max-width: 600px;
+  max-height: 80vh;
+  overflow-y: auto;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+}
+
+.modal h3 {
+  font-size: 20px;
+  font-weight: 700;
+  color: #02154e;
+  margin-bottom: 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.modal-close {
+  background: none;
+  border: none;
+  font-size: 24px;
+  color: #666;
+  cursor: pointer;
+  padding: 0;
+}
+
+/* UTILITY */
+::-webkit-scrollbar {
+  width: 6px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #ccc;
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #999;
+}
+
+  </style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header>
+  <div class="header-left">
+    <div class="logo-badge">Z<span class="at-symbol">@</span>F</div>
+    <div class="header-text">
+      <h1>Zero<span class="at-symbol">@</span>Factory</h1>
+      <p>TOLKAR Pilot — Advanced Production Visibility</p>
+    </div>
+  </div>
+  <div class="controls">
+    <button class="btn-reset" onclick="resetState()">Reset</button>
+    <button class="btn-shock" onclick="applyShock()">Shock</button>
+    <button class="btn-kaizen" onclick="applyKaizen()">Kaizen</button>
+  </div>
+</header>
+
+<div class="container">
+
+<!-- SUBTITLE -->
+<div class="subtitle-section">
+  <h2>Advanced Production Visibility — Plan vs Actual, Quality, Materials & Financial Impact</h2>
+</div>
+
+<!-- TABS -->
+<div class="tabs">
+  <button class="tab-btn active" onclick="switchTab('overview')">▪ Overview</button>
+  <button class="tab-btn" onclick="switchTab('plan-actual')">◻ Plan vs Actual</button>
+  <button class="tab-btn" onclick="switchTab('quality')">◆ Quality</button>
+  <button class="tab-btn" onclick="switchTab('materials')">▢ Materials</button>
+  <button class="tab-btn" onclick="switchTab('shipping')">▶ Shipping</button>
+  <button class="tab-btn" onclick="switchTab('maintenance')">⚙ Maintenance</button>
+  <button class="tab-btn" onclick="switchTab('cfo')">◆ CFO Impact</button>
+</div>
+
+<!-- TAB: OVERVIEW -->
+<div id="overview" class="tab-content active">
+  <div class="card">
+    <h3>
+      <svg class="icon-mono" viewBox="0 0 24 24">
+        <rect x="3" y="3" width="8" height="8"/><rect x="13" y="3" width="8" height="8"/><rect x="3" y="13" width="8" height="8"/><rect x="13" y="13" width="8" height="8"/>
+      </svg>
+      Key Performance Indicators
+    </h3>
+    <div class="kpi-grid">
+      <div class="kpi-card">
+        <div class="kpi-label">WIP Total</div>
+        <div class="kpi-value">13</div>
+        <div class="kpi-delta delta-up">▼ 2 units</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">Daily Throughput</div>
+        <div class="kpi-value">8<span class="kpi-unit">/day</span></div>
+        <div class="kpi-delta delta-down">▲ 1.2 units</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">OEE Average</div>
+        <div class="kpi-value">92<span class="kpi-unit">%</span></div>
+        <div class="kpi-delta delta-down">▲ 2%</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">FPY Average</div>
+        <div class="kpi-value">96<span class="kpi-unit">%</span></div>
+        <div class="kpi-delta delta-up">▼ 1%</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="grid-2">
+    <div class="card">
+      <h3>
+        <svg class="icon-mono" viewBox="0 0 24 24">
+          <path d="M3 12h18M3 6h18M3 18h18" stroke-linecap="round"/>
+        </svg>
+        Production Track
+      </h3>
+      <svg id="f1Track" viewBox="0 0 800 340" xmlns="http://www.w3.org/2000/svg"></svg>
+    </div>
+
+    <div class="card">
+      <h3>
+        <svg class="icon-mono" viewBox="0 0 24 24">
+          <circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2" stroke-linecap="round"/>
+        </svg>
+        Race Events
+      </h3>
+      <div class="events-timeline" id="eventsTimeline"></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>
+      <svg class="icon-mono" viewBox="0 0 24 24">
+        <rect x="3" y="3" width="8" height="8"/><rect x="13" y="3" width="8" height="8"/><rect x="3" y="13" width="8" height="8"/><rect x="13" y="13" width="8" height="8"/>
+      </svg>
+      Station Performance
+    </h3>
+    <div class="stations-grid" id="stationsGrid"></div>
+  </div>
+</div>
+
+<!-- TAB: PLAN VS ACTUAL -->
+<div id="plan-actual" class="tab-content">
+  <div class="card">
+    <h3>Plan vs Actual Analysis</h3>
+    <div class="kpi-grid">
+      <div class="kpi-card">
+        <div class="kpi-label">Planned Output</div>
+        <div class="kpi-value">20<span class="kpi-unit">units</span></div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">Actual Output</div>
+        <div class="kpi-value">16<span class="kpi-unit">units</span></div>
+        <div class="kpi-delta delta-up">▼ 4 units (80%)</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">Planned Cycle Time</div>
+        <div class="kpi-value">240<span class="kpi-unit">min</span></div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">Actual Cycle Time</div>
+        <div class="kpi-value">280<span class="kpi-unit">min</span></div>
+        <div class="kpi-delta delta-up">▲ 40 min (16.7%)</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- TAB: QUALITY -->
+<div id="quality" class="tab-content">
+  <div class="card">
+    <h3>Quality Metrics</h3>
+    <div class="kpi-grid">
+      <div class="kpi-card">
+        <div class="kpi-label">First Pass Yield</div>
+        <div class="kpi-value">96<span class="kpi-unit">%</span></div>
+        <div class="kpi-delta delta-neutral">Stable</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">Defect Rate</div>
+        <div class="kpi-value">2.3<span class="kpi-unit">%</span></div>
+        <div class="kpi-delta delta-down">▼ 0.5%</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">Rework Units</div>
+        <div class="kpi-value">4<span class="kpi-unit">units</span></div>
+        <div class="kpi-delta delta-down">▼ 2 units</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">Scrap Rate</div>
+        <div class="kpi-value">0.8<span class="kpi-unit">%</span></div>
+        <div class="kpi-delta delta-down">▼ 0.2%</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- TAB: MATERIALS -->
+<div id="materials" class="tab-content">
+  <div class="card">
+    <h3>Material Consumption</h3>
+    <div class="kpi-grid">
+      <div class="kpi-card">
+        <div class="kpi-label">Water Usage</div>
+        <div class="kpi-value">4,200<span class="kpi-unit">L</span></div>
+        <div class="kpi-delta delta-down">▼ 8% vs target</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">Chemical Consumption</div>
+        <div class="kpi-value">42<span class="kpi-unit">kg</span></div>
+        <div class="kpi-delta delta-down">▼ 5%</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">Energy (Electricity)</div>
+        <div class="kpi-value">580<span class="kpi-unit">kWh</span></div>
+        <div class="kpi-delta delta-up">▲ 3%</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">Steam Consumption</div>
+        <div class="kpi-value">2.1<span class="kpi-unit">t</span></div>
+        <div class="kpi-delta delta-down">▼ 6%</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- TAB: SHIPPING -->
+<div id="shipping" class="tab-content">
+  <div class="card">
+    <h3>Shipping & Logistics</h3>
+    <div class="kpi-grid">
+      <div class="kpi-card">
+        <div class="kpi-label">Units Ready</div>
+        <div class="kpi-value">12<span class="kpi-unit">units</span></div>
+        <div class="kpi-delta delta-down">▼ 4 units pending</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">On-Time Delivery</div>
+        <div class="kpi-value">95<span class="kpi-unit">%</span></div>
+        <div class="kpi-delta delta-down">▲ 2%</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">Avg Lead Time</div>
+        <div class="kpi-value">4.2<span class="kpi-unit">days</span></div>
+        <div class="kpi-delta delta-down">▼ 0.3 days</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">Logistics Cost</div>
+        <div class="kpi-value">€2,450<span class="kpi-unit">total</span></div>
+        <div class="kpi-delta delta-down">▼ 5%</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- TAB: MAINTENANCE -->
+<div id="maintenance" class="tab-content">
+  <div class="card">
+    <h3>Machine Maintenance</h3>
+    <div class="kpi-grid">
+      <div class="kpi-card">
+        <div class="kpi-label">MTBF (Mean Time Between Failures)</div>
+        <div class="kpi-value">312<span class="kpi-unit">hrs</span></div>
+        <div class="kpi-delta delta-down">▲ 12 hrs</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">MTTR (Repair Time)</div>
+        <div class="kpi-value">1.8<span class="kpi-unit">hrs</span></div>
+        <div class="kpi-delta delta-down">▼ 0.4 hrs</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">Maintenance Cost</div>
+        <div class="kpi-value">€8,200<span class="kpi-unit">month</span></div>
+        <div class="kpi-delta delta-up">▲ 3%</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">Equipment Availability</div>
+        <div class="kpi-value">96.2<span class="kpi-unit">%</span></div>
+        <div class="kpi-delta delta-down">▲ 1.2%</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- TAB: CFO IMPACT -->
+<div id="cfo" class="tab-content">
+  <div class="card">
+    <h3>Financial Impact & Scenario Analysis</h3>
+    <div class="kpi-grid">
+      <div class="kpi-card">
+        <div class="kpi-label">Total Production Cost</div>
+        <div class="kpi-value">€24,580<span class="kpi-unit">today</span></div>
+        <div class="kpi-delta delta-down">▼ 6% vs baseline</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">Energy Cost Savings</div>
+        <div class="kpi-value">€1,240<span class="kpi-unit">monthly</span></div>
+        <div class="kpi-delta delta-down">▼ 12% from EcoDrum</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">Water Cost Savings</div>
+        <div class="kpi-value">€340<span class="kpi-unit">monthly</span></div>
+        <div class="kpi-delta delta-down">▼ 8% with recycling</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">Quality Loss Prevention</div>
+        <div class="kpi-value">€890<span class="kpi-unit">monthly</span></div>
+        <div class="kpi-delta delta-down">▼ Rework reduction</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">Annual Savings Potential</div>
+        <div class="kpi-value">€28,560<span class="kpi-unit">year</span></div>
+        <div class="kpi-delta delta-down">▼ 14% improvement</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">Kaizen ROI</div>
+        <div class="kpi-value">340<span class="kpi-unit">%</span></div>
+        <div class="kpi-delta delta-down">▲ 18% month-on-month</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+</div>
+
+<!-- MODAL -->
+<div class="modal-overlay" id="modalOverlay">
+  <div class="modal">
+    <h3>
+      <span id="modalTitle">Details</span>
+      <button class="modal-close" onclick="closeModal()">×</button>
+    </h3>
+    <div id="modalContent"></div>
+  </div>
+</div>
+
+<script>
+const API_BASE = new URLSearchParams(window.location.search).get('api') || 'http://localhost:5000';
+
+let state = {
+  stations: [
+    { id: 1, name: 'Washing', wip: 3, ct: 45, fpy: 98, oee: 94, status: 'ok' },
+    { id: 7, name: 'Drying', wip: 2, ct: 30, fpy: 97, oee: 92, status: 'ok' },
+    { id: 8, name: 'Finishing', wip: 5, ct: 50, fpy: 95, oee: 88, status: 'risk' },
+    { id: 9, name: 'Inspection', wip: 2, ct: 25, fpy: 96, oee: 91, status: 'ok' },
+    { id: 10, name: 'Packing', wip: 1, ct: 20, fpy: 99, oee: 95, status: 'ok' }
+  ],
+  telemetry: {
+    vibration: 2.3,
+    temperature: 78,
+    pressure: 6.2,
+    power: 85
+  },
+  history: {
+    vibration: [2.0, 2.1, 2.2, 2.3],
+    temperature: [80, 79, 78, 78],
+    pressure: [5.9, 6.0, 6.1, 6.2],
+    power: [81, 82, 84, 85]
+  },
+  shockActive: false
+};
+
+const baselineState = JSON.parse(JSON.stringify(state));
+
+/* TAB SWITCHING */
+function switchTab(tabName) {
+  document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
+  
+  document.getElementById(tabName).classList.add('active');
+  event.target.classList.add('active');
+}
+
+/* API FUNCTIONS */
+async function fetchAPI(endpoint, method = 'GET', body = null) {
+  try {
+    const options = { method, headers: { 'Content-Type': 'application/json' } };
+    if (body) options.body = JSON.stringify(body);
+    
+    const resp = await fetch(API_BASE + endpoint, options);
+    if (!resp.ok) throw new Error('HTTP ' + resp.status);
+    
+    return await resp.json();
+  } catch (err) {
+    console.warn('API Error:', err.message);
+    return null;
+  }
+}
+
+async function resetState() {
+  const data = await fetchAPI('/api/reset', 'POST');
+  state = JSON.parse(JSON.stringify(baselineState));
+  render();
+}
+
+async function applyShock() {
+  const data = await fetchAPI('/api/shock', 'POST');
+  if (!data) {
+    state.shockActive = true;
+    const finishingStation = state.stations.find(s => s.id === 8);
+    if (finishingStation) {
+      finishingStation.wip = 8;
+      finishingStation.fpy = 92;
+      finishingStation.status = 'bottleneck';
+    }
+    state.telemetry.vibration = 4.5;
+    state.telemetry.pressure = 8.1;
+    state.telemetry.power = 105;
+    state.history.vibration.push(4.5);
+    state.history.pressure.push(8.1);
+    state.history.power.push(105);
+  }
+  render();
+  
+  setTimeout(() => {
+    if (state.shockActive) applyKaizen();
+  }, 3000);
+}
+
+async function applyKaizen() {
+  const data = await fetchAPI('/api/kaizen', 'POST');
+  if (!data) {
+    state.shockActive = false;
+    state.stations.forEach(st => {
+      st.wip = Math.max(1, st.wip - 1);
+      st.fpy = Math.min(99, st.fpy + 1);
+      st.oee = Math.min(96, st.oee + 1);
+      st.status = st.wip > 4 ? 'risk' : 'ok';
+    });
+    state.telemetry.vibration = Math.max(2.0, state.telemetry.vibration - 0.3);
+    state.telemetry.temperature = 78;
+    state.telemetry.pressure = Math.max(5.9, state.telemetry.pressure - 0.4);
+    state.telemetry.power = Math.max(81, state.telemetry.power - 3);
+
+    state.history.vibration.push(state.telemetry.vibration);
+    state.history.temperature.push(state.telemetry.temperature);
+    state.history.pressure.push(state.telemetry.pressure);
+    state.history.power.push(state.telemetry.power);
+
+    state.history.vibration = state.history.vibration.slice(-4);
+    state.history.temperature = state.history.temperature.slice(-4);
+    state.history.pressure = state.history.pressure.slice(-4);
+    state.history.power = state.history.power.slice(-4);
+  }
+  render();
+}
+
+function pad(val) {
+  return val < 10 ? '0' + val : '' + val;
+}
+
+function formatTime(h, m) {
+  return pad(h) + ':' + pad(m);
+}
+
+function renderTrack() {
+  const svg = document.getElementById('f1Track');
+  svg.innerHTML = '';
+
+  const bg = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+  bg.setAttribute('width', '800');
+  bg.setAttribute('height', '340');
+  bg.setAttribute('fill', '#fafbfc');
+  svg.appendChild(bg);
+
+  const heatmapGroup = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+  heatmapGroup.setAttribute('id', 'pw2_heatmap');
+
+  const segmentIds = [1, 7, 8, 9, 10];
+  const segmentWidth = 800 / segmentIds.length;
+
+  segmentIds.forEach((stationId, idx) => {
+    const station = state.stations.find(s => s.id === stationId);
+    if (!station) return;
+
+    const score = (station.wip / 5) + (1 - station.fpy / 100);
+    let color = 'rgba(0, 85, 48, 0.06)';
+    if (score > 0.4) color = 'rgba(249, 186, 0, 0.1)';
+    if (score > 0.6) color = 'rgba(213, 22, 53, 0.1)';
+
+    const rect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+    rect.setAttribute('x', idx * segmentWidth);
+    rect.setAttribute('y', '0');
+    rect.setAttribute('width', segmentWidth);
+    rect.setAttribute('height', '260');
+    rect.setAttribute('fill', color);
+    rect.setAttribute('class', 'heatmap-segment');
+    rect.setAttribute('data-station', stationId);
+    heatmapGroup.appendChild(rect);
+  });
+
+  svg.appendChild(heatmapGroup);
+
+  const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+  line.setAttribute('x1', '0');
+  line.setAttribute('y1', '260');
+  line.setAttribute('x2', '800');
+  line.setAttribute('y2', '260');
+  line.setAttribute('stroke', '#e0e6ed');
+  line.setAttribute('stroke-width', '2');
+  svg.appendChild(line);
+
+  const day = Math.floor(Date.now() / 1000) % 7;
+  const carPos = (day / 7) * 800;
+  const car = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+  car.setAttribute('cx', carPos);
+  car.setAttribute('cy', '260');
+  car.setAttribute('r', '12');
+  car.setAttribute('fill', '#644bcc');
+  car.setAttribute('class', 'f1-car');
+  svg.appendChild(car);
+
+  const labelGroup = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+  segmentIds.forEach((stationId, idx) => {
+    const station = state.stations.find(s => s.id === stationId);
+    if (!station) return;
+
+    const x = idx * segmentWidth + segmentWidth / 2;
+    const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+    text.setAttribute('x', x);
+    text.setAttribute('y', '300');
+    text.setAttribute('text-anchor', 'middle');
+    text.setAttribute('font-size', '13');
+    text.setAttribute('font-weight', '600');
+    text.setAttribute('fill', '#02154e');
+    text.textContent = station.name;
+    labelGroup.appendChild(text);
+
+    const statusColor = station.status === 'ok' ? '#005530' : (station.status === 'risk' ? '#f9ba00' : '#D51635');
+    const dot = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+    dot.setAttribute('cx', x);
+    dot.setAttribute('cy', '325');
+    dot.setAttribute('r', '5');
+    dot.setAttribute('fill', statusColor);
+    labelGroup.appendChild(dot);
+  });
+  svg.appendChild(labelGroup);
+
+  if (!svg.__pw2_bound) {
+    svg.addEventListener('mousemove', trackTooltip, true);
+    svg.addEventListener('mouseleave', hideTooltip, true);
+    svg.__pw2_bound = true;
+  }
+}
+
+function trackTooltip(e) {
+  const svg = document.getElementById('f1Track');
+  const rect = svg.getBoundingClientRect();
+  const x = e.clientX - rect.left;
+  const segmentWidth = 800 / 5;
+  const segmentIdx = Math.floor((x / rect.width) * 5);
+  const segmentIds = [1, 7, 8, 9, 10];
+
+  if (segmentIdx >= 0 && segmentIdx < segmentIds.length) {
+    const stationId = segmentIds[segmentIdx];
+    const station = state.stations.find(s => s.id === stationId);
+    if (station) {
+      const tooltip = document.getElementById('track-tooltip') || createTooltip('track-tooltip');
+      tooltip.innerHTML =
+        '<strong>' + station.name + '</strong><br/>' +
+        'WIP: ' + station.wip + ' | CT: ' + station.ct + 'm<br/>' +
+        'OEE: ' + station.oee + '% | FPY: ' + station.fpy + '%<br/>' +
+        'Status: ' + station.status.toUpperCase();
+      tooltip.classList.add('visible');
+      tooltip.style.left = (e.clientX - rect.left + 10) + 'px';
+      tooltip.style.top = (e.clientY - rect.top + 10) + 'px';
+    }
+  }
+}
+
+function hideTooltip() {
+  const tooltip = document.getElementById('track-tooltip');
+  if (tooltip) tooltip.classList.remove('visible');
+}
+
+function createTooltip(id) {
+  const tooltip = document.createElement('div');
+  tooltip.setAttribute('id', id);
+  tooltip.className = 'tooltip';
+  document.body.appendChild(tooltip);
+  return tooltip;
+}
+
+function renderStations() {
+  const grid = document.getElementById('stationsGrid');
+  grid.innerHTML = '';
+
+  state.stations.forEach(station => {
+    const card = document.createElement('div');
+    card.className = 'station-card ' + station.status;
+    card.onclick = () => openStationDetail(station);
+    card.innerHTML =
+      '<div class="station-name">' + station.name + '</div>' +
+      '<div class="station-metric">WIP <strong>' + station.wip + '</strong></div>' +
+      '<div class="station-metric">CT <strong>' + station.ct + 'm</strong></div>' +
+      '<div class="station-metric">OEE <strong>' + station.oee + '%</strong></div>' +
+      '<div class="station-metric">FPY <strong>' + station.fpy + '%</strong></div>';
+    grid.appendChild(card);
+  });
+}
+
+function buildEvents() {
+  const events = [];
+  const now = new Date();
+
+  state.stations.forEach((st, idx) => {
+    if (st.status === 'bottleneck') {
+      events.push({
+        time: new Date(now.getTime() - idx * 15 * 60000),
+        type: 'bottleneck',
+        label: 'BOTTLENECK @ ' + st.name
+      });
+    }
+    if (st.fpy < 96) {
+      events.push({
+        time: new Date(now.getTime() - idx * 20 * 60000),
+        type: 'quality',
+        label: 'QUALITY ALERT @ ' + st.name
+      });
+    }
+  });
+
+  if (events.length === 0) {
+    events.push({
+      time: now,
+      type: 'sync',
+      label: 'PRODUCTION SYNC'
+    });
+  }
+
+  return events.sort((a, b) => b.time - a.time).slice(0, 8);
+}
+
+function renderEvents() {
+  const timeline = document.getElementById('eventsTimeline');
+  timeline.innerHTML = '';
+
+  const events = buildEvents();
+  events.forEach(evt => {
+    const h = evt.time.getHours();
+    const m = evt.time.getMinutes();
+    const pill = document.createElement('div');
+    pill.className = 'event-pill ' + evt.type;
+    pill.innerHTML = '<span class="event-dot"></span>' + evt.label + ' • ' + formatTime(h, m);
+    pill.onclick = () => openEventDetail(evt);
+    timeline.appendChild(pill);
+  });
+}
+
+function openStationDetail(station) {
+  const issues = [];
+  if (station.wip > 4) issues.push('High WIP (' + station.wip + ' units)');
+  if (station.fpy < 95) issues.push('Quality Issue (FPY: ' + station.fpy + '%)');
+  if (station.oee < 85) issues.push('Low OEE (' + station.oee + '%)');
+
+  const content = `
+    <div style="margin-bottom:20px;">
+      <h4 style="font-size:13px;font-weight:700;color:#666;text-transform:uppercase;margin-bottom:12px;">KPIs</h4>
+      <p style="font-size:13px;margin:8px 0;"><strong>WIP:</strong> ${station.wip} units</p>
+      <p style="font-size:13px;margin:8px 0;"><strong>Cycle Time:</strong> ${station.ct} minutes</p>
+      <p style="font-size:13px;margin:8px 0;"><strong>OEE:</strong> ${station.oee}%</p>
+      <p style="font-size:13px;margin:8px 0;"><strong>FPY:</strong> ${station.fpy}%</p>
+    </div>
+    <div>
+      <h4 style="font-size:13px;font-weight:700;color:#666;text-transform:uppercase;margin-bottom:12px;">Issues</h4>
+      <p style="font-size:13px;">${issues.length > 0 ? issues.join('<br/>') : 'No issues detected'}</p>
+    </div>
+  `;
+  
+  openModal(station.name + ' Details', content);
+}
+
+function openEventDetail(evt) {
+  const content = `
+    <div style="margin-bottom:20px;">
+      <p style="font-size:13px;margin:8px 0;"><strong>Type:</strong> ${evt.type.toUpperCase()}</p>
+      <p style="font-size:13px;margin:8px 0;"><strong>Time:</strong> ${evt.time.toLocaleTimeString()}</p>
+      <p style="font-size:13px;margin:8px 0;"><strong>Description:</strong> ${evt.label}</p>
+    </div>
+  `;
+  
+  openModal('Event: ' + evt.label, content);
+}
+
+function openModal(title, content) {
+  document.getElementById('modalTitle').textContent = title;
+  document.getElementById('modalContent').innerHTML = content;
+  document.getElementById('modalOverlay').classList.add('visible');
+}
+
+function closeModal() {
+  document.getElementById('modalOverlay').classList.remove('visible');
+}
+
+function render() {
+  renderTrack();
+  renderStations();
+  renderEvents();
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+  render();
+  
+  setInterval(() => {
+    const svg = document.getElementById('f1Track');
+    if (svg && !state.shockActive) {
+      const day = Math.floor(Date.now() / 1000) % 7;
+      const carPos = (day / 7) * 800;
+      const car = svg.querySelector('.f1-car');
+      if (car) car.setAttribute('cx', carPos);
+    }
+  }, 5000);
+});
+  </script>
+
+</body>
+</html> 

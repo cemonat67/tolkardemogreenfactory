@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Zero@Factory — Lines</title>
+  <link rel="icon" href="factory-logo 2.svg">
+  <style>
+    :root{--zero-navy:#02154e;--zero-orange:#f9ba00;--zero-green:#005530;--zero-red:#D51635;--zero-white:#ffffff;--zero-black:#1a1a1a;--zero-gray-light:#e0e0e0}
+    *{margin:0;padding:0;box-sizing:border-box}
+    body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','Helvetica Neue',Arial,sans-serif;background:#fff;color:#1a1a1a}
+    .zero-color-bar{height:4px;width:100%;background:linear-gradient(90deg,var(--zero-green) 0%,var(--zero-red) 25%,var(--zero-navy) 50%,var(--zero-orange) 75%,var(--zero-orange) 100%)}
+    .app-header{background:#fff;color:var(--zero-navy);padding:1.2rem;border-bottom:1px solid var(--zero-gray-light)}
+    .header-content{position:relative;display:flex;align-items:center;max-width:1200px;margin:0 auto;min-height:90px}
+    .title-stack{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);display:flex;flex-direction:column;align-items:center;justify-content:center}
+    .container{max-width:1200px;margin:0 auto;padding:1.2rem}
+    .title{font-size:1.4rem;font-weight:500;color:var(--zero-navy)}
+    .title-at{color:var(--zero-orange)}
+    .subtitle{color:#666;margin-top:.25rem}
+    .brand{color:var(--zero-navy)}
+    .facility-wrap{display:flex;justify-content:center;margin-top:.5rem}
+    .facility-pill{background:var(--zero-green);color:#fff;border-radius:12px;padding:.4rem .8rem;box-shadow:0 4px 10px rgba(0,0,0,.15)}
+    .health-bar{display:flex;gap:8px;align-items:center}
+    .pill{border:1px solid var(--zero-gray-light);background:#fff;border-radius:10px;padding:6px 12px;font-weight:700}
+    .brain-heal-row{position:absolute;right:16px;top:50%;transform:translateY(-50%)}
+    .card{background:#fff;border:1px solid var(--zero-gray-light);border-radius:8px;padding:1rem;margin-bottom:12px}
+    .tabs{display:flex;flex-wrap:wrap;gap:.5rem;justify-content:center}
+    .tab-btn{display:inline-flex;align-items:center;gap:.35rem;padding:.5rem .9rem;border:none;border-radius:6px;background:var(--zero-navy);color:#fff;cursor:pointer;font-size:.85rem;text-decoration:none}
+    .tab-btn:hover{background:var(--zero-orange);color:var(--zero-navy)}
+    .tab-btn.active{background:var(--zero-green);color:#fff}
+    .ms-table{width:100%;border-collapse:collapse}
+    .ms-table th,.ms-table td{border:1px solid var(--zero-gray-light);padding:.6rem;text-align:left}
+    .ms-table th{background:#fafbfc;color:#02154e}
+  </style>
+</head>
+<body>
+  <div class="zero-color-bar"></div>
+  <header class="app-header"><div class="header-content">
+    <img class="brand-logo" src="factory-logo 2.svg" alt="Tolkar" style="width:64px;height:64px">
+    <div class="title-stack" style="text-align:center">
+      <div class="title">Zero<span class="title-at">@</span>Green Factory</div>
+      <div style="color:#666">Sürdürülebilir Üretim Kontrol Merkezi by Zero<span class="title-at">@</span>Ecosystem</div>
+    </div>
+  </div></header>
+  <div id="headerBelowNav" class="container" style="padding-top:0">
+    <div class="tabs">
+      <a class="tab-btn" href="dashboard.html?auth=bypass#overview">Genel Bakış</a>
+      <a class="tab-btn" href="quality.html" onclick="window.location.href='quality.html'+(location.search||'');return false;">Kalite</a>
+      <a class="tab-btn" href="maintenance.html" onclick="window.location.href='maintenance.html'+(location.search||'');return false;">Bakım</a>
+      <a class="tab-btn" href="materials.html" onclick="window.location.href='materials.html'+(location.search||'');return false;">Malzemeler</a>
+      <a class="tab-btn active" href="lines.html" onclick="window.location.href='lines.html'+(location.search||'');return false;">Hat Takip</a>
+      <a class="tab-btn" href="shipping.html" onclick="window.location.href='shipping.html'+(location.search||'');return false;">Sevkiyat</a>
+      <a class="tab-btn" href="MES.html" onclick="window.location.href='MES.html'+(location.search||'');return false;">MES</a>
+      <a class="tab-btn" href="FactoryFlowLine.html" onclick="window.location.href='FactoryFlowLine.html'+(location.search||'');return false;">Üretim Akış Şeması</a>
+      <a class="tab-btn" href="historical.html" onclick="window.location.href='historical.html'+(location.search||'');return false;">Geçmiş Eğilimler</a>
+      <a class="tab-btn" href="greenfactory.html" onclick="window.location.href='greenfactory.html'+(location.search||'');return false;">Green Factory (Details)</a>
+    </div>
+  </div>
+  <main class="container">
+    <div class="card"><div style="font-weight:600;color:#02154e;margin-bottom:.5rem">Canlı Hat Takibi</div>
+      <table class="ms-table"><thead><tr>
+        <th>Hat</th><th>Durum</th><th>WIP</th><th>Çıkış Hızı</th><th>CT (dk)</th><th>OEE%</th><th>FPY%</th><th>Darboğaz</th>
+      </tr></thead><tbody>
+        <tr><td>Metal & Şase</td><td>OK</td><td>1</td><td>90</td><td>40</td><td>92</td><td>97</td><td>-</td></tr>
+        <tr><td>Boya Hattı</td><td>OK</td><td>2</td><td>80</td><td>45</td><td>92</td><td>97</td><td>-</td></tr>
+        <tr><td>Montaj</td><td>Action</td><td>8</td><td>72</td><td>50</td><td>84</td><td>92</td><td>✔</td></tr>
+        <tr><td>Final Test</td><td>OK</td><td>4</td><td>65</td><td>55</td><td>92</td><td>97</td><td>-</td></tr>
+        <tr><td>Paketleme & Sevkiyat</td><td>Action</td><td>5</td><td>60</td><td>60</td><td>92</td><td>97</td><td>✔</td></tr>
+      </tbody></table>
+    </div>
+  </main>
+</body>
+</html>

@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TOLKAR — Wallboard</title>
+  <style>
+    body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#0f172a;color:#fff;margin:0}
+    .wrap{padding:20px}
+    .title{font-size:28px;font-weight:700;margin-bottom:12px;text-align:center}
+    .grid{display:grid;grid-template-columns:repeat(5,1fr);gap:12px}
+    .lane{border-radius:12px;padding:14px;min-height:240px}
+    .lane .name{font-size:22px;font-weight:700;margin-bottom:8px}
+    .stat{font-size:18px;margin:4px 0}
+    .pill{padding:.3rem .6rem;border-radius:999px;border:1px solid rgba(255,255,255,.25);display:inline-block;margin-left:8px}
+    .ok{background:rgba(16,185,129,.15);border-color:rgba(16,185,129,.35)}
+    .degraded{background:rgba(249,186,0,.18);border-color:rgba(249,186,0,.4)}
+    .offline{background:rgba(213,22,53,.18);border-color:rgba(213,22,53,.4)}
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="title">TOLKAR Zero@Factory — Wallboard</div>
+    <div id="board" class="grid"></div>
+  </div>
+  <script src="assets/js/auth-wrapper.js"></script>
+  <script>
+    async function load(){
+      try{
+        const r = await AUTH.get('/api/v1/lines');
+        const lines = (r.lines||[]);
+        render(lines);
+      }catch(e){ render([]); }
+    }
+    function cls(st){ return st==='Running'?'ok':(st==='Down'?'offline':'degraded'); }
+    function render(lines){
+      const host=document.getElementById('board'); host.innerHTML='';
+      const names=['Metal & Şase','Boya Hattı','Montaj','Final Test','Paketleme & Sevkiyat'];
+      names.forEach(n=>{
+        const l = lines.find(x=> x.line_name===n) || {line_name:n,status:'Idle',wip:0,throughput_ph:0,ct_min:0,oee:0,fpy:0};
+        const d=document.createElement('div'); d.className='lane'; d.style.background = l.status==='Running'? '#064e3b' : (l.status==='Down'? '#7f1d1d' : (l.status==='Idle'? '#78350f':'#6b21a8'));
+        d.innerHTML = `<div class='name'>${l.line_name}<span class='pill ${cls(l.status)}'>${l.status}</span></div>
+          <div class='stat'>WIP: <strong>${l.wip}</strong></div>
+          <div class='stat'>Throughput: <strong>${l.throughput_ph}/h</strong></div>
+          <div class='stat'>CT: <strong>${l.ct_min}m</strong></div>
+          <div class='stat'>OEE: <strong>${l.oee}%</strong></div>
+          <div class='stat'>FPY: <strong>${l.fpy}%</strong></div>`;
+        host.appendChild(d);
+      });
+    }
+    load(); setInterval(load, 10000);
+  </script>
+</body>
+</html>

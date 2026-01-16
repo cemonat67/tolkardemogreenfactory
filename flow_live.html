@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TOLKAR Factory Flow Live</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif; background: #f5f7fa; padding: 20px; overflow-x: hidden; }
+    .main-container { display: grid; grid-template-rows: auto 1fr 320px; gap: 20px; height: calc(100vh - 40px); }
+    .flow-header { background: linear-gradient(135deg, #02154e 0%, #003366 100%); border-radius: 12px; padding: 20px 24px; box-shadow: 0 4px 12px rgba(0,0,0,0.2); display: flex; justify-content: space-between; align-items: center; color: #fff; }
+    .header-left { display: flex; align-items: center; gap: 20px; }
+    .flow-title { font-size: 20px; font-weight: 700; }
+    .shift-info { display: flex; align-items: center; gap: 12px; padding: 8px 16px; background: rgba(255,255,255,0.15); border-radius: 8px; font-size: 13px; }
+    .shift-badge { padding: 4px 12px; background: #f9ba00; color: #02154e; border-radius: 6px; font-weight: 700; font-size: 12px; }
+    .shift-time { font-size: 12px; opacity: 0.9; }
+    .flow-controls { display: flex; gap: 16px; align-items: center; }
+    .speed-control { display: flex; gap: 6px; align-items: center; font-size: 12px; }
+    .speed-btn { padding: 4px 10px; border: 1px solid rgba(255,255,255,0.3); border-radius: 4px; background: rgba(255,255,255,0.1); color: #fff; cursor: pointer; font-size: 11px; transition: all 0.2s; }
+    .speed-btn:hover { background: rgba(255,255,255,0.2); }
+    .speed-btn.active { background: #f9ba00; color: #02154e; border-color: #f9ba00; }
+    .alert-toggle { padding: 8px 16px; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.3); border-radius: 8px; color: #fff; cursor: pointer; font-size: 12px; display: flex; align-items: center; gap: 6px; transition: all 0.2s; }
+    .alert-toggle:hover { background: rgba(255,255,255,0.2); }
+    .alert-toggle.active { background: #10b981; border-color: #10b981; }
+    .legend { display: flex; gap: 12px; font-size: 11px; }
+    .legend-item { display: flex; align-items: center; gap: 4px; }
+    .legend-dot { width: 10px; height: 10px; border-radius: 50%; }
+    .flow-section { background: #fff; border-radius: 12px; padding: 24px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); overflow: hidden; position: relative; }
+    .section-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; padding-bottom: 12px; border-bottom: 2px solid #f9ba00; }
+    .section-title { font-size: 16px; font-weight: 700; color: #02154e; }
+    .live-indicator { display: flex; align-items: center; gap: 6px; font-size: 12px; color: #10b981; font-weight: 600; }
+    .live-dot { width: 8px; height: 8px; background: #10b981; border-radius: 50%; animation: livePulse 2s infinite; }
+    @keyframes livePulse { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.5; transform: scale(1.3); } }
+    .flow-lanes { position: relative; height: 100%; overflow-y: auto; }
+    .flow-lane { position: relative; height: 100px; margin-bottom: 12px; border-bottom: 2px dashed #e5e7eb; }
+    .flow-lane:last-child { border-bottom: none; }
+    .lane-header { position: absolute; left: 0; top: 0; width: 220px; height: 100%; display: flex; flex-direction: column; justify-content: center; padding: 12px; background: linear-gradient(90deg, #f9fafb 0%, transparent 100%); z-index: 5; }
+    .lane-info { display: flex; align-items: center; gap: 10px; margin-bottom: 6px; }
+    .lane-number { font-size: 28px; font-weight: 700; color: #02154e; line-height: 1; }
+    .lane-name { font-size: 13px; font-weight: 600; color: #02154e; }
+    .lane-status { display: flex; align-items: center; gap: 4px; font-size: 10px; color: #666; margin-bottom: 4px; }
+    .status-dot { width: 6px; height: 6px; border-radius: 50%; animation: pulse 2s infinite; }
+    .status-dot.running { background: #10b981; }
+    .status-dot.down { background: #ef4444; }
+    @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
+    .lane-operator { font-size: 10px; color: #666; margin-bottom: 4px; }
+    .operator-name { font-weight: 600; color: #02154e; }
+    .lane-metrics { display: flex; gap: 8px; font-size: 10px; color: #666; }
+    .lane-metric strong { color: #02154e; font-weight: 600; }
+    .lane-track { position: absolute; left: 240px; right: 20px; top: 50%; transform: translateY(-50%); height: 4px; background: linear-gradient(90deg, #cbd5e1 0%, #94a3b8 50%, #cbd5e1 100%); border-radius: 2px; }
+    .lane-stations { position: absolute; left: 240px; right: 20px; top: 50%; transform: translateY(-50%); display: flex; justify-content: space-between; z-index: 10; }
+    .station-checkpoint { width: 22px; height: 22px; background: #fff; border: 2px solid #64748b; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 9px; font-weight: 700; color: #64748b; cursor: pointer; transition: all 0.2s; position: relative; }
+    .station-checkpoint:hover { transform: scale(1.5); border-color: #02154e; color: #02154e; z-index: 100; }
+    .station-checkpoint.active { background: #10b981; border-color: #10b981; color: #fff; }
+    .station-checkpoint.down { background: #ef4444; border-color: #ef4444; color: #fff; animation: stationAlert 1s infinite; }
+    @keyframes stationAlert { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
+    .order-token { position: absolute; width: 44px; height: 44px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 22px; cursor: pointer; transition: all 0.3s; box-shadow: 0 4px 12px rgba(0,0,0,0.25); z-index: 20; top: 50%; transform: translate(-50%, -50%); }
+    .order-token:hover { transform: translate(-50%, -50%) scale(1.3); z-index: 100; }
+    .order-token.ok { background: linear-gradient(135deg, #10b981 0%, #059669 100%); border: 3px solid #047857; }
+    .order-token.warning { background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); border: 3px solid #b45309; }
+    .order-token.critical { background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%); border: 3px solid #991b1b; }
+    .order-token.blocked { background: linear-gradient(135deg, #7c2d12 0%, #431407 100%); border: 3px solid #1c0a00; animation: shake 0.5s infinite; }
+    @keyframes shake { 0%, 100% { transform: translate(-50%, -50%) rotate(0deg); } 25% { transform: translate(-50%, -50%) rotate(-2deg); } 75% { transform: translate(-50%, -50%) rotate(2deg); } }
+    .token-badge { position: absolute; top: -4px; right: -4px; width: 16px; height: 16px; background: #fff; border: 2px solid #02154e; border-radius: 50%; font-size: 10px; font-weight: 700; color: #02154e; display: flex; align-items: center; justify-content: center; }
+    .station-section { background: #fff; border-radius: 12px; padding: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); overflow-y: auto; }
+    .station-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 16px; margin-top: 16px; }
+    .station-card { background: #f9fafb; border-radius: 8px; padding: 16px; border-left: 4px solid #10b981; transition: all 0.2s; cursor: pointer; }
+    .station-card:hover { box-shadow: 0 4px 12px rgba(0,0,0,0.1); transform: translateY(-2px); }
+    .station-card.down { border-left-color: #ef4444; }
+    .station-card.warning { border-left-color: #f59e0b; }
+    .station-card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+    .station-name { font-size: 14px; font-weight: 700; color: #02154e; }
+    .station-line { font-size: 11px; color: #666; background: #e5e7eb; padding: 2px 8px; border-radius: 4px; }
+    .station-operator-info { font-size: 11px; color: #666; margin-bottom: 8px; }
+    .machines-list { margin: 12px 0; }
+    .machine-item { display: flex; justify-content: space-between; align-items: center; padding: 8px; margin: 4px 0; background: #fff; border-radius: 6px; font-size: 12px; }
+    .machine-name { display: flex; align-items: center; gap: 8px; font-weight: 600; color: #02154e; }
+    .machine-status { display: flex; align-items: center; gap: 4px; font-size: 11px; }
+    .machine-dot { width: 8px; height: 8px; border-radius: 50%; }
+    .machine-dot.running { background: #10b981; }
+    .machine-dot.down { background: #ef4444; }
+    .machine-dot.maintenance { background: #f59e0b; }
+    .station-metrics { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-top: 12px; padding-top: 12px; border-top: 1px solid #e5e7eb; }
+    .metric-item { text-align: center; }
+    .metric-label { font-size: 10px; color: #666; margin-bottom: 2px; }
+    .metric-value { font-size: 14px; font-weight: 700; color: #02154e; }
+    .alert-notification { position: fixed; top: 100px; right: 20px; width: 350px; background: #fff; border-left: 4px solid #ef4444; border-radius: 8px; padding: 16px; box-shadow: 0 8px 24px rgba(0,0,0,0.2); transform: translateX(400px); transition: transform 0.3s; z-index: 2000; }
+    .alert-notification.show { transform: translateX(0); }
+    .alert-notif-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+    .alert-notif-title { font-weight: 700; color: #991b1b; font-size: 14px; }
+    .alert-notif-close { background: none; border: none; font-size: 20px; color: #666; cursor: pointer; line-height: 1; }
+    .alert-notif-message { font-size: 13px; color: #666; margin-bottom: 8px; }
+    .alert-notif-time { font-size: 11px; color: #999; }
+    @media (max-width: 1200px) { .main-container { grid-template-rows: auto 1fr; } .station-section { display: none; } }
+    @media (max-width: 768px) { body { padding: 10px; } .flow-header { flex-direction: column; gap: 12px; } .lane-header { width: 140px; } .lane-track, .lane-stations { left: 160px; } .order-token { width: 36px; height: 36px; font-size: 18px; } }
+  
+    /* --- Flow Live mini nav --- */
+    .mini-nav{display:flex;gap:10px;align-items:center;margin-top:12px;flex-wrap:wrap}
+    .mini-nav a{display:inline-flex;align-items:center;gap:8px;padding:8px 12px;border-radius:10px;
+      background:rgba(255,255,255,.10);border:1px solid rgba(255,255,255,.22);color:#fff;
+      text-decoration:none;font-size:12px;font-weight:600;transition:all .15s}
+    .mini-nav a:hover{background:rgba(255,255,255,.18);transform:translateY(-1px)}
+
+
+/* ZAP_TABS_CSS */
+
+    :root{ --zero-navy:#02154e; --zero-orange:#f9ba00; --zero-bg:#f5f7fa; --zero-green:#10b981; --zero-red:#ef4444; }
+
+    .top-tabs{
+      display:flex; gap:10px; flex-wrap:wrap;
+      margin:12px 0 0 0; padding:10px 12px;
+      background:rgba(255,255,255,0.10);
+      border:1px solid rgba(255,255,255,0.18);
+      border-radius:12px;
+      backdrop-filter: blur(6px);
+    }
+    .tab-btn{
+      appearance:none; border:1px solid rgba(255,255,255,0.25);
+      background:rgba(255,255,255,0.08);
+      color:#fff; padding:8px 12px; border-radius:10px;
+      font-size:12px; font-weight:700; cursor:pointer;
+      transition:all .15s ease;
+    }
+    .tab-btn:hover{ background:rgba(255,255,255,0.14); transform: translateY(-1px); }
+    .tab-btn.active{
+      background:var(--zero-orange);
+      border-color:var(--zero-orange);
+      color:var(--zero-navy);
+    }
+
+    .mini-nav{
+      display:flex; gap:10px; flex-wrap:wrap;
+      margin-top:10px;
+    }
+    .mini-nav a{
+      display:inline-flex; align-items:center; gap:6px;
+      padding:6px 10px; border-radius:10px;
+      background:rgba(255,255,255,0.10);
+      border:1px solid rgba(255,255,255,0.18);
+      color:#fff; text-decoration:none;
+      font-size:12px; font-weight:700;
+    }
+    .mini-nav a:hover{ background:rgba(255,255,255,0.16); }
+
+    .icon{ width:16px; height:16px; display:inline-block; vertical-align:-3px; fill: currentColor; }
+
+</style>
+</head>
+<body>
+
+<!-- ZAP_SVG_ICONS -->
+<svg xmlns="http://www.w3.org/2000/svg" style="position:absolute;width:0;height:0;overflow:hidden">
+  <symbol id="i-flow" viewBox="0 0 24 24"><path d="M4 7h10a3 3 0 0 0 0-6H4v2h10a1 1 0 0 1 0 2H4v2Zm0 16h10a3 3 0 0 0 0-6H4v2h10a1 1 0 0 1 0 2H4v2Zm0-8h16v-2H4v2Zm14-9h2v4h-2V6Zm0 8h2v4h-2v-4Z"/></symbol>
+  <symbol id="i-box" viewBox="0 0 24 24"><path d="M12 2 3 6.5v11L12 22l9-4.5v-11L12 2Zm7 6.1-7 3.5-7-3.5L12 4.8l7 3.3ZM5 10.1l6 3v6.3l-6-3v-6.3Zm14 6.3-6 3v-6.3l6-3v6.3Z"/></symbol>
+  <symbol id="i-factory" viewBox="0 0 24 24"><path d="M3 21V9l6 3V9l6 3V9l6 3v9H3Zm2-2h14v-6.8l-4-2v3l-6-3v3l-4-2V19Zm2-1h2v-2H7v2Zm4 0h2v-2h-2v2Zm4 0h2v-2h-2v2Z"/></symbol>
+</svg>
+
+  <div class="alert-notification" id="alertNotif">
+    <div class="alert-notif-header">
+      <div class="alert-notif-title" id="alertTitle">🔴 Bildirim</div>
+      <button class="alert-notif-close" onclick="closeAlert()">×</button>
+    </div>
+    <div class="alert-notif-message" id="alertMessage">-</div>
+    <div class="alert-notif-time" id="alertTime">-</div>
+  </div>
+
+  <div class="main-container">
+    <div class="flow-header">
+      <div class="header-left">
+        <div class="flow-title"><span style="font-weight:900;letter-spacing:.2px">TOLKAR</span> <span style="opacity:.88">Zero@Factory</span> <span style="opacity:.70;font-weight:700;font-size:12px;margin-left:8px">Factory Flow Live</span></div>
+        <div class="shift-info">
+          <span class="shift-badge" id="shiftBadge">1. VARDİYA</span>
+          <span class="shift-time" id="shiftTime">07:00 - 15:00</span>
+        </div>
+      </div>
+      <div class="flow-controls">
+        <span id="livePill" style="padding:6px 10px;border-radius:999px;background:#10b981;color:#02154e;font-weight:900;font-size:11px;letter-spacing:.6px">LIVE</span>
+        <button class="alert-toggle" type="button" onclick="location.href='dashboard.html'" style="border-color:rgba(255,255,255,.35)">← Dashboard</button>
+        
+        <div class="speed-control" id="speedControl">
+          <span>Hız:</span>
+          <button class="speed-btn" type="button" data-speed="0.5">0.5x</button>
+          <button class="speed-btn active" type="button" data-speed="1">1x</button>
+          <button class="speed-btn" type="button" data-speed="2">2x</button>
+        </div>
+        <button class="alert-toggle" id="alertToggle" type="button" onclick="toggleAlerts()">🔔 Bildirimler</button>
+        <div class="legend">
+          <div class="legend-item"><div class="legend-dot" style="background: #10b981;"></div><span>Normal</span></div>
+          <div class="legend-item"><div class="legend-dot" style="background: #f59e0b;"></div><span>Uyarı</span></div>
+          <div class="legend-item"><div class="legend-dot" style="background: #ef4444;"></div><span>Kritik</span></div>
+        </div>
+<div class="mini-nav">
+  <a href="dashboard.html">Dashboard</a>
+  <a href="dashboard.html?tab=lines">Hat Takip</a>
+  <a href="dashboard.html?tab=tab-historical">Ge&#231;mi&#351; E&#287;ilimler</a>
+  <a href="dashboard.html?tab=tab-multisite">&#199;oklu Site</a>
+</div>
+
+      </div>
+    </div>
+    <div class="top-tabs">
+      <button class="tab-btn active" data-go="flow" type="button">Flow Live</button>
+      <button class="tab-btn" data-go="lines" type="button">Hat Takip</button>
+      <button class="tab-btn" data-go="hist" type="button">Geçmiş Eğilimler</button>
+      <button class="tab-btn" data-go="multi" type="button">Çoklu Site</button>
+    </div>
+
+
+    <div class="flow-section">
+      <div class="section-header">
+        <div class="section-title"><span style="display:inline-flex;align-items:center;gap:8px;color:#02154e"><svg class="icon"><use href="#i-flow"/></svg> Siparis Akisi — Gercek Zamanli</span></div>
+        <div class="live-indicator"><div class="live-dot"></div><span>CANLI</span></div>
+      </div>
+      <div class="flow-lanes" id="flowLanes"></div>
+    </div>
+
+    <div class="station-section">
+      <div class="section-header">
+        <div class="section-title"><span style="display:inline-flex;align-items:center;gap:8px;color:#02154e"><svg class="icon"><use href="#i-factory"/></svg> Istasyon Durumlari</span></div>
+      </div>
+      <div class="station-grid" id="stationGrid"></div>
+    </div>
+  </div>
+
+  <script>
+    const operators = ['Ahmet Y.', 'Mehmet K.', 'Ali D.', 'Ayşe Ş.', 'Fatma Ö.', 'Mustafa Ç.', 'Zeynep A.', 'Hüseyin K.'];
+    const lines = [
+      { id: 1, name: 'Metal & Şase', status: 'running', wip: 18, oee: 85, operator: operators[0] },
+      { id: 2, name: 'Boya', status: 'down', wip: 6, oee: 0, operator: operators[1] },
+      { id: 3, name: 'Montaj', status: 'running', wip: 22, oee: 89, operator: operators[2] },
+      { id: 4, name: 'Final Test', status: 'running', wip: 10, oee: 91, operator: operators[3] },
+      { id: 5, name: 'Paketleme', status: 'running', wip: 8, oee: 95, operator: operators[4] }
+    ];
+    const stations = [
+      { id: 'ST-101', name: 'Metal Kesim', line: 1, operator: operators[0], machines: [
+        { id: 'MK-01', status: 'running', oee: 88 },
+        { id: 'MK-02', status: 'running', oee: 91 },
+        { id: 'MK-03', status: 'maintenance', oee: 0 }
+      ], wip: 8, oee: 85 },
+      { id: 'ST-201', name: 'Boya Kabini', line: 2, operator: operators[1], machines: [
+        { id: 'BK-01', status: 'running', oee: 82 },
+        { id: 'BK-02', status: 'down', oee: 0 }
+      ], wip: 12, oee: 72 },
+      { id: 'ST-301', name: 'Montaj', line: 3, operator: operators[2], machines: [
+        { id: 'MH-01', status: 'running', oee: 90 },
+        { id: 'MH-02', status: 'running', oee: 89 }
+      ], wip: 15, oee: 89 }
+    ];
+    const orders = [
+      { id: 'TK-001', line: 2, position: 25, status: 'blocked' },
+      { id: 'TK-002', line: 3, position: 60, status: 'ok' },
+      { id: 'TK-003', line: 1, position: 80, status: 'ok' },
+      { id: 'TK-004', line: 4, position: 45, status: 'ok' },
+      { id: 'TK-005', line: 5, position: 70, status: 'ok' },
+      { id: 'TK-006', line: 3, position: 30, status: 'warning' },
+      { id: 'TK-007', line: 1, position: 35, status: 'ok' },
+      { id: 'TK-008', line: 2, position: 55, status: 'critical' }
+    ];
+
+    let speed = 1, alertsOn = false;
+    let alertsTimer = null;
+
+    function init() {
+      // speed buttons: event bağımlılığını kaldır
+      document.querySelectorAll('#speedControl .speed-btn').forEach(btn=>{
+        btn.addEventListener('click', ()=>{
+          setSpeed(parseFloat(btn.dataset.speed||'1'), btn);
+        });
+      });
+
+      updateShift();
+      renderLanes();
+      renderStations();
+      renderTokens();
+      animate();
+    }
+
+    function updateShift() {
+      const h = new Date().getHours();
+      const shift = h >= 7 && h < 15 ? '1. VARDİYA|07:00 - 15:00' : h >= 15 && h < 23 ? '2. VARDİYA|15:00 - 23:00' : '3. VARDİYA|23:00 - 07:00';
+      const [name, time] = shift.split('|');
+      document.getElementById('shiftBadge').textContent = name;
+      document.getElementById('shiftTime').textContent = time;
+    }
+
+    function renderLanes() {
+      document.getElementById('flowLanes').innerHTML = lines.map(l => `
+        <div class="flow-lane" data-line="${l.id}">
+          <div class="lane-header">
+            <div class="lane-info"><div class="lane-number">${l.id}</div><div class="lane-name">${l.name}</div></div>
+            <div class="lane-status"><div class="status-dot ${l.status}"></div><span>${l.status === 'running' ? '▶ Çalışıyor' : '■ Durmuş'}</span></div>
+            <div class="lane-operator">👤 <span class="operator-name">${l.operator}</span></div>
+            <div class="lane-metrics"><div class="lane-metric"><strong>${l.wip}</strong> WIP</div><div class="lane-metric"><strong>${l.oee}%</strong> OEE</div></div>
+          </div>
+          <div class="lane-track"></div>
+          <div class="lane-stations">
+            ${stations.filter(s => s.line === l.id).map((s, i) => {
+              const down = s.machines.some(m => m.status === 'down');
+              return `<div class="station-checkpoint ${down ? 'down' : 'active'}" title="${s.name}">${i+1}</div>`;
+            }).join('')}
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function renderStations() {
+      document.getElementById('stationGrid').innerHTML = stations.map(s => {
+        const cls = s.machines.some(m => m.status === 'down') ? 'down' : s.machines.some(m => m.status === 'maintenance') ? 'warning' : '';
+        return `
+          <div class="station-card ${cls}">
+            <div class="station-card-header">
+              <div class="station-name">${s.name}</div>
+              <div class="station-line">Hat ${s.line}</div>
+            </div>
+            <div class="station-operator-info">👤 ${s.operator}</div>
+            <div class="machines-list">
+              ${s.machines.map(m => `
+                <div class="machine-item">
+                  <div class="machine-name"><div class="machine-dot ${m.status}"></div>${m.id}</div>
+                  <div class="machine-status">${m.status === 'running' ? `OEE ${m.oee}%` : m.status === 'down' ? 'Arızalı' : 'Bakımda'}</div>
+                </div>
+              `).join('')}
+            </div>
+            <div class="station-metrics">
+              <div class="metric-item"><div class="metric-label">WIP</div><div class="metric-value">${s.wip}</div></div>
+              <div class="metric-item"><div class="metric-label">OEE</div><div class="metric-value">${s.oee}%</div></div>
+              <div class="metric-item"><div class="metric-label">Makine</div><div class="metric-value">${s.machines.filter(m => m.status === 'running').length}/${s.machines.length}</div></div>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function renderTokens() {
+      document.querySelectorAll('.order-token').forEach(x=>x.remove());
+      orders.forEach(o => {
+        const lane = document.querySelector(`[data-line="${o.line}"]`);
+        if (!lane) return;
+        const token = document.createElement('div');
+        token.className = `order-token ${o.status}`;
+        token.innerHTML = '🧺';
+        token.style.left = `calc(240px + ${o.position}%)`;
+        token.dataset.id = o.id;
+
+        const badge = document.createElement('div');
+        badge.className = 'token-badge';
+        badge.textContent = o.status === 'ok' ? '✓' : o.status === 'warning' ? '⚠' : '!';
+        token.appendChild(badge);
+
+        lane.appendChild(token);
+      });
+    }
+
+    function animate() {
+      orders.forEach(o => {
+        if (o.status !== 'blocked' && o.status !== 'critical') {
+          o.position += 0.05 * speed;
+          if (o.position > 95) o.position = 5;
+          const el = document.querySelector(`[data-id="${o.id}"]`);
+          if (el) el.style.left = `calc(240px + ${o.position}%)`;
+        }
+      });
+      requestAnimationFrame(animate);
+    }
+
+    function setSpeed(s, btn) {
+      speed = s;
+      document.querySelectorAll('.speed-btn').forEach(b => b.classList.remove('active'));
+      if(btn) btn.classList.add('active');
+    }
+
+    function toggleAlerts() {
+      alertsOn = !alertsOn;
+      document.getElementById('alertToggle').classList.toggle('active', alertsOn);
+
+      if (alertsOn) {
+        showAlert('Bildirimler Aktif', 'Kritik durumlar için bildirim alacaksınız.', '#10b981');
+
+        if(!alertsTimer){
+          alertsTimer = setInterval(() => {
+            if (Math.random() > 0.7) {
+              const alerts = [
+                ['🔴 Makine Arızası', 'BK-02 kompresör arızası', '#ef4444'],
+                ['🟡 Bakım Uyarısı', 'MK-03 planlı bakım başladı', '#f59e0b'],
+                ['🟢 Hedef Aşıldı', 'Montaj OEE %95!', '#10b981']
+              ];
+              const a = alerts[Math.floor(Math.random() * alerts.length)];
+              showAlert(a[0], a[1], a[2]);
+            }
+          }, 15000);
+        }
+      } else {
+        if(alertsTimer){ clearInterval(alertsTimer); alertsTimer=null; }
+      }
+    }
+
+    function showAlert(title, msg, color) {
+      const n = document.getElementById('alertNotif');
+      n.style.borderLeftColor = color;
+      document.getElementById('alertTitle').textContent = title;
+      document.getElementById('alertMessage').textContent = msg;
+      document.getElementById('alertTime').textContent = new Date().toLocaleTimeString('tr-TR');
+      n.classList.add('show');
+      setTimeout(() => n.classList.remove('show'), 5000);
+    }
+
+    function closeAlert() {
+      document.getElementById('alertNotif').classList.remove('show');
+    }
+
+    init();
+    setInterval(updateShift, 60000);
+  </script>
+
+<script>
+(function(){
+  function go(where){
+    if(where==='flow'){
+      var el=document.getElementById('flowLanes');
+      if(el) el.scrollIntoView({behavior:'smooth',block:'start'});
+      return;
+    }
+    if(where==='lines'){ location.href='dashboard.html?tab=lines'; return; }
+    if(where==='hist'){ location.href='dashboard.html?tab=tab-historical'; return; }
+    if(where==='multi'){ location.href='dashboard.html?tab=tab-multisite'; return; }
+  }
+  document.addEventListener('click', function(e){
+    var b=e.target.closest && e.target.closest('.tab-btn');
+    if(!b) return;
+    document.querySelectorAll('.tab-btn').forEach(x=>x.classList.remove('active'));
+    b.classList.add('active');
+    go(b.getAttribute('data-go'));
+  });
+})();
+</script>
+
+</body>
+</html>

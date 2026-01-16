@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TOLKAR Zero@Factory — Giriş</title>
+  <link rel="icon" href="factory-logo 2.svg">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: linear-gradient(135deg, #0b1222 0%, #02154e 50%, #005530 100%); min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 20px; }
+    .login-container { background: rgba(30,41,59,0.95); border: 1px solid rgba(99,102,241,0.3); border-radius: 16px; padding: 40px; width: 100%; max-width: 420px; backdrop-filter: blur(10px); box-shadow: 0 20px 60px rgba(0,0,0,0.3); }
+    .logo-section { text-align: center; margin-bottom: 32px; }
+    .logo { display:inline-block; width:64px; height:64px; border-radius:50%; background: rgba(2,21,78,0.15); display:flex; align-items:center; justify-content:center; margin:0 auto 12px; }
+    .logo img{ width:40px; height:40px; }
+    h1 { font-size: 24px; font-weight: 700; color: #fff; }
+    .subtitle { font-size: 12px; color: #94a3b8; letter-spacing: .5px; text-transform: uppercase; }
+    label { display:block; font-size:12px; font-weight:600; color:#cbd5e1; margin:16px 0 6px; text-transform:uppercase; letter-spacing:.5px; }
+    input { width:100%; padding:12px 16px; background: rgba(51,65,85,0.6); border:1px solid rgba(148,163,184,0.2); border-radius:8px; color:#e0e7ff; font-size:14px; transition:.2s; }
+    input:focus { outline:none; background: rgba(51,65,85,0.9); border-color: rgba(99,102,241,0.5); box-shadow:0 0 0 3px rgba(99,102,241,0.1); }
+    .btn { width:100%; padding:12px 24px; background:#02154e; color:#fff; border:none; border-radius:8px; font-size:14px; font-weight:600; text-transform:uppercase; letter-spacing:.5px; cursor:pointer; transition:.2s; margin-top:12px; }
+    .btn:hover { background:#f9ba00; color:#02154e; }
+    .msg { display:none; padding:12px 16px; border-radius:8px; font-size:13px; margin-bottom:16px; }
+    .msg.error { background: rgba(213,22,53,0.12); border:1px solid rgba(213,22,53,0.35); color:#fca5a5; }
+    .msg.success { background: rgba(16,185,129,0.1); border:1px solid rgba(16,185,129,0.3); color:#86efac; }
+    .msg.visible { display:block; }
+    .demo { margin-top:24px; padding-top:16px; border-top:1px solid rgba(99,102,241,0.2); }
+    .demo-item { padding:10px 12px; margin-bottom:8px; background: rgba(99,102,241,0.1); border:1px solid rgba(99,102,241,0.2); border-radius:6px; cursor:pointer; font-size:12px; color:#cbd5e1; }
+    .demo-item:hover { background: rgba(99,102,241,0.2); border-color: rgba(99,102,241,0.4); }
+    .footer { margin-top:24px; padding-top:16px; border-top:1px solid rgba(99,102,241,0.2); text-align:center; font-size:11px; color:#64748b; }
+  </style>
+</head>
+<body>
+  <div class="login-container">
+    <div class="logo-section">
+      <div class="logo"><img src="factory-logo 2.svg" alt="Tolkar"></div>
+      <h1>TOLKAR</h1>
+      <p class="subtitle">Zero@Factory</p>
+      <button class="btn" type="button" id="btn-theme" style="margin-top:12px">Dark Mode</button>
+    </div>
+    <div id="error" class="msg error"></div>
+    <div id="success" class="msg success"></div>
+    <form id="form">
+      <label for="username">Kullanıcı Adı</label>
+      <input id="username" name="username" type="text" value="admin" autocomplete="username" required>
+      <label for="password">Şifre</label>
+      <input id="password" name="password" type="password" value="admin123" autocomplete="current-password" required>
+      <button class="btn" type="submit">Giriş Yap</button>
+    </form>
+    <div class="demo">
+      <div class="demo-item" onclick="fill('admin','admin123')">👤 admin • Admin</div>
+      <div class="demo-item" onclick="fill('supervisor','supervisor123')">👤 supervisor • Supervisor</div>
+      <div class="demo-item" onclick="fill('operator1','operator123')">👤 operator1 • Operator</div>
+    </div>
+    <div class="footer">TOLKAR • İzmir, Turkey • 2026</div>
+  </div>
+  <script>
+    window.__API_BASE__ = (location.hostname==='localhost'||location.hostname==='127.0.0.1') ? 'http://127.0.0.1:5000' : location.origin;
+  </script>
+  <script src="assets/js/auth-wrapper.js"></script>
+  <script>
+    function fill(u,p){ document.getElementById('username').value=u; document.getElementById('password').value=p; show('success','Hazır: '+u); }
+    function show(type,text){ var e=document.getElementById('error'); var s=document.getElementById('success'); if(type==='error'){ e.textContent=text; e.classList.add('visible'); s.classList.remove('visible'); } else { s.textContent=text; s.classList.add('visible'); e.classList.remove('visible'); } }
+    document.getElementById('form').addEventListener('submit', async function(ev){ ev.preventDefault(); var u=document.getElementById('username').value; var p=document.getElementById('password').value; try { await AUTH.login(u,p); window.location.href='dashboard.html'; } catch(err){ show('error', err.message||'Giriş başarısız'); } });
+    document.getElementById('btn-theme').onclick=function(){ var b=document.body; var isDark=b.style.background && b.style.background.includes('#0b'); if(isDark){ b.style.background='linear-gradient(135deg, #ffffff 0%, #fafafa 50%, #e0e0e0 100%)'; } else { b.style.background='linear-gradient(135deg, #0b1222 0%, #02154e 50%, #005530 100%)'; } show('success','Tema değiştirildi'); };
+  </script>
+</body>
+</html>

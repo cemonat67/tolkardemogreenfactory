@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="tr">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>Çoklu Site — Zero@Factory</title>
+  <style>
+    :root{--navy:#02154e;--orange:#f9ba00;--bg:#f6f7fb;}
+    body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial;background:var(--bg);color:#111;}
+    header{background:#fff;border-bottom:1px solid #e6e8f0;padding:16px 18px;}
+    h1{margin:0;font-size:18px;color:var(--navy);}
+    .wrap{max-width:920px;margin:18px auto;padding:0 18px;}
+    .grid{display:grid;grid-template-columns:repeat(2,minmax(240px,1fr));gap:12px;}
+    .card{background:#fff;border:1px solid #e6e8f0;border-radius:12px;padding:14px;display:flex;flex-direction:column;gap:10px;}
+    .title{font-weight:700;color:var(--navy);display:flex;justify-content:space-between;align-items:center;}
+    .pill{font-size:12px;background:rgba(249,186,0,.2);color:var(--navy);padding:4px 8px;border-radius:999px;}
+    a.btn{display:inline-block;text-decoration:none;background:var(--navy);color:#fff;padding:10px 12px;border-radius:10px;font-weight:700;text-align:center}
+    a.btn.secondary{background:#fff;color:var(--navy);border:1px solid #d7dbea}
+    .row{display:flex;gap:10px;flex-wrap:wrap}
+    .muted{color:#555;font-size:13px}
+    @media (max-width:760px){.grid{grid-template-columns:1fr}}
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Çoklu Site — Zero@Factory</h1>
+    <div class="muted">Hızlı seçim: Dashboard / Production Flow</div>
+  </header>
+
+  <div class="wrap">
+    <div class="grid">
+
+      <div class="card">
+        <div class="title">TOLKAR <span class="pill">DEMO</span></div>
+        <div class="row">
+          <a class="btn" href="dashboard.html?facility=tolkar">Dashboard</a>
+          <a class="btn secondary" href="FactoryFlowLine.html?facility=tolkar">Flow</a>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="title">EKOTEN <span class="pill">placeholder</span></div>
+        <div class="row">
+          <a class="btn" href="dashboard.html?facility=ekoten">Dashboard</a>
+          <a class="btn secondary" href="FactoryFlowLine.html?facility=ekoten">Flow</a>
+        </div>
+      </div>
+
+    </div>
+
+    <div style="height:14px"></div>
+    <a class="btn secondary" href="dashboard.html">← Geri (Dashboard)</a>
+  </div>
+</body>
+</html>
