@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Zero Factory — TOLKAR Facility</title>
-  <link rel="icon" href="assets/img/factory-logo.svg">
+  <link rel="icon" href="factory-logo 2.svg">
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
   <style>
     
@@ -49,11 +49,8 @@
     .tab-btn{display:inline-flex;align-items:center;gap:.35rem;padding:.5rem .9rem;border:none;border-radius:6px;background:var(--zero-navy);color:#fff;cursor:pointer;font-size:.85rem;text-decoration:none}
     .tab-btn:hover{background:var(--zero-orange);color:var(--zero-navy)}
     .tab-btn.active{background:var(--zero-green);color:#fff}
-    /* TAB VISIBILITY FIX */
-    .tab-content{display:none !important}
-    .tab-content.active{display:block !important}
-    /* prevent nesting issues */
-    #overview .tab-content{display:inherit !important}
+    .tab-content{display:none}
+    .tab-content.active{display:block}
     .stations-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:.75rem}
     
     .station-card{background:linear-gradient(135deg,#f9fafb 0%,#f5f7fa 100%);border:1px solid #e0e0e0;border-radius:10px;padding:12px;cursor:pointer;border-left:4px solid transparent}
@@ -71,8 +68,7 @@
     .synapse-focus{outline:2px solid #D51635; outline-offset:2px; border-radius:6px}
     /* PATCH END: SYNAPSE_BRAIN_BRIDGE_V1 (CSS) */
     /* PATCH START: SYNAPSE_HEAL_ROW_STYLES */
-    .brain-heal-row{position:absolute;right:16px;top:50%;transform:translateY(-50%);display:grid;grid-template-columns:repeat(2,max-content);gap:8px 12px;justify-content:end;justify-items:end;align-items:center;pointer-events:none}
-    #headerBelowNav .tab-btn{pointer-events:auto}
+    .brain-heal-row{position:absolute;right:16px;top:50%;transform:translateY(-50%);display:grid;grid-template-columns:repeat(2,max-content);gap:8px 12px;justify-content:end;justify-items:end;align-items:center}
     .pill.synapse-orange{background:#f9ba00;color:#fff;border-color:#f9ba00}
     .pill.heal-red{background:#D51635;color:#fff;border-color:#D51635}
     /* PATCH END: SYNAPSE_HEAL_ROW_STYLES */
@@ -89,23 +85,6 @@
     #mes.tab-content{padding:10px; min-height:140px}
     #mes-tab-content{display:block}
     /* PATCH END: MES PANEL WIRING FIX V1 (CSS) */
-    /* PATCH START: MES Panel Init Fix V2 */
-      #mes.tab-content { display: none; padding: 1rem; }
-      #mes.tab-content.active { display: block; }
-      #mes-tab-content { min-height: 200px; }
-      .mes-table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
-      .mes-table th, .mes-table td { padding: 0.75rem; border: 1px solid #e0e0e0; text-align: left; }
-      .mes-table th { background: #fafbfc; font-weight: 600; color: #02154e; }
-      .mes-table tr:hover { background: #f9fafb; }
-      .mes-timeline { display: flex; gap: 0.5rem; overflow-x: auto; margin-bottom: 1rem; padding: 0.5rem 0; }
-      .mes-token { display: inline-flex; align-items: center; justify-content: center; min-width: 45px; height: 45px; border-radius: 50%; background: #f5f7fa; color: #02154e; font-size: 0.75rem; font-weight: 600; border: 1px solid #e0e0e0; cursor: pointer; transition: all 0.2s ease; }
-      .mes-token:hover { background: #02154e; color: #fff; transform: scale(1.1); }
-      .mes-token.active { background: #02154e; color: #fff; box-shadow: 0 2px 8px rgba(2,21,78,0.2); }
-      @media (max-width: 768px) {
-        .mes-table td:nth-child(n+5):nth-child(-n+8) { display: none; }
-        .mes-table th:nth-child(n+5):nth-child(-n+8) { display: none; }
-      }
-    /* PATCH END: MES Panel Init Fix V2 */
     /* DEMO styles for Üretim Pisti and Trendler */
     #lineView{align-items:stretch}
     #lineView.track-demo{grid-template-columns:repeat(5,minmax(180px,1fr)) !important;gap:12px}
@@ -307,7 +286,7 @@
 <div class="zero-color-bar"></div>
   <header class="app-header">
     <div class="header-content">
-      <img class="brand-logo" src="assets/img/factory-logo.svg" alt="Tolkar">
+      <img class="brand-logo" src="factory-logo 2.svg" alt="Tolkar">
       <div class="title-stack">
   <div class="title">Zero<span class="title-at">@</span>Green Factory</div>
   <div class="subtitle">
@@ -321,22 +300,12 @@
 <div style="margin-top:10px;display:flex;justify-content:center">
   </div>
       <div class="health-bar"><span id="healthPill" class="pill offline">Offline</span><span class="pill" id="mlReadyPill" style="margin-left:8px">ML READY</span></div>
-      <div class="proof-bar" id="proofBar" style="margin-left:8px;color:#02154e;font-size:.82rem">
-        <span id="proofSync">--:--:--</span>
-        <span>•</span>
-        <span id="proofSource">/api</span>
-        <span>•</span>
-        <span id="proofLatency">0ms</span>
-        <span>•</span>
-        <span id="proofMode">DEMO</span>
-      </div>
       <!-- PATCH START: SYNAPSE_HEAL_ROW -->
       <div id="brainHealRow" class="brain-heal-row"></div>
       <!-- PATCH END: SYNAPSE_HEAL_ROW -->
     </div>
   </header>
-  <!-- PATCH START: Status Banner + MES + CO2 V1 - Strip -->
-  <div id="offlineBanner" class="offline-banner" style="display:none;margin:0 auto 10px;background:rgba(249,186,0,.12);border:1px solid rgba(249,186,0,.35);color:#5c4400;border-radius:10px;max-width:1200px;padding:.6rem .9rem;text-align:center"></div>
+  <!-- PATCH START: MES + CO2 V1 - Strip -->
   <div id="co2Strip" class="co2-strip">
     <div class="co2-item"><div class="co2-title">CO₂e Today (kg) <span id="co2TodayPill" class="pill">OK</span></div><div id="co2TodayVal" class="co2-value">-</div><div id="co2TodaySub" class="co2-sub">vs dün: +0</div></div>
     <div class="co2-item"><div class="co2-title">CO₂e / Unit (kg) <span id="co2UnitPill" class="pill">OK</span></div><div id="co2UnitVal" class="co2-value">-</div><div class="co2-sub">hedef: 20</div></div>
@@ -348,15 +317,15 @@
     <div id="headerBelowNav">
       <div class="tabs">
         <a class="tab-btn active" href="#overview" onclick="switchTab('overview',this);return false;">Genel Bakış</a>
-        <a class="tab-btn" href="quality.html" onclick="window.location.href='quality.html'+(location.search||'');return false;">Kalite</a>
-        <a class="tab-btn" href="maintenance.html" onclick="window.location.href='maintenance.html'+(location.search||'');return false;">Bakım</a>
-        <a class="tab-btn" href="materials.html" onclick="window.location.href='materials.html'+(location.search||'');return false;">Malzemeler</a>
-        <a class="tab-btn" href="shipping.html" onclick="window.location.href='shipping.html'+(location.search||'');return false;">Sevkiyat</a>
-        <a class="tab-btn" href="lines.html" onclick="window.location.href='lines.html'+(location.search||'');return false;">Hat Takip</a>
-        <a class="tab-btn" href="MES.html" onclick="window.location.href='MES.html'+(location.search||'');return false;">MES</a>
+        <a class="tab-btn" href="#quality" onclick="switchTab('quality',this);return false;">Kalite</a>
+        <a class="tab-btn" href="#maintenance" onclick="switchTab('maintenance',this);return false;">Bakım</a>
+        <a class="tab-btn" href="#materials" onclick="switchTab('materials',this);return false;">Malzemeler</a>
+        <a class="tab-btn" href="#shipping" onclick="switchTab('shipping',this);return false;">Sevkiyat</a>
+        <a class="tab-btn" href="#lines" onclick="switchTab('lines',this);return false;">Hat Takip</a>
+        <a class="tab-btn" href="#mes" onclick="switchTab('mes',this);return false;">MES</a>
         <a class="tab-btn" href="#" onclick="window.location.href='FactoryFlowLine.html'+(location.search||'');return false;">Üretim Akış Şeması</a>
-        <a class="tab-btn" href="historical.html" onclick="window.location.href='historical.html'+(location.search||'');return false;">Geçmiş Eğilimler</a>
-        <a class="tab-btn" href="greenfactory.html" onclick="window.location.href='greenfactory.html'+(location.search||'');return false;">Green Factory (Details)</a>
+        <a class="tab-btn" href="#tab-historical" onclick="switchTab('tab-historical',this);return false;">Geçmiş Eğilimler</a>
+        <a class="tab-btn" href="#green-details" onclick="document.getElementById('green-details').scrollIntoView({behavior:'smooth',block:'start'});return false;">Green Factory (Details)</a>
       </div>
       <style>
         .menu-dd{display:inline-block;position:relative;margin-right:8px}
@@ -409,8 +378,6 @@
 
 </div>
     <div id="status" class="status"></div>
-    <!-- PATCH START: OVERVIEW TAB WRAP -->
-    <div id="overview" class="tab-content active">
       
 <div class="grid two-cols" style="margin-bottom:12px;grid-template-columns:minmax(280px,1fr) minmax(280px,1fr);">
   <div class="card">
@@ -418,7 +385,11 @@
       <div style="font-weight:800;color:#02154e;">Executive View</div>
       <div class="pill" style="border:1px solid #e5e7eb;background:#fff;">ROLE: <span id="roleLabel">MD</span></div>
     </div>
-    <!-- PATCH REMOVED: MES PANEL INSIDE OVERVIEW -->
+    <!-- PATCH START: MES PANEL HTML V1 -->
+    <div id="mes" class="tab-content" style="display:none">
+      <div id="mes-tab-content"></div>
+    </div>
+    <!-- PATCH END: MES PANEL HTML V1 -->
     
     <div id="roleBrief" style="margin-top:10px;"></div>
     <div style="margin-top:10px;display:flex;gap:8px;flex-wrap:wrap;">
@@ -492,13 +463,7 @@
         <div class="events-timeline" id="events"></div>
       </div>
     </div>
-    </div><!-- end overview -->
-    <!-- PATCH END: OVERVIEW TAB WRAP -->
-    <!-- PATCH START: MES PANEL OUTSIDE OVERVIEW -->
-    <div id="mes" class="tab-content">
-      <div id="mes-tab-content"></div>
     </div>
-    <!-- PATCH END: MES PANEL OUTSIDE OVERVIEW -->
     <div id="quality" class="tab-content">
       <div class="card"><div style="font-weight:600;color:var(--zero-navy);margin-bottom:.5rem">Kritik Kalite Metrikleri</div>
         <div class="kpi-grid" id="qualityMetrics"></div>
@@ -658,51 +623,9 @@
     };
     if(CLIENT.name){ const f=document.querySelector('.facility-name'); if(f) f.textContent = CLIENT.name; try{ document.title = 'Zero@Green Factory — ' + CLIENT.name; }catch(e){} }
     let lastSyncTs = null;
-    function setLastSync(ts){ lastSyncTs = ts; CONN.lastSyncAt = ts; applyConnUI(); }
-    const CONN = { state:'OFFLINE', mode:'DEMO', lastSyncAt:null, source:'', latencyMs:0 };
-    function applyConnUI(){
-      try{
-        const hp=document.getElementById('healthPill');
-        const banner=document.getElementById('offlineBanner');
-        const mb=document.getElementById('co2ModeBadge');
-        const ps=document.getElementById('proofSync');
-        const psrc=document.getElementById('proofSource');
-        const plat=document.getElementById('proofLatency');
-        const pm=document.getElementById('proofMode');
-        if(hp){ hp.classList.remove('ok','degraded','offline'); if(CONN.state==='LIVE'){ hp.classList.add('ok'); hp.textContent='Online'; } else if(CONN.state==='DEGRADED'){ hp.classList.add('degraded'); hp.textContent='Degraded'; } else { hp.classList.add('offline'); hp.textContent='Offline'; } }
-        if(banner){ if(CONN.state==='OFFLINE'){ const t=CONN.lastSyncAt? new Date(CONN.lastSyncAt).toLocaleTimeString('tr-TR'):'--:--:--'; banner.style.display='block'; banner.textContent='Offline mod — Son bilinen veri • Son sync: '+t; } else { banner.style.display='none'; } }
-        if(mb){ mb.textContent = (CONN.state==='LIVE' && CONN.mode==='LIVE') ? 'LIVE' : (CONN.mode==='CACHE'?'CACHE':'SIM'); }
-        if(ps){ ps.textContent = CONN.lastSyncAt? new Date(CONN.lastSyncAt).toLocaleTimeString('tr-TR') : '--:--:--'; }
-        if(psrc){ psrc.textContent = CONN.source||'/api'; }
-        if(plat){ plat.textContent = (CONN.latencyMs||0)+'ms'; }
-        if(pm){ pm.textContent = (CONN.mode||'DEMO'); }
-      }catch(e){}
-      try{ writeTolkarSnapshot(); }catch(e){}
-    }
-    function setHealth(state){ CONN.state = (state==='ok'?'LIVE': (state==='degraded'?'DEGRADED':'OFFLINE')); applyConnUI(); }
+    function setLastSync(ts){ lastSyncTs = ts; }
+    function setHealth(state){ const el=document.getElementById('healthPill'); if(!el) return; el.classList.remove('ok','degraded','offline'); if(state==='ok'){ el.classList.add('ok'); el.textContent='OK'; } else if(state==='degraded'){ el.classList.add('degraded'); el.textContent='Degraded'; } else { el.classList.add('offline'); el.textContent='Offline'; } }
     function toast(t){ toastEl.textContent=t; toastEl.classList.add('show'); setTimeout(()=>toastEl.classList.remove('show'),2000); }
-    // SNAPSHOT WRITE (tolkar_last_snapshot)
-    function writeTolkarSnapshot(){
-      try{
-        const k=window.__CO2_LAST || window.GREEN_KPI || {};
-        const demoK={fpy:96.8,oee:85.0,throughput:58,energy_kwh:1240,water_l:2960,co2_today:980,co2_unit:21.8};
-        const kpis={
-          fpy: (window.lastStations && window.lastStations.length)? Math.round(window.lastStations.reduce((x,s)=>x+(s.fpy||0),0)/window.lastStations.length*10)/10 : demoK.fpy,
-          oee: (window.lastStations && window.lastStations.length)? Math.round(window.lastStations.reduce((x,s)=>x+(s.oee||0),0)/window.lastStations.length*10)/10 : demoK.oee,
-          throughput: (window.lastLines && window.lastLines.length)? Math.round(window.lastLines.reduce((x,l)=>x+(l.throughput||l.throughput_ph||0),0)/Math.max(1,window.lastLines.length)) : demoK.throughput,
-          energy_kwh: k.energy_kwh || demoK.energy_kwh,
-          water_l: k.water_l || demoK.water_l,
-          co2_today: k.co2_today || demoK.co2_today,
-          co2_unit: k.co2_unit || demoK.co2_unit
-        };
-        const events=(window.lastEvents && window.lastEvents.length)? window.lastEvents.slice(0,10).map(e=>({ ts:e.ts||new Date().toISOString(), severity:(e.status||'info'), reason_code:(e.reason_code||''), label:(e.message||reasonLabel && reasonLabel(e.reason_code||'')||'') })) : [
-          {ts:new Date().toISOString(),severity:'warning',reason_code:'RC11',label:'Boya bekleme'},
-          {ts:new Date(Date.now()-600000).toISOString(),severity:'critical',reason_code:'RC20',label:'Bakım/arıza'}
-        ];
-        const snap={ ts:Date.now(), conn:{ state:CONN.state, mode:CONN.mode, lastSyncAt:CONN.lastSyncAt, source:CONN.source||'/api/state', latencyMs:CONN.latencyMs||0 }, kpis, events };
-        localStorage.setItem('tolkar_last_snapshot', JSON.stringify(snap));
-      }catch(e){ /* silent */ }
-    }
     /* PATCH START: GREEN_DEAL_VISIBILITY */
     window.GREEN_KPI = { co2_today:0, co2_unit:0, energy_kwh:0, water_l:0, csrd_score:62, cbam_risk:'Low', ecovadis:'Filter Ready', updated_ts:null, source:'sim' };
     function seeded(val,mod){ const d=new Date(); return (val + ((d.getDate()%mod)||0)); }
@@ -731,25 +654,13 @@
     async function computeCO2Kpis(){ let mode='sim'; let orders=[]; try{ if(typeof getOrdersV1Safe==='function'){ const o=await getOrdersV1Safe(); orders=(o&&o.orders)||[]; } }catch(e){} let co2_today=980, co2_unit=21.8, energy_kwh=1240, water_l=2960; if(orders && orders.length){ mode='live'; const units = orders.reduce((x,o)=> x + (o.progress? Math.round((o.progress/100)*(o.plan_min||60)/(o.plan_min||60)):0), 0) || 45; energy_kwh = lastAvgPower? Math.round(lastAvgPower*8):1240; co2_today = Math.round(energy_kwh*0.42); co2_unit = Math.round((co2_today/units)*10)/10; water_l = Math.round(energy_kwh*2.4); }
       return { mode, co2_today, co2_unit, energy_kwh, water_l, orders };
     }
-    function updateCO2Strip(k){ initCO2StripOnce(); document.getElementById('co2TodayVal').textContent = k.co2_today; document.getElementById('co2UnitVal').textContent = k.co2_unit; document.getElementById('energyVal').textContent = k.energy_kwh; document.getElementById('waterVal').textContent = k.water_l; const tp=document.getElementById('co2TodayPill'); const up=document.getElementById('co2UnitPill'); const mb=document.getElementById('co2ModeBadge'); if(tp){ tp.className='pill '+(k.co2_today<900?'ok':(k.co2_today<=1200?'watch':'action')); tp.textContent = tp.classList.contains('ok')?'OK':(tp.classList.contains('watch')?'Watch':'Action'); } if(up){ const cls=co2RiskPill(k.co2_unit); up.className='pill '+cls; up.textContent = cls==='ok'?'OK':(cls==='watch'?'Watch':'Action'); } // MODE BADGE IS GOVERNED BY CONN/applyConnUI (no override here)
+    function updateCO2Strip(k){ initCO2StripOnce(); document.getElementById('co2TodayVal').textContent = k.co2_today; document.getElementById('co2UnitVal').textContent = k.co2_unit; document.getElementById('energyVal').textContent = k.energy_kwh; document.getElementById('waterVal').textContent = k.water_l; const tp=document.getElementById('co2TodayPill'); const up=document.getElementById('co2UnitPill'); const mb=document.getElementById('co2ModeBadge'); if(tp){ tp.className='pill '+(k.co2_today<900?'ok':(k.co2_today<=1200?'watch':'action')); tp.textContent = tp.classList.contains('ok')?'OK':(tp.classList.contains('watch')?'Watch':'Action'); } if(up){ const cls=co2RiskPill(k.co2_unit); up.className='pill '+cls; up.textContent = cls==='ok'?'OK':(cls==='watch'?'Watch':'Action'); } if(mb){ mb.textContent = (k.mode==='live'?'LIVE':'SIM'); }
       __CO2_LAST = k;
-      try{ applyConnUI(); }catch(e){}
     }
     function attachCO2ToStationCards(k){ try{ const cards=document.querySelectorAll('#lineView .station-card'); cards.forEach(c=>{ const oee = Array.from(c.querySelectorAll('.station-metric')).find(r=> /OEE/i.test(r.textContent||'')); if(!oee) return; let pill=oee.querySelector('.co2-pill'); if(!pill){ pill=document.createElement('span'); pill.className='co2-pill'; oee.appendChild(pill); } const v=k.co2_unit; pill.textContent='CO₂ '+v+' kg'; const cls=co2RiskPill(v); pill.className='co2-pill pill '+cls; pill.title='CO₂e/unit: '+v+' kg • Energy: '+(k.energy_kwh||'-')+' kWh'; }); }catch(e){} }
-    function renderMES(orders){ return; }
-    function mesSimOrders(){ return [
-      {id:'ORD-1001', line:'Hat-1', station:'S1', status:'AKTİF', progress:65, eta:'+45m', energy:12.4, co2:18.2, risk:'OK'},
-      {id:'ORD-1002', line:'Hat-2', station:'S2', status:'AKTİF', progress:42, eta:'+90m', energy:9.8, co2:22.6, risk:'WATCH'},
-      {id:'ORD-1003', line:'Hat-3', station:'S3', status:'BEKLEMEDE', progress:0, eta:'+2h', energy:0.0, co2:0.0, risk:'OK'},
-      {id:'ORD-1004', line:'Hat-4', station:'S1', status:'TAM', progress:100, eta:'Done', energy:15.2, co2:25.4, risk:'OK'},
-      {id:'ORD-1005', line:'Hat-1', station:'S2', status:'AKTİF', progress:28, eta:'+25m', energy:8.6, co2:19.8, risk:'OK'}
-    ]; }
-    async function getMesOrdersSafe(){ try{ if(typeof getOrdersOrSim==='function'){ const r=await getOrdersOrSim(); const arr = Array.isArray(r)? r : ((r&&r.orders)||[]); if(arr && arr.length){ return arr.map(o=>({ id:o.id||o.order_id||'-', line:o.line||('Hat-'+(o.line_id||'-')), station:o.station||('S'+(o.station_id||'-')), status:o.status||o.state||'-', progress:o.progress||0, eta:o.eta||'+0h', energy:o.energy||o.energy_kwh||0, co2:o.co2||o.co2e_kg||0, risk:o.risk||'OK' })); } } }catch(e){} return mesSimOrders(); }
-    async function initMESTab(){ try{ const orders=await getMesOrdersSafe(); renderMES(orders); }catch(e){} }
-    if((location.hash||'')==='#mes'){ setTimeout(function(){ initMESTab(); },0); setTimeout(function(){ try{ var btn=document.querySelector('#headerBelowNav .tab-btn[href="#mes"]'); switchTab('mes', btn); }catch(e){} }, 200); }
-// MES_AUTO_OFF:     try{ const mo=new MutationObserver(function(){ const p=document.getElementById('mes'); if(p && p.classList && p.classList.contains('active')){ initMESTab(); } }); mo.observe(document.body,{subtree:true,attributes:true,attributeFilter:['class']}); }catch(e){}
+    function renderMES(orders){ const cont=document.getElementById('mes-tab-content'); if(!cont) return; cont.innerHTML=''; const header=document.createElement('div'); header.className='card'; header.innerHTML = `<div style="font-weight:600;color:var(--zero-navy);margin-bottom:.5rem">MES — Orders</div>`; const tok=document.createElement('div'); tok.id='mesTokens'; tok.style.display='flex'; tok.style.gap='6px'; tok.style.flexWrap='wrap'; header.appendChild(tok); const tableWrap=document.createElement('div'); tableWrap.style.marginTop='.5rem'; const table=document.createElement('table'); table.className='table'; table.style.width='100%'; table.innerHTML = `<thead><tr><th>OrderID</th><th>Hat</th><th>İstasyon</th><th>Durum</th><th>İlerleme</th><th>ETA</th><th>Energy</th><th>CO₂e</th><th>Risk</th></tr></thead><tbody id='mesTable'></tbody>`; tableWrap.appendChild(table); header.appendChild(tableWrap); cont.appendChild(header); const tb=document.getElementById('mesTable'); const src = (orders&&orders.length)? orders : [ {id:'ORD-1001', line:'Montaj', station:'MH-01', status:'Running', progress:42, eta:'+60m', energy:12.4, co2:18.2, risk:'Low'}, {id:'ORD-1002', line:'Boya Hattı', station:'BK-01', status:'Paused', progress:18, eta:'+90m', energy:9.1, co2:22.6, risk:'Medium'} ]; src.forEach(o=>{ const t=document.createElement('span'); t.className='pill'; t.textContent=o.id+' • '+o.line; t.onclick=function(){ Array.from(tok.children).forEach(x=>x.classList.remove('action')); t.classList.add('action'); }; tok.appendChild(t); const tr=document.createElement('tr'); tr.innerHTML = `<td>${o.id}</td><td>${o.line}</td><td>${o.station}</td><td>${o.status}</td><td>${o.progress||0}%</td><td>${o.eta||'-'}</td><td>${o.energy||'-'}</td><td>${o.co2||'-'}</td><td>${o.risk||'-'}</td>`; tb.appendChild(tr); }); }
     // 4s loop
-    if(!window.__CO2_LOOP__){ window.__CO2_LOOP__ = setInterval(async()=>{ try{ const k=await computeCO2Kpis(); updateCO2Strip(k); attachCO2ToStationCards(k); const active=(document.querySelector('.tab-content.active')||{}).id; // MES_AUTO_OFF: if(active==='mes') renderMES(k.orders); }catch(e){} }, 4000); }
+    if(!window.__CO2_LOOP__){ window.__CO2_LOOP__ = setInterval(async()=>{ try{ const k=await computeCO2Kpis(); updateCO2Strip(k); attachCO2ToStationCards(k); const active=(document.querySelector('.tab-content.active')||{}).id; if(active==='mes') renderMES(k.orders); }catch(e){} }, 4000); }
     /* PATCH END: MES + CO2 V1 - JS */
     /* PATCH START: MES PANEL WIRING FIX V1 */
     function ensureMesPanel(){ var panel=document.getElementById('mes'); if(!panel){ var host=document.querySelector('main .container')||document.body; panel=document.createElement('div'); panel.id='mes'; panel.className='tab-content'; host.appendChild(panel); } var inner=document.getElementById('mes-tab-content'); if(!inner){ inner=document.createElement('div'); inner.id='mes-tab-content'; panel.appendChild(inner); } return {panel, inner}; }
@@ -760,84 +671,26 @@
     // Hash open support
     document.addEventListener('DOMContentLoaded', function(){ var h=(location.hash||'').replace('#',''); if(h==='mes'){ setTimeout(()=> onMesActivated(), 0); } });
     /* PATCH END: MES PANEL WIRING FIX V1 */
-    /* PATCH START: MES Render Functions V2 */
-    async function getMESOrders(){
-      try{
-        const src = await getOrdersOrSim();
-        const arr = Array.isArray(src) ? src : ((src&&src.orders)||[]);
-        if(arr && arr.length){
-          return arr.map(o=>({
-            order_id: o.order_id || o.id || '-',
-            line_id: o.line_id || '-',
-            line_name: o.line_name || undefined,
-            station_id: o.station_id || '-',
-            station_name: o.station_name || undefined,
-            state: o.state || o.status || 'pending',
-            progress: o.progress || 0,
-            eta: o.eta || '+0h',
-            energy_kwh: Number(o.energy_kwh || 0).toFixed(1),
-            co2e_kg: Number(o.co2e_kg || o.co2 || 0).toFixed(1),
-            risk: o.risk || 'OK',
-            reason_code: o.reason_code || ''
-          }));
-        }
-      }catch(e){ console.warn('[MES] getOrdersOrSim failed:', e.message); }
-      const LINES=['Metal & Şase','Boya','Montaj','Final Test','Paketleme & Sevkiyat'];
-      const ST=['M01','P01','A01','T01','PK01'];
-      const demo=[]; for(let i=0;i<12;i++){ const id=1001+i; const li=i%LINES.length; const state = (i%7<5)? 'active' : (i%11===0? 'completed':'queued'); const prog = state==='completed'? 100 : (state==='queued'? 0 : (10+((i*17)%85))); const etaMin = state==='completed'? 0 : (20+((i*23)%160)); const energy = (4 + ((i*7)%17)); const co2 = +(energy*0.42).toFixed(1); const risk = prog<30? 'WATCH' : (co2>22? 'ACTION':'OK'); demo.push({ order_id:'ORD-'+id, line_id:(li+1), line_name:LINES[li], station_id:li+1, station_name:ST[li], state, progress:prog, eta:'+'+etaMin+'m', energy_kwh: energy.toFixed(1), co2e_kg: co2.toFixed(1), risk, reason_code: (risk==='ACTION'?'RC11':'') }); }
-      return demo;
-    }
-    function renderMESPanel(orders){ const container=document.getElementById('mes-tab-content'); if(!container){ console.warn('[MES] Container #mes-tab-content not found'); return; }
-      window.__MES_LAST_ORDERS__ = orders.slice();
-      const shown = orders.filter(o=> o.state==='active').length;
-      const done  = orders.filter(o=> o.state==='completed').length;
-      const queue = orders.length - shown;
-      const metaLine = `<div style="color:#02154e;margin-bottom:.5rem">Gösterilen: ${shown} • Kuyruk: ${queue} • Tamamlanan: ${done}</div>`;
-      const timelineHtml = orders.slice(0,12).map((o,i)=> `<div class="mes-token" data-order="${o.order_id}" title="${o.order_id}" onclick="highlightMESOrder('${o.order_id}')">#${i+1}</div>`).join('');
-      const tableHtml = `<table class="mes-table"><thead><tr><th>Order ID</th><th>Line</th><th>Station</th><th>State</th><th>Progress</th><th>ETA</th><th>Energy (kWh)</th><th>CO₂e (kg)</th><th>Risk</th></tr></thead><tbody>${orders.map(o=>`
-        <tr class="mes-row" data-order="${o.order_id}" onclick="highlightMESOrder('${o.order_id}')">
-          <td><strong>${o.order_id}</strong></td>
-          <td>${o.line_name||('Hat-'+o.line_id)}</td>
-          <td>${o.station_name||('S'+o.station_id)}</td>
-          <td><span class="pill ${o.state==='active'?'ok':(o.state==='completed'?'degraded':'degraded')}">${o.state==='active'?'AKTİF':(o.state==='completed'?'TAM':'BEKLEMEDE')}</span></td>
-          <td><div style="width:100px;height:6px;background:#e0e0e0;border-radius:3px;overflow:hidden"><div style="width:${o.progress}%;height:100%;background:${o.progress<50?'#f9ba00':'#005530'};transition:width .3s"></div></div><small>${o.progress}%</small></td>
-          <td>${o.eta}</td>
-          <td>${o.energy_kwh}</td>
-          <td><strong>${o.co2e_kg}</strong></td>
-          <td><span style="color:${o.risk==='ACTION'?'#D51635':(o.risk==='WATCH'?'#f9ba00':'#005530')};font-weight:600">${o.risk}</span></td>
-        </tr>`).join('')}</tbody></table>`;
-      const html = `<div class="card"><div style="font-weight:600;color:var(--zero-navy);margin-bottom:.5rem">MES — Sipariş Zaman Çizelgesi</div>${metaLine}<div class="mes-timeline">${timelineHtml}</div></div><div class="card" style="margin-top:1rem"><div style="font-weight:600;color:var(--zero-navy);margin-bottom:1rem">Aktif Siparişler</div>${tableHtml}</div>`;
-      container.innerHTML = html;
-    }
-    function findOrderById(orderId){ const arr=window.__MES_LAST_ORDERS__||[]; return arr.find(o=> String(o.order_id)===String(orderId)); }
-    function highlightMESOrder(orderId){ document.querySelectorAll('.mes-row.highlighted, .mes-token.active').forEach(el=> el.classList.remove('highlighted','active')); const row=document.querySelector(`.mes-row[data-order="${orderId}"]`); if(row){ row.classList.add('highlighted'); row.scrollIntoView({behavior:'smooth',block:'center'});} const token=document.querySelector(`.mes-token[data-order="${orderId}"]`); if(token){ token.classList.add('active'); } try{ const ord=findOrderById(orderId); if(ord) openOrderDrawer(ord); }catch(e){} }
-    async function initMESTab(){ try{ const orders=await getMESOrders(); renderMESPanel(orders); console.log('[MES] Panel render', orders.length); }catch(e){ console.warn('[MES] init error', e.message); } }
-    const __origAfterTab = null; window.__MES_AFTER_TAB__ = function(tabId){ if(tabId==='mes'){ setTimeout(()=> initMESTab(), 0); } };
-    document.addEventListener('DOMContentLoaded', function(){ const hash=(location.hash||'').replace('#',''); if(hash==='mes'){ setTimeout(()=> initMESTab(), 100); } });
-    // PATCH START: MES STICKY VISIBILITY FIX
-    function ensureMesVisible(){ try{ const panel=document.getElementById('mes'); const cont=document.getElementById('mes-tab-content'); if(panel && panel.classList.contains('active')){ if(!cont || cont.children.length===0){ initMESTab(); } } }catch(e){} }
-    window.addEventListener('load', function(){ if(location.hash==='#mes'){ setTimeout(()=>{ try{ const btn=document.querySelector('#headerBelowNav .tab-btn[href="#mes"]'); switchTab('mes', btn); }catch(e){} ensureMesVisible(); }, 250); } });
-// MES_AUTO_OFF:     try{ const moMes=new MutationObserver(()=> ensureMesVisible()); const cont=document.getElementById('mes-tab-content')||document.body; moMes.observe(cont,{subtree:true,childList:true}); }catch(e){}
-// MES_AUTO_OFF:     if(!window.__MES_STICKY_LOOP__){ window.__MES_STICKY_LOOP__ = setInterval(()=> ensureMesVisible(), 4000); }
-    // PATCH END: MES STICKY VISIBILITY FIX
-    async function updateCO2StripValues(){ try{ const orders=await getMESOrders(); const activeOrders=orders.filter(o=> ['active','queued'].includes(o.state)); const totalCO2=activeOrders.reduce((s,o)=> s+parseFloat(o.co2e_kg||0),0); const totalEnergy=activeOrders.reduce((s,o)=> s+parseFloat(o.energy_kwh||0),0); const totalWater=Math.round(totalEnergy*2.4); const avgCO2Unit=activeOrders.length? (totalCO2/activeOrders.length).toFixed(1) : '0.0'; const targetCO2=20; const deltaPercent = ((parseFloat(avgCO2Unit)-targetCO2)/targetCO2*100).toFixed(0); let riskClass='ok'; if(parseFloat(avgCO2Unit)>targetCO2*1.2) riskClass='action'; else if(parseFloat(avgCO2Unit)>targetCO2*1.05) riskClass='watch'; const todayVal=document.getElementById('co2TodayVal'); const unitVal=document.getElementById('co2UnitVal'); const energyVal=document.getElementById('energyVal'); const waterVal=document.getElementById('waterVal'); const todayPill=document.getElementById('co2TodayPill'); const unitPill=document.getElementById('co2UnitPill'); if(todayVal) todayVal.textContent=totalCO2.toFixed(1); if(unitVal) unitVal.textContent=avgCO2Unit; if(energyVal) energyVal.textContent=totalEnergy.toFixed(1); if(waterVal) waterVal.textContent=totalWater; if(todayPill){ todayPill.className='pill '+(totalCO2<900?'ok':(totalCO2<=1200?'watch':'action')); todayPill.textContent= totalCO2<900?'OK':(totalCO2<=1200?'Watch':'Action'); } if(unitPill){ unitPill.className='pill '+riskClass; unitPill.textContent= riskClass==='ok'?'OK':(riskClass==='watch'?'Watch':'Action'); } const deltaSub=document.getElementById('co2TodaySub'); if(deltaSub) deltaSub.textContent = `vs hedef: ${deltaPercent>0?'+':''}${deltaPercent}%`; }catch(e){ console.warn('[CO2 Strip] Update failed:', e.message); } }
-// MES_AUTO_OFF:     if(!window.__CO2_UPDATE_LOOP__){ window.__CO2_UPDATE_LOOP__=setInterval(()=>{ updateCO2StripValues(); const mesContent=document.getElementById('mes-tab-content'); if(mesContent && document.getElementById('mes').classList.contains('active')){ initMESTab(); } }, 4000); updateCO2StripValues(); }
-    function attachCO2ToStationCardsV2(){ try{ const cards=document.querySelectorAll('#lineView .station-card, #lineView .track-card'); const co2Values=[18.2,22.6,19.5,18.0,20.1]; cards.forEach((card,idx)=>{ if(card.querySelector('.station-co2-line')) return; const co2=co2Values[idx]||18.0; const co2Line = `<div class="station-co2-line" style="border-top:1px solid #e0e0e0;padding-top:.75rem;margin-top:.75rem;font-size:.85rem;color:${co2>24?'#D51635':(co2>20?'#f9ba00':'#005530')}">CO₂e: <strong>${co2}</strong> kg/birim</div>`; card.insertAdjacentHTML('beforeend', co2Line); }); console.log('[CO2] Attached to', cards.length, 'station cards'); }catch(e){ console.warn('[CO2 Cards] Attachment failed:', e.message); } }
-    const __origLiveAfterTab = window.__LIVE_LINES_AFTER_TAB__ || function(){}; window.__LIVE_LINES_AFTER_TAB__ = function(id){ if(id==='lines' || id==='overview'){ attachCO2ToStationCardsV2(); } try{ __origLiveAfterTab(id); }catch(e){} };
-    setTimeout(()=> attachCO2ToStationCardsV2(), 500);
-    console.log('[MES V2] Integration complete');
-    /* PATCH END: MES Render Functions V2 */
     /* PATCH START: MES_BLANK_FIX_V1 */
     async function getOrdersOrSim(){ try{ if(typeof getOrdersV1Safe==='function'){ const r=await getOrdersV1Safe(); if(r && r.orders && r.orders.length) return r.orders; } }catch(e){} try{ const r=await fetch('/api/v1/orders'); if(r.ok){ const j=await r.json(); if(j && j.orders) return j.orders; } }catch(e){} const sim=[]; const lines=['Metal & Şase','Boya Hattı','Montaj','Final Test','Paketleme']; const st=['Running','Paused','Blocked','Down']; for(let i=1;i<=10;i++){ sim.push({ id:'ORD-'+(1000+i), line:lines[i%lines.length], station:['MK-01','BK-01','MH-01','FT-01','PK-01'][i%5], status:st[i%st.length], progress:Math.round(10+i*7)%100, eta:'+'+((i%5)+1)+'h', energy:(10+i*0.6).toFixed(1), co2:(18+i*0.4).toFixed(1), risk:(i%3==0?'Medium':(i%5==0?'High':'Low')) }); }
       return sim;
     }
     let __MES_LOCK__ = false; let __MES_LAST_ACTIVE__ = null;
-    async function openMESTab(){ /* disabled legacy renderer to avoid duplicate tokens */ return; }
+    async function openMESTab(){
+      if(__MES_LOCK__) return; __MES_LOCK__ = true;
+      try{
+        const cont=document.getElementById('mes-tab-content'); const host=document.getElementById('mes');
+        if(!cont||!host){ __MES_LOCK__=false; return; }
+        const orders = await getOrdersOrSim();
+        renderMES(orders);
+      }catch(e){}
+      __MES_LOCK__ = false;
+    }
     window.__MES_AFTER_TAB__ = function(id){
       if(id!=='mes') { __MES_LAST_ACTIVE__ = id; return; }
       if(__MES_LAST_ACTIVE__==='mes' && __MES_LOCK__) return;
       __MES_LAST_ACTIVE__ = 'mes';
-      setTimeout(()=>{ initMESTab(); }, 0);
+      setTimeout(()=>{ openMESTab(); }, 0);
     };
     // ensure click binds even if button has different selector
     document.addEventListener('click', function(ev){ const btn = ev.target.closest('a[href="#mes"], [data-tab="mes"], #mes-tab-btn'); if(!btn) return; setTimeout(()=>{ window.__MES_AFTER_TAB__('mes'); }, 0); });
@@ -872,12 +725,10 @@
     /* PATCH END: SYNAPSE_BRAIN_BRIDGE_V1 */
     function turkishStatus(st){ switch(String(st)){ case 'Running': return 'Çalışıyor'; case 'Down': return 'Duruş'; case 'Idle': return 'Beklemede'; case 'ok': return 'İyi'; case 'monitor': return 'İzleme'; case 'action': return 'Aksiyon'; default: return String(st||'-'); } }
     function switchTab(id,src){
-      document.querySelectorAll('.tab-content').forEach(x=>{ x.classList.remove('active'); x.style.display='none'; });
-      document.querySelectorAll('#headerBelowNav .tab-btn').forEach(x=>x.classList.remove('active'));
-      var el=document.getElementById(id); if(el){ el.classList.add('active'); el.style.display='block'; }
+      document.querySelectorAll('.tab-content').forEach(x=>x.classList.remove('active'));
+      document.querySelectorAll('.tab-btn').forEach(x=>x.classList.remove('active'));
+      var el=document.getElementById(id); if(el) el.classList.add('active');
       if(src){ var t = (src.target)? src.target : src; if(t && t.classList) t.classList.add('active'); }
-      try{ location.hash = '#'+id; }catch(e){}
-      if(id==='mes'){ try{ initMESTab(); }catch(e){ try{ console.warn('MES init fail', e); }catch(_){} } }
     }
 
     // Hash ile gelen dış linkler için başlangıç sekmesi
@@ -886,17 +737,10 @@
       if(hash){
         var btn = document.querySelector('#headerBelowNav .tab-btn[href="#'+hash+'"]') || null;
         switchTab(hash, btn);
-      } else {
-        try{ const btn=document.querySelector('#headerBelowNav .tab-btn[href="#overview"]'); switchTab('overview', btn); }catch(e){}
       }
-      try{ writeTolkarSnapshot(); }catch(e){}
-      if(!window.__SNAPSHOT_LOOP__){ window.__SNAPSHOT_LOOP__ = setInterval(()=>{ try{ writeTolkarSnapshot(); }catch(e){} }, 10000); }
-      let __LAST_TAB_CLICKED = null;
-      function ensureActiveTab(id){ try{ const panel=document.getElementById(id); const btn=document.querySelector('#headerBelowNav .tab-btn[href="#'+id+'"]'); if(panel && !panel.classList.contains('active')){ switchTab(id, btn); } }catch(e){} }
-      document.addEventListener('click', function(ev){ const a=ev.target.closest('#headerBelowNav .tab-btn'); if(!a) return; const href=a.getAttribute('href')||''; if(href.startsWith('#')){ ev.preventDefault(); const id=href.slice(1); __LAST_TAB_CLICKED = id; switchTab(id,a); try{ location.hash = '#'+id; }catch(e){} setTimeout(()=> ensureActiveTab(id), 50); setTimeout(()=> { if(__LAST_TAB_CLICKED===id) ensureActiveTab(id); }, 250); setTimeout(()=> { if(__LAST_TAB_CLICKED===id) ensureActiveTab(id); }, 800); try{ if(window.__SYNAPSE_AFTER_TAB__) window.__SYNAPSE_AFTER_TAB__(id); if(window.__LIVE_LINES_AFTER_TAB__) window.__LIVE_LINES_AFTER_TAB__(id); if(window.__DEMO_AFTER_TAB__) window.__DEMO_AFTER_TAB__(id); if(window.__MES_AFTER_TAB__) window.__MES_AFTER_TAB__(id); }catch(e){} } });
-      window.addEventListener('hashchange', function(){ const id=(location.hash||'').replace('#',''); if(id) ensureActiveTab(id); });
+      document.addEventListener('click', function(ev){ const a=ev.target.closest('#headerBelowNav .tab-btn'); if(!a) return; const href=a.getAttribute('href')||''; if(href.startsWith('#')){ ev.preventDefault(); const id=href.slice(1); switchTab(id,a); try{ if(window.__SYNAPSE_AFTER_TAB__) window.__SYNAPSE_AFTER_TAB__(id); if(window.__LIVE_LINES_AFTER_TAB__) window.__LIVE_LINES_AFTER_TAB__(id); if(window.__DEMO_AFTER_TAB__) window.__DEMO_AFTER_TAB__(id); if(window.__MES_AFTER_TAB__) window.__MES_AFTER_TAB__(id); }catch(e){} } });
       // observe active tab changes (programmatic calls)
-// MES_AUTO_OFF:       try{ const mo=new MutationObserver(()=>{ const active=(document.querySelector('.tab-content.active')||{}).id; if(active){ try{ if(window.__SYNAPSE_AFTER_TAB__) window.__SYNAPSE_AFTER_TAB__(active); if(window.__LIVE_LINES_AFTER_TAB__) window.__LIVE_LINES_AFTER_TAB__(active); if(window.__DEMO_AFTER_TAB__) window.__DEMO_AFTER_TAB__(active); if(window.__MES_AFTER_TAB__) window.__MES_AFTER_TAB__(active); }catch(e){} } }); mo.observe(document.body,{subtree:true,childList:true,attributes:true,attributeFilter:['class']}); }catch(e){}
+      try{ const mo=new MutationObserver(()=>{ const active=(document.querySelector('.tab-content.active')||{}).id; if(active){ try{ if(window.__SYNAPSE_AFTER_TAB__) window.__SYNAPSE_AFTER_TAB__(active); if(window.__LIVE_LINES_AFTER_TAB__) window.__LIVE_LINES_AFTER_TAB__(active); if(window.__DEMO_AFTER_TAB__) window.__DEMO_AFTER_TAB__(active); if(window.__MES_AFTER_TAB__) window.__MES_AFTER_TAB__(active); }catch(e){} } }); mo.observe(document.body,{subtree:true,childList:true,attributes:true,attributeFilter:['class']}); }catch(e){}
     });
     /* PATCH START: MACHINE_CARDS_CO2 */
     function co2Color(v){ return v<20?'ok':(v<=26?'monitor':'action'); }
@@ -940,7 +784,7 @@
       renderLineView(stableLines, (stationsV1 && stationsV1.length)? stationsV1 : (data.stations||lastStations||[]));
       window.lastLinesStable = stableLines;
       await renderCharts();
-      CONN.state='LIVE'; CONN.mode='LIVE'; CONN.lastSyncAt = Date.now(); CONN.source='/api/state'; CONN.latencyMs=0; applyConnUI(); statusEl.textContent = 'Son güncelleme: ' + new Date().toLocaleTimeString('tr-TR') + (data.demo ? ' • Demo' : '');
+      statusEl.textContent = 'Son güncelleme: ' + new Date().toLocaleTimeString('tr-TR') + (data.demo ? ' • Demo' : '');
       try{ const st = await AUTH.get('/api/v1/status'); if(st && st.health){ setHealth(st.health); const bar=document.querySelector('.health-bar'); if(bar && st.reason){ const el=document.getElementById('healthReason'); if(!el){ const r=document.createElement('span'); r.id='healthReason'; r.className='pill'; r.textContent = st.reason; bar.appendChild(r); } else { el.textContent = st.reason; } } } }catch(e){}
       await renderEventsV1();
       lastEvents = (await getEventsSafe()).events||[];
@@ -1104,16 +948,8 @@ async function initFlowLive(){ const r = await getOrdersV1Safe(); const orders=(
         status: (s.bottleneck ? 'bottleneck' : (String(s.status||'ok')).toLowerCase()),
         position_on_track: s.position_on_track ?? null
       })); statusEl.textContent = 'Son güncelleme: ' + new Date().toLocaleTimeString('tr-TR'); return {stations, demo:false}; }
-      catch(e){ const d = makeDemoState(); CONN.state='OFFLINE'; CONN.mode= lastSyncTs? 'CACHE':'DEMO'; CONN.source='/api/state'; CONN.lastSyncAt= lastSyncTs || Date.now(); applyConnUI(); statusEl.textContent = 'Offline mod — Son bilinen veri • Son sync: ' + (CONN.lastSyncAt?new Date(CONN.lastSyncAt).toLocaleTimeString('tr-TR'):new Date().toLocaleTimeString('tr-TR'));
-      return {stations:d.stations, demo:true}; }
+      catch(e){ const d = makeDemoState(); setHealth('offline'); statusEl.textContent = 'Offline mod — Son bilinen veri • ' + new Date().toLocaleTimeString('tr-TR'); return {stations:d.stations, demo:true}; }
     }
-    // Drawer — idempotent creation and open/close
-    function ensureOrderDrawer(){ let overlay=document.getElementById('mesOrderOverlay'); let drawer=document.getElementById('mesOrderDrawer'); if(!overlay){ overlay=document.createElement('div'); overlay.id='mesOrderOverlay'; overlay.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.12);opacity:0;pointer-events:none;transition:opacity .2s;z-index:999'; overlay.onclick=closeOrderDrawer; document.body.appendChild(overlay); } if(!drawer){ drawer=document.createElement('div'); drawer.id='mesOrderDrawer'; drawer.style.cssText='position:fixed;right:-420px;top:0;height:100vh;width:420px;background:#fff;border-left:1px solid #e0e0e0;box-shadow:-8px 0 20px rgba(0,0,0,.12);transition:right .25s;z-index:1000;display:flex;flex-direction:column'; drawer.innerHTML='<div style="padding:12px;border-bottom:1px solid #e0e0e0"><button id="mesOrderClose" style="float:right;border:none;background:#02154e;color:#fff;border-radius:6px;padding:.3rem .6rem;font-weight:700">×</button><div id="mesOrderTitle" style="font-weight:800;color:#02154e"></div></div><div id="mesOrderBody" style="padding:10px;overflow:auto;height:calc(100vh - 120px)"></div><div style="position:sticky;bottom:0;background:#fff;border-top:1px solid #e0e0e0;padding:10px"><button onclick="closeOrderDrawer()" style="border:none;background:#02154e;color:#fff;border-radius:8px;padding:.4rem .8rem;font-weight:700">Kapat</button></div>'; document.body.appendChild(drawer); document.getElementById('mesOrderClose').onclick=closeOrderDrawer; document.addEventListener('keydown', function(ev){ if(ev.key==='Escape') closeOrderDrawer(); }); }
-      return {overlay, drawer}; }
-    function openOrderDrawer(order){ const {overlay, drawer}=ensureOrderDrawer(); const title=document.getElementById('mesOrderTitle'); const body=document.getElementById('mesOrderBody'); if(title) title.textContent=`${order.order_id} — ${order.line_name||('Hat-'+order.line_id)} / ${order.station_name||('S'+order.station_id)}`; if(body){ const riskColor = order.risk==='ACTION'?'#D51635':(order.risk==='WATCH'?'#f9ba00':'#005530'); body.innerHTML=''; const kpi=`<div style="display:grid;grid-template-columns:repeat(2,1fr);gap:8px"><div class="card"><div>Progress</div><div><strong>${order.progress}%</strong></div></div><div class="card"><div>ETA</div><div><strong>${order.eta}</strong></div></div><div class="card"><div>Enerji (kWh)</div><div><strong>${order.energy_kwh}</strong></div></div><div class="card"><div>CO₂e (kg)</div><div><strong>${order.co2e_kg}</strong></div></div></div>`; const flow=`<div style="margin-top:.6rem">${['Metal & Şase','Boya','Montaj','Final Test','Paketleme'].map((s,i)=>{ const live = (i<=2 && order.progress> (i*20)); return `<div style='display:flex;gap:.5rem;align-items:center;margin:.25rem 0'><span style='width:12px;height:12px;border-radius:50%;background:${live?'#005530':'#e0e0e0'}'></span><span>${s}</span></div>`; }).join('')}</div>`; const events=`<div style="margin-top:.6rem">${[...Array(6)].map((_,ix)=>{ const ts=new Date(Date.now()-ix*600000).toLocaleTimeString('tr-TR'); return `<div class='event-item'>${ts} — event #${ix+1} • ${order.order_id}</div>`; }).join('')}</div>`; const risk=`<div style="margin-top:.6rem;color:${riskColor};font-weight:700">Risk: ${order.risk}</div>`; body.innerHTML = kpi+risk+flow+events; }
-      overlay.style.opacity='1'; overlay.style.pointerEvents='auto'; drawer.style.right='0'; }
-    function closeOrderDrawer(){ const overlay=document.getElementById('mesOrderOverlay'); const drawer=document.getElementById('mesOrderDrawer'); if(overlay){ overlay.style.opacity='0'; overlay.style.pointerEvents='none'; } if(drawer){ drawer.style.right='-420px'; } }
-    window.openOrderDrawer=openOrderDrawer; window.closeOrderDrawer=closeOrderDrawer;
     async function getEventsSafe(){
       try{ return await AUTH.get('/api/v1/events?limit=200'); }
       catch(e){ return { events:[{ts:new Date().toISOString(), type:'shock', status:'critical', reason_code:'RC12', payload:{message:'Demo Olay: Dar boğaz algılandı'}}] }; }
@@ -1919,8 +1755,6 @@ async function renderCFOOnce(){
   ev = ev || window.event || null;
 
     __origSwitchTab(id, ev);
-    // enforce visibility to avoid race conditions
-    try{ const el=document.getElementById(id); if(el){ el.classList.add('active'); el.style.display='block'; } }catch(e){}
     try{
       if(id==='tab-flow-live' && !__tabInit.flow){
         __tabInit.flow = true;
@@ -1934,9 +1768,6 @@ async function renderCFOOnce(){
         __tabInit.cfo = true;
         if(typeof renderCFOOnce==='function') if (window.ACTIVE_ROLE==='cfo') { renderCFOOnce(); }
         else if(typeof renderCFO==='function') if (window.ACTIVE_ROLE==='cfo') { renderCFO(); } // fallback
-      }
-      if(id==='mes'){
-        try{ initMESTab(); }catch(e){ console.warn('MES init fail', e); }
       }
     }catch(e){
       console.warn('[PATCH] lazy-init failed', e);

@@ -3,58 +3,114 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Zero@Factory — Green Factory</title>
-  <link rel="icon" href="factory-logo 2.svg">
+  <title>Zero@Green Factory — Details</title>
+  <link rel="icon" href="assets/img/factory-logo.svg">
   <style>
-    :root{--zero-navy:#02154e;--zero-orange:#f9ba00;--zero-green:#005530;--zero-red:#D51635;--zero-white:#ffffff;--zero-black:#1a1a1a;--zero-gray-light:#e0e0e0}
+    :root{--navy:#02154e;--orange:#f9ba00;--green:#005530;--red:#D51635;--gray:#666;--grayL:#e0e0e0;--bg:#ffffff}
     *{margin:0;padding:0;box-sizing:border-box}
-    body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','Helvetica Neue',Arial,sans-serif;background:#fff;color:#1a1a1a}
-    .zero-color-bar{height:4px;width:100%;background:linear-gradient(90deg,var(--zero-green) 0%,var(--zero-red) 25%,var(--zero-navy) 50%,var(--zero-orange) 75%,var(--zero-orange) 100%)}
-    .app-header{background:#fff;color:var(--zero-navy);padding:1.2rem;border-bottom:1px solid var(--zero-gray-light)}
-    .header-content{position:relative;display:flex;align-items:center;max-width:1200px;margin:0 auto;min-height:90px}
-    .title-stack{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);display:flex;flex-direction:column;align-items:center;justify-content:center}
-    .container{max-width:1200px;margin:0 auto;padding:1.2rem}
-    .title{font-size:1.4rem;font-weight:500;color:var(--zero-navy)}
-    .title-at{color:var(--zero-orange)}
-    .subtitle{color:#666;margin-top:.25rem}
-    .brand{color:var(--zero-navy)}
-    .facility-wrap{display:flex;justify-content:center;margin-top:.5rem}
-    .facility-pill{background:var(--zero-green);color:#fff;border-radius:12px;padding:.4rem .8rem;box-shadow:0 4px 10px rgba(0,0,0,.15)}
-    .health-bar{display:flex;gap:8px;align-items:center}
-    .pill{border:1px solid var(--zero-gray-light);background:#fff;border-radius:10px;padding:6px 12px;font-weight:700}
-    .brain-heal-row{position:absolute;right:16px;top:50%;transform:translateY(-50%)}
-    .card{background:#fff;border:1px solid var(--zero-gray-light);border-radius:8px;padding:1rem;margin-bottom:12px}
-    .tabs{display:flex;flex-wrap:wrap;gap:.5rem;justify-content:center}
-    .tab-btn{display:inline-flex;align-items:center;gap:.35rem;padding:.5rem .9rem;border:none;border-radius:6px;background:var(--zero-navy);color:#fff;cursor:pointer;font-size:.85rem;text-decoration:none}
-    .tab-btn:hover{background:var(--zero-orange);color:var(--zero-navy)}
-    .tab-btn.active{background:var(--zero-green);color:#fff}
+    body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','Helvetica Neue',Arial,sans-serif;background:var(--bg);color:#1a1a1a}
+    .zero-color-bar{height:4px;background:linear-gradient(90deg,var(--green) 0%,var(--red) 25%,var(--navy) 50%,var(--orange) 75%,var(--orange) 100%)}
+    .app-header{background:#fff;border-bottom:1px solid var(--grayL);padding:1.2rem}
+    .header-content{max-width:1200px;margin:0 auto;display:flex;align-items:center;gap:1rem}
+    .title-stack{flex:1;text-align:center}
+    .title{font-size:1.6rem;font-weight:600;color:var(--navy)}
+    .title-at{color:var(--orange)}
+    .proof{display:flex;gap:.5rem;align-items:center;color:var(--navy);font-size:.85rem}
+    .pill{display:inline-block;border:1px solid var(--grayL);border-radius:10px;padding:.3rem .6rem;font-weight:700;background:#fff}
+    .tabs{max-width:1200px;margin:0 auto;padding:.5rem;display:flex;gap:.5rem;flex-wrap:wrap;justify-content:center}
+    .tab-btn{display:inline-flex;align-items:center;padding:.5rem .9rem;border-radius:6px;background:var(--navy);color:#fff;text-decoration:none}
+    .tab-btn.active{background:var(--green)}
+    .banner{max-width:1200px;margin:.6rem auto;background:rgba(249,186,0,.12);border:1px solid rgba(249,186,0,.35);color:#5c4400;border-radius:10px;padding:.6rem .9rem;display:none}
+    .container{max-width:1200px;margin:0 auto;padding:1rem}
+    .grid{display:grid;gap:12px}
+    .two{grid-template-columns:repeat(2,minmax(280px,1fr))}
+    @media (max-width:900px){.two{grid-template-columns:1fr}}
+    .card{background:#fff;border:1px solid var(--grayL);border-radius:8px;padding:12px}
+    .card-title{font-weight:800;color:var(--navy);margin-bottom:.5rem}
+    .kpi-grid{display:grid;gap:8px;grid-template-columns:repeat(4,1fr)}
+    @media (max-width:900px){.kpi-grid{grid-template-columns:repeat(2,1fr)}}
+    .kpi{border:1px solid var(--grayL);border-radius:8px;padding:10px}
+    .kpi-label{color:#444;font-size:.85rem}
+    .kpi-value{font-size:1.4rem;color:var(--navy);font-weight:800}
+    .event{border:1px solid var(--grayL);border-radius:8px;padding:.5rem;margin:.25rem 0}
+    .sev-critical{color:var(--red);font-weight:700}
+    .sev-warning{color:var(--orange);font-weight:700}
+    .sev-info{color:var(--navy);font-weight:700}
   </style>
 </head>
 <body>
   <div class="zero-color-bar"></div>
-  <header class="app-header"><div class="header-content">
-    <img class="brand-logo" src="factory-logo 2.svg" alt="Tolkar" style="width:64px;height:64px">
-    <div class="title-stack" style="text-align:center">
-      <div class="title">Zero<span class="title-at">@</span>Green Factory</div>
-      <div style="color:#666">Sürdürülebilir Üretim Kontrol Merkezi by Zero<span class="title-at">@</span>Ecosystem</div>
+  <header class="app-header">
+    <div class="header-content">
+      <img src="assets/img/factory-logo.svg" alt="Tolkar" style="width:64px;height:64px">
+      <div class="title-stack">
+        <div class="title">Zero<span class="title-at">@</span>Green Factory — Details</div>
+        <div class="proof"><span id="pfSync">--:--:--</span> • <span id="pfSource">/api</span> • <span id="pfLatency">0ms</span> • <span id="pfMode">DEMO</span></div>
+      </div>
+      <span id="pfHealth" class="pill">Offline</span>
     </div>
-  </div></header>
-  <div id="headerBelowNav" class="container" style="padding-top:0">
-    <div class="tabs">
-      <a class="tab-btn" href="dashboard.html?auth=bypass#overview">Genel Bakış</a>
-      <a class="tab-btn" href="quality.html" onclick="window.location.href='quality.html'+(location.search||'');return false;">Kalite</a>
-      <a class="tab-btn" href="maintenance.html" onclick="window.location.href='maintenance.html'+(location.search||'');return false;">Bakım</a>
-      <a class="tab-btn" href="materials.html" onclick="window.location.href='materials.html'+(location.search||'');return false;">Malzemeler</a>
-      <a class="tab-btn" href="shipping.html" onclick="window.location.href='shipping.html'+(location.search||'');return false;">Sevkiyat</a>
-      <a class="tab-btn" href="lines.html" onclick="window.location.href='lines.html'+(location.search||'');return false;">Hat Takip</a>
-      <a class="tab-btn" href="MES.html" onclick="window.location.href='MES.html'+(location.search||'');return false;">MES</a>
-      <a class="tab-btn" href="FactoryFlowLine.html" onclick="window.location.href='FactoryFlowLine.html'+(location.search||'');return false;">Üretim Akış Şeması</a>
-      <a class="tab-btn" href="historical.html" onclick="window.location.href='historical.html'+(location.search||'');return false;">Geçmiş Eğilimler</a>
-      <a class="tab-btn" href="greenfactory.html" onclick="window.location.href='greenfactory.html'+(location.search||'');return false;">Green Factory (Details)</a>
-    </div>
+  </header>
+
+  <div class="tabs">
+    <a class="tab-btn" href="dashboard.html#overview">Dash</a>
+    <a class="tab-btn" href="quality.html">Kalite</a>
+    <a class="tab-btn" href="maintenance.html">Bakım</a>
+    <a class="tab-btn" href="materials.html">Malzemeler</a>
+    <a class="tab-btn" href="shipping.html">Sevkiyat</a>
+    <a class="tab-btn" href="lines.html">Hat Takip</a>
+    <a class="tab-btn" href="MES.html">MES</a>
+    <a class="tab-btn" href="FactoryFlowLine.html">Üretim Akış Şeması</a>
+    <a class="tab-btn active" href="greenfactory.html">Green Factory (Details)</a>
   </div>
+
+  <div id="offlineBanner" class="banner"></div>
+
   <main class="container">
-    
+    <div class="card">
+      <div class="card-title">Executive Snapshot</div>
+      <div class="kpi-grid" id="kpiGrid"></div>
+    </div>
+
+    <div class="grid two" style="margin-top:12px">
+      <div class="card">
+        <div class="card-title">Quality & Compliance — Last 10 Events</div>
+        <div id="eventsList"></div>
+        <div style="margin-top:.6rem;color:#444;font-size:.85rem">Note: Reason taxonomy standardization (RC codes) aligns downtime/event semantics across lines for analytics, compliance and Root Cause tracking.</div>
+      </div>
+      <div class="card">
+        <div class="card-title">Action Plan — Next 30 Days</div>
+        <ul style="margin-left:18px;line-height:1.6">
+          <li>Data quality hardening (ID, timestamps, station mapping)</li>
+          <li>Downtime taxonomy and RC labeling (blocked/wait/repair)</li>
+          <li>Changeover optimization (SMED-inspired quick wins)</li>
+          <li>Traceability pass — lot/batch linking across stations</li>
+          <li>Energy/water metering validation — footprint reporting</li>
+        </ul>
+      </div>
+    </div>
   </main>
+
+  <script>
+    function seedDemo(){ const now=Date.now(); const hhmm=new Date(now).toLocaleTimeString('tr-TR'); return {
+      conn:{state:'OFFLINE',mode:'DEMO',lastSyncAt:now,source:'/api/state',latencyMs:0},
+      kpis:{fpy:96.8,oee:85.0,throughput:58,energy_kwh:1240,water_l:2960,co2_today:980,co2_unit:21.8},
+      events:Array.from({length:10}).map((_,i)=>({ts:new Date(now-i*600000).toLocaleTimeString('tr-TR'),severity:i%3===0?'critical':(i%3===1?'warning':'info'),reason_code:'RC'+(10+i),label:'Demo Event',action:i%3===0?'Investigate bottleneck':'Monitor'})) } }
+    function readSnapshot(){ try{ const raw=localStorage.getItem('tolkar_last_snapshot'); if(!raw) return seedDemo(); const j=JSON.parse(raw); const d=seedDemo(); const conn=Object.assign({},d.conn,j.conn||{}); const kpis=Object.assign({},d.kpis,j.kpis||{}); const events=(j.events&&j.events.length)? j.events.slice(0,10): d.events; return {conn,kpis,events}; }catch(e){ return seedDemo(); } }
+    function renderAll(s){ try{
+      document.getElementById('pfSync').textContent = s.conn.lastSyncAt? new Date(s.conn.lastSyncAt).toLocaleTimeString('tr-TR'):'--:--:--';
+      document.getElementById('pfSource').textContent = s.conn.source||'/api/state';
+      document.getElementById('pfLatency').textContent = (s.conn.latencyMs||0)+'ms';
+      document.getElementById('pfMode').textContent = s.conn.mode||'DEMO';
+      const health=document.getElementById('pfHealth'); health.textContent = s.conn.state==='LIVE'?'Online':(s.conn.state==='DEGRADED'?'Degraded':'Offline');
+      const banner=document.getElementById('offlineBanner'); banner.style.display = s.conn.state==='OFFLINE' ? 'block':'none'; if(s.conn.state==='OFFLINE'){ banner.textContent='Offline mod — Son bilinen veri • Son sync: '+(s.conn.lastSyncAt? new Date(s.conn.lastSyncAt).toLocaleTimeString('tr-TR'):'--:--:--'); }
+      const grid=document.getElementById('kpiGrid'); grid.innerHTML=''; const KP=[
+        {l:'FPY %',v:s.kpis.fpy},{l:'OEE %',v:s.kpis.oee},{l:'Throughput /h',v:s.kpis.throughput},
+        {l:'Energy (kWh)',v:s.kpis.energy_kwh},{l:'Water (L)',v:s.kpis.water_l},
+        {l:'CO₂e (kg)',v:s.kpis.co2_today},{l:'CO₂ / Unit (kg)',v:s.kpis.co2_unit}
+      ]; KP.forEach(k=>{ const d=document.createElement('div'); d.className='kpi'; d.innerHTML=`<div class='kpi-label'>${k.l}</div><div class='kpi-value'>${k.v}</div>`; grid.appendChild(d); });
+      const list=document.getElementById('eventsList'); list.innerHTML=''; (s.events||[]).slice(0,10).forEach(ev=>{ const e=document.createElement('div'); const sev=String(ev.severity||'info').toLowerCase(); const cls= sev==='critical'?'sev-critical':(sev==='warning'?'sev-warning':'sev-info'); e.className='event'; e.innerHTML=`<div class='${cls}'>${sev.toUpperCase()} • ${ev.reason_code||'-'}</div><div>${ev.label||ev.action||''}</div><div style='color:#666'>${ev.ts||''}</div>`; list.appendChild(e); });
+    }catch(e){ /* never blank */ const g=document.getElementById('kpiGrid'); if(g && !g.children.length){ const s=seedDemo(); renderAll(s); } } }
+    document.addEventListener('DOMContentLoaded', function(){ renderAll(readSnapshot()); });
+  </script>
 </body>
 </html>

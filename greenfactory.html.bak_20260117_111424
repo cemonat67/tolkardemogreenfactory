@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Zero@Factory — Quality</title>
-  <link rel="icon" href="factory-logo 2.svg">
+  <title>Zero@Factory — Green Factory</title>
+  <link rel="icon" href="assets/img/factory-logo.svg">
   <style>
     :root{--zero-navy:#02154e;--zero-orange:#f9ba00;--zero-green:#005530;--zero-red:#D51635;--zero-white:#ffffff;--zero-black:#1a1a1a;--zero-gray-light:#e0e0e0}
     *{margin:0;padding:0;box-sizing:border-box}
@@ -33,7 +33,7 @@
 <body>
   <div class="zero-color-bar"></div>
   <header class="app-header"><div class="header-content">
-    <img class="brand-logo" src="factory-logo 2.svg" alt="Tolkar" style="width:64px;height:64px">
+    <img class="brand-logo" src="assets/img/factory-logo.svg" alt="Tolkar" style="width:64px;height:64px">
     <div class="title-stack" style="text-align:center">
       <div class="title">Zero<span class="title-at">@</span>Green Factory</div>
       <div style="color:#666">Sürdürülebilir Üretim Kontrol Merkezi by Zero<span class="title-at">@</span>Ecosystem</div>
@@ -42,7 +42,7 @@
   <div id="headerBelowNav" class="container" style="padding-top:0">
     <div class="tabs">
       <a class="tab-btn" href="dashboard.html?auth=bypass#overview">Genel Bakış</a>
-      <a class="tab-btn active" href="quality.html" onclick="window.location.href='quality.html'+(location.search||'');return false;">Kalite</a>
+      <a class="tab-btn" href="quality.html" onclick="window.location.href='quality.html'+(location.search||'');return false;">Kalite</a>
       <a class="tab-btn" href="maintenance.html" onclick="window.location.href='maintenance.html'+(location.search||'');return false;">Bakım</a>
       <a class="tab-btn" href="materials.html" onclick="window.location.href='materials.html'+(location.search||'');return false;">Malzemeler</a>
       <a class="tab-btn" href="shipping.html" onclick="window.location.href='shipping.html'+(location.search||'');return false;">Sevkiyat</a>
@@ -54,23 +54,7 @@
     </div>
   </div>
   <main class="container">
-    <div class="card"><div style="font-weight:600;color:#02154e;margin-bottom:.5rem">Kritik Kalite Metrikleri</div>
-      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:10px">
-        <div class="card"><div style="color:#666">OEE Ortalama</div><div style="font-size:1.6rem;font-weight:700;color:#02154e">88%</div></div>
-        <div class="card"><div style="color:#666">Sızdırmazlık Testi</div><div style="font-size:1.6rem;font-weight:700;color:#02154e">98%</div></div>
-        <div class="card"><div style="color:#666">Elektriksel Güvenlik</div><div style="font-size:1.6rem;font-weight:700;color:#02154e">99%</div></div>
-        <div class="card"><div style="color:#666">FPY Ortalama</div><div style="font-size:1.6rem;font-weight:700;color:#02154e">96%</div></div>
-      </div>
-    </div>
-    <div class="card"><div style="font-weight:600;color:#02154e;margin-bottom:.5rem">Kalite Kriterleri ve Standartlar</div>
-      <ul style="margin:0;padding-left:18px;line-height:1.6;color:#333">
-        <li>Sızdırmazlık testleri (kapak, bağlantılar)</li>
-        <li>Dengesiz yük ve uzun süreli çalışma dayanımı</li>
-        <li>Elektriksel güvenlik: EN 60204-1, izolasyon/kaçak akım testleri</li>
-        <li>Yıkama verimliliği, su/enerji tüketimi performansı</li>
-        <li>Hijyen stabilitesi (kimyasal ve sıcaklık döngüleri)</li>
-      </ul>
-    </div>
+    
   </main>
 </body>
 </html>

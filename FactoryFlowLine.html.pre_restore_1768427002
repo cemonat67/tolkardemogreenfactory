@@ -7,9 +7,7 @@
   <title>Zero@Factory — Production Flow Live</title>
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
   <style>
-    
-.hidden{display:none !important;}
-:root {
+    :root {
       --zero-navy: #02154e;
       --zero-orange: #f9ba00;
       --zero-green: #005530;
@@ -22,10 +20,6 @@
     }
 
     .top-nav{background:var(--zero-white);border-bottom:1px solid var(--zero-gray-light);display:flex;flex-wrap:wrap;gap:.5rem;justify-content:center;padding:.5rem 1rem}
-    .tab-btn{display:inline-flex;align-items:center;gap:.35rem;padding:.5rem .9rem;border:none;border-radius:6px;background:var(--zero-navy);color:#fff;cursor:pointer;font-size:.85rem;text-decoration:none}
-    .tab-btn:hover{background:var(--zero-orange);color:var(--zero-navy)}
-    .tab-btn.active{background:var(--zero-green);color:#fff}
-    .brand-logo{position:absolute;left:16px;top:50%;transform:translateY(-50%);width:80px;height:80px;opacity:.9}
     .nav-link{display:inline-flex;align-items:center;gap:.35rem;padding:.5rem .9rem;border:none;border-radius:6px;background:var(--zero-navy);color:#fff;text-decoration:none;font-size:.85rem}
     .nav-link:hover{background:var(--zero-orange);color:var(--zero-navy)}
     .nav-link.active{background:var(--zero-green);color:#fff}
@@ -70,6 +64,7 @@
     /* PATCH END: Full Width Timeline */
     .icon-dot{width:8px;height:8px;border-radius:50%;background:var(--zero-navy);display:inline-block}
     * { margin: 0; padding: 0; box-sizing: border-box; }
+* { margin: 0; padding: 0; box-sizing: border-box; }
 
 body {
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
@@ -536,9 +531,9 @@ body {
   overflow-y: auto;
 }
 
-.station-grid {
+.station-grid{
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
   gap: 1.5rem;
   margin-top: 1rem;
 position:relative;}
@@ -563,6 +558,14 @@ position:relative;}
   transition: all 0.2s;
   cursor: pointer;
 }
+
+
+
+  /* PATCH: station row layout fix (Operator/WIP/OEE spacing) */
+  .st-body{display:flex;flex-direction:column;gap:8px;margin-top:10px;}
+  .st-row{display:flex;align-items:center;justify-content:space-between;gap:10px;line-height:1.2;}
+  .st-row .k{color:#5b667a;font-weight:600;}
+  .st-row .v{color:var(--zero-navy);font-weight:700;}
 
 .station-card:hover {
   box-shadow: 0 4px 16px rgba(0,0,0,0.08);
@@ -761,99 +764,11 @@ position:relative;}
   
 
   </style>
-
-<style>
-/* PATCH: hide role buttons on Flow page */
-.rolebar, #rolebar, #roleBar, .role-bar, .roles, #roles { display:none !important; }
-</style>
-
-<style>
-/* PATCH: hide role links in Flow header (keep module nav) */
-a.nav-link[href^="dashboard.html?role="]{ display:none !important; }
-</style>
-
-
-<style>
-/* PATCH: Flow page must NOT show or allow role switching */
-a.nav-link[href^="dashboard.html?role="]{
-  display:none !important;
-  pointer-events:none !important;
-}
-</style>
-
-
-<style>
-</style>
-
-
-<style>
-/* PATCH: remove speed controls (pilot = steady flow) */
-.speed, .speed-controls, .speed-btn, .speed-group,
-#speed, #speedControls, #speedBtns { display:none !important; }
-
-.toolbar .hz, .toolbar .speed, .toolbar [data-ui="speed"]{ display:none !important; }
-</style>
-
-
-<style>
-/* PATCH: dashboard-style menu bar (Flow page) */
-.dash-menu{
-  display:flex;flex-wrap:wrap;gap:8px;align-items:center;
-  padding:10px 12px;
-  background:var(--zero-navy,#02154e);
-  border-radius:10px;
-  margin:12px 0 16px 0;
-  box-shadow:0 6px 18px rgba(2,21,78,.08);
-}
-.dash-menu .m-btn{
-  appearance:none;border:0;cursor:pointer;
-  padding:8px 12px;border-radius:9px;
-  background:rgba(255,255,255,.10);
-  color:#fff;font-weight:700;font-size:13px;
-  display:inline-flex;align-items:center;gap:8px;
-}
-.dash-menu .m-btn:hover{ background:rgba(255,255,255,.18); }
-.dash-menu .m-btn.active{
-  background:var(--zero-green,#0b7a3b);
-}
-.dash-menu .m-btn[disabled]{
-  opacity:.55; cursor:not-allowed;
-}
-</style>
-
-
-<style>
-/* PATCH: hide speed label leftover */
-*[data-speed-label],
-.speed-label,
-#speedLabel{
-  display:none !important;
-}
-</style>
-
-
-<style>
-  .tab-btn{
-    display:inline-flex;align-items:center;justify-content:center;
-    padding:8px 12px;border-radius:10px;
-    border:1px solid transparent;background:#02154e;
-    color:#fff;font-weight:600;text-decoration:none;
-    cursor:pointer;
-  }
-  .tab-btn:hover{ background:#f9ba00; color:#02154e; }
-  .tab-btn.active{ background:#02154e; color:#fff; border-color:#02154e; }
-</style>
-
 </head>
 <body>
-<div style="height:8px"></div>
-
-<!-- PATCH: dashboard tabbar on Flow -->
-
-<div style="height:8px"></div>
-
   <div class="zero-color-bar"></div>
-<div class="alert-notification" id="alertNotif">
+
+  <div class="alert-notification" id="alertNotif">
     <div class="alert-notif-header">
       <div class="alert-notif-title" id="alertTitle">🔴 Bildirim</div>
       <button class="alert-notif-close" onclick="closeAlert()">×</button>
@@ -863,52 +778,44 @@ a.nav-link[href^="dashboard.html?role="]{
   </div>
 
   <header class="app-header">
-    <div class="header-content" style="position:relative;flex-direction:column;gap:.6rem">
-      <img class="brand-logo" src="factory-logo 2.svg" alt="Tolkar" style="top:42%">
-      <div class="title-stack" style="text-align:center">
-        <div class="title">Zero<span class="title-at">@</span>Green Factory</div>
-        <div class="subtitle">Sürdürülebilir Üretim Kontrol Merkezi <span class="subtitle-by">by</span> <span class="brand">Zero<span class="title-at">@</span>Ecosystem</span></div>
-        <div class="facility-wrap"><span class="facility-pill">Facility: <span class="facility-name">TOLKAR</span></span></div>
-      </div>
-      <div style="display:flex;justify-content:space-between;align-items:center;gap:1rem;flex-wrap:wrap">
-        <div class="header-left">
-          <div class="title">Zero<span class="title-at">@</span>Factory — Production Flow Live</div>
-          <div class="shift-info">
-            <span class="shift-badge" id="shiftBadge">3. VARDİYA</span>
-            <span class="shift-time" id="shiftTime">23:00 - 07:00</span>
-          </div>
+    <div class="header-content">
+      <div class="header-left">
+        <div class="title">Zero<span class="title-at">@</span>Factory — Production Flow Live</div>
+        <div class="shift-info">
+          <span class="shift-badge" id="shiftBadge">1. VARDİYA</span>
+          <span class="shift-time" id="shiftTime">07:00 - 15:00</span>
         </div>
-        <div class="header-controls">
-          <button class="alert-toggle" id="alertToggle" onclick="toggleAlerts()">Bildirimler</button>
-          <div class="legend">
-            <div class="legend-item"><div class="legend-dot" style="background: var(--zero-green);"></div><span>Normal</span></div>
-            <div class="legend-item"><div class="legend-dot" style="background: var(--zero-orange);"></div><span>Uyarı</span></div>
-            <div class="legend-item"><div class="legend-dot" style="background: var(--zero-red);"></div><span>Kritik</span></div>
-          </div>
+      </div>
+      <div class="header-controls">
+        <div class="speed-control">
+          <span>Hız:</span>
+          <button class="speed-btn active" onclick="setSpeed(0.25)">0.25x</button>
+          <button class="speed-btn" onclick="setSpeed(0.5)">0.5x</button>
+          <button class="speed-btn" onclick="setSpeed(1)">1x</button>
+          <button class="speed-btn" onclick="setSpeed(2)">2x</button>
+        </div>
+        <button class="alert-toggle" id="alertToggle" onclick="toggleAlerts()"><svg class="icon" viewBox="0 0 24 24"><path d="M12 3a6 6 0 016 6v4l2 3H4l2-3V9a6 6 0 016-6z"/><path d="M10 20h4"/></svg>Bildirimler</button>
+        <div class="legend">
+          <div class="legend-item"><div class="legend-dot" style="background: var(--zero-green);"></div><span>Normal</span></div>
+          <div class="legend-item"><div class="legend-dot" style="background: var(--zero-orange);"></div><span>Uyarı</span></div>
+          <div class="legend-item"><div class="legend-dot" style="background: var(--zero-red);"></div><span>Kritik</span></div>
         </div>
       </div>
     </div>
   </header>
-<div style="height:10px"></div>
-<div class="tabs" id="flowTabbar" style="display:flex;gap:8px;flex-wrap:wrap;justify-content:center;align-items:center;margin:10px 0 14px 0;">
-  <a class="tab-btn" href="dashboard.html#overview" onclick="window.location.href='dashboard.html'+(location.search||'')+'#overview';return false;">Genel Bakış</a>
-  <a class="tab-btn" href="dashboard.html#quality" onclick="window.location.href='dashboard.html'+(location.search||'')+'#quality';return false;">Kalite</a>
-  <a class="tab-btn" href="dashboard.html#maintenance" onclick="window.location.href='dashboard.html'+(location.search||'')+'#maintenance';return false;">Bakım</a>
-  <a class="tab-btn" href="dashboard.html#materials" onclick="window.location.href='dashboard.html'+(location.search||'')+'#materials';return false;">Malzemeler</a>
-  <a class="tab-btn" href="dashboard.html#shipping" onclick="window.location.href='dashboard.html'+(location.search||'')+'#shipping';return false;">Sevkiyat</a>
-  <a class="tab-btn" href="dashboard.html#lines" onclick="window.location.href='dashboard.html'+(location.search||'')+'#lines';return false;">Hat Takip</a>
-  <a class="tab-btn active" href="#" onclick="return false;">Üretim Akış Şeması</a>
-  <a class="tab-btn" href="dashboard.html#tab-historical" onclick="window.location.href='dashboard.html'+(location.search||'')+'#tab-historical';return false;">Geçmiş Eğilimler</a>
-</div>
-
-
-  
-
-<div style="height:10px"></div>
-
 
   <nav class="top-nav">
-    </nav>
+    <a class="nav-link" href="dashboard.html"><svg class="icon" viewBox="0 0 24 24"><path d="M3 11h18M6 7h12M4 15h16"/></svg>Genel Bakış</a>
+    <a class="nav-link" href="dashboard.html"><svg class="icon" viewBox="0 0 24 24"><path d="M5 5h14v14H5z"/><path d="M9 9l6 6"/></svg>Kalite</a>
+    <a class="nav-link" href="dashboard.html"><svg class="icon" viewBox="0 0 24 24"><path d="M5 19l14-14"/><path d="M5 5l14 14"/></svg>Bakım</a>
+    <a class="nav-link" href="dashboard.html"><svg class="icon" viewBox="0 0 24 24"><path d="M4 19h16M4 12h16M4 5h16"/></svg>CFO</a>
+    <a class="nav-link" href="dashboard.html"><svg class="icon" viewBox="0 0 24 24"><path d="M3 7h18"/><path d="M6 12h12"/><path d="M9 17h6"/></svg>Malzemeler</a>
+    <a class="nav-link" href="dashboard.html"><svg class="icon" viewBox="0 0 24 24"><path d="M3 12h18"/><path d="M7 7h10"/><path d="M7 17h10"/></svg>Sevkiyat</a>
+    <a class="nav-link" href="dashboard.html"><svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/></svg>Hat Takip</a>
+    <a class="nav-link active" href="#"><svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><rect x="7" y="7" width="10" height="10" rx="3"/></svg>Üretim Akış Şeması</a>
+    <a class="nav-link" href="dashboard.html"><svg class="icon" viewBox="0 0 24 24"><path d="M4 18l6-6 4 4 6-6"/></svg>Geçmiş Eğilimler</a>
+    <a class="nav-link" href="dashboard.html"><svg class="icon" viewBox="0 0 24 24"><path d="M4 19h16"/><path d="M4 12h12"/><path d="M4 5h8"/></svg>Çoklu Site</a>
+  </nav>
 
   <div class="main-container">
     <div class="flow-section">
@@ -977,17 +884,7 @@ a.nav-link[href^="dashboard.html?role="]{
         { id: 'MH-01', status: 'running', oee: 90 },
         { id: 'MH-02', status: 'running', oee: 89 }
       ], wip: 15, oee: 89 }
-        ,
-        { id: 'ST-401', name: 'Final Test İstasyonu', line: 4, operator: operators[3], machines: [
-          { id: 'FT-01', status: 'running', oee: 92 },
-          { id: 'FT-02', status: 'running', oee: 90 }
-        ], wip: 10, oee: 91 },
-        { id: 'ST-501', name: 'Paketleme & Sevkiyat', line: 5, operator: operators[4], machines: [
-          { id: 'PK-01', status: 'running', oee: 96 },
-          { id: 'PK-02', status: 'running', oee: 94 }
-        ], wip: 8, oee: 95 }
-
-      ];
+    ];
     const orders = [
       { id: 'TK-001', line: 2, position: 25, status: 'blocked' },
       { id: 'TK-002', line: 3, position: 60, status: 'ok' },
@@ -1039,53 +936,69 @@ a.nav-link[href^="dashboard.html?role="]{
         </div>
       `).join('');
     }
+    return;
 
-    function renderStations() {
-      document.getElementById('stationGrid').innerHTML = stations.map(s => {
-        const cls = s.machines.some(m => m.status === 'down') ? 'down' : s.machines.some(m => m.status === 'maintenance') ? 'warning' : '';
+  const html = list.map((st)=>{
+    const status = (st.status === 'running') ? 'ok' : (st.status === 'stopped' ? 'down' : (st.status || 'ok'));
+    const dot = status==='down' ? '#D51635' : (status==='warn' ? '#f9ba00' : '#0a7a3a');
+
+    const name = st.name || ('Step ' + (st.id||''));
+    const meta = 'Step ' + (st.id||'-');
+    const op   = st.operator || '-';
+    const wip  = (st.wip === 0 || st.wip) ? st.wip : '-';
+    const oee  = (typeof st.oee === 'number') ? Math.round(st.oee) : (st.oee || '-');
+
+    return `
+      <div class="station-card">
+        <div class="st-top">
+          <div class="st-title"><span class="st-dot" style="background:${dot}"></span>${name}</div>
+          <div class="st-meta">${meta}</div>
+        </div>
+        <div class="st-body">
+          <div class="st-row"><span class="k">Operator</span><span class="v">${op}</span></div>
+          <div class="st-row"><span class="k">WIP</span><span class="v">${wip}</span></div>
+          <div class="st-row"><span class="k">OEE</span><span class="v">${oee}%</span></div>
+        </div>
+      </div>`;
+  }).join('');
+
+  host.innerHTML = html;
+  const ov = host.querySelector('.no-data-overlay');
+  if(ov) ov.remove();
+        return;
+      }
+
+      const html = list.map((st)=>{
+        const status = (st.status || 'ok').toLowerCase();
+        const dot = status==='down' ? '#D51635' : (status==='warn' ? '#f9ba00' : '#0a7a3a');
+
+        const name = st.name || st.id || 'Station';
+        const line = st.line_name || st.line || '';
+        const op   = st.operator || '-';
+        const wip  = (st.wip === 0 || st.wip) ? st.wip : '-';
+        const oee  = (typeof st.oee === 'number') ? Math.round(st.oee) : (st.oee || '-');
+
         return `
-          <div class="station-card ${cls}">
-            <div class="station-card-header">
-              <div class="station-name">${s.name}</div>
-              <div class="station-line">Hat ${s.line}</div>
+          <div class="station-card">
+            <div class="st-top">
+              <div class="st-title"><span class="st-dot" style="background:${dot}"></span>${name}</div>
+              <div class="st-meta">${line}</div>
             </div>
-            <div class="station-operator-info">${ICONS.user} ${s.operator}</div>
-            <div class="machines-list">
-              ${s.machines.map(m => `
-                <div class="machine-item">
-                  <div class="machine-name"><div class="machine-dot ${m.status}"></div>${m.id}</div>
-                  <div class="machine-status">${m.status === 'running' ? `OEE ${m.oee}%` : m.status === 'down' ? 'Arızalı' : 'Bakımda'}</div>
-                </div>
-              `).join('')}
+            <div class="st-body">
+              <div class="st-row"><span class="k">Operator</span><span class="v">${op}</span></div>
+              <div class="st-row"><span class="k">WIP</span><span class="v">${wip}</span></div>
+              <div class="st-row"><span class="k">OEE</span><span class="v">${oee}%</span></div>
             </div>
-            <div class="station-metrics">
-              <div class="metric-item"><div class="metric-label">WIP</div><div class="metric-value">${s.wip}</div></div>
-              <div class="metric-item"><div class="metric-label">OEE</div><div class="metric-value">${s.oee}%</div></div>
-              <div class="metric-item"><div class="metric-label">Makine</div><div class="metric-value">${s.machines.filter(m => m.status === 'running').length}/${s.machines.length}</div></div>
-            </div>
-          </div>
-        `;
+          </div>`;
       }).join('');
-    
-      try{
-        const host = document.getElementById('stationGrid');
-        if(host){
-          const empty = !stations || stations.length === 0;
-          let ov = host.querySelector('.no-data-overlay');
-          if(empty){
-            if(!ov){
-              ov = document.createElement('div');
-              ov.className = 'no-data-overlay';
-              const ls = (document.getElementById('lastSync') && document.getElementById('lastSync').textContent) ? document.getElementById('lastSync').textContent : '-';
-              ov.innerHTML = `No Data — İstasyon Durumları<div class="sub">Reason: Station data missing • Last Sync: ${ls}</div>`;
-              host.appendChild(ov);
-            }
-          }else{
-            if(ov) ov.remove();
-          }
-        }
-      }catch(e){}
-}
+
+      host.innerHTML = html;
+      const ov = host.querySelector('.no-data-overlay');
+      if(ov) ov.remove();
+    }
+
+
+
 
     function renderTokens() {
       orders.forEach(o => {
@@ -1351,30 +1264,6 @@ document.addEventListener('click', function(e){ const p=document.getElementById(
     init();
     setInterval(updateShift, 60000);
   </script>
-
-
-<script>
-/* PATCH: lock speed to 1x (pilot steady flow) */
-(function(){
-  try{
-    window.SIM_SPEED = 1;
-    window.speedRate = 1;
-    window.PLAYBACK_RATE = 1;
-  }catch(e){}
-})();
-</script>
-
-
-<div class="dash-menu" id="dashMenuFlow" aria-label="Dashboard Menu">
-  <button class="m-btn" type="button" disabled>Genel Bakış</button>
-  <button class="m-btn" type="button" disabled>Kalite</button>
-  <button class="m-btn" type="button" disabled>Bakım</button>
-  <button class="m-btn" type="button" disabled>Malzemeler</button>
-  <button class="m-btn" type="button" disabled>Sevkiyat</button>
-  <button class="m-btn" type="button" disabled>Hat Takip</button>
-  <button class="m-btn active" type="button" aria-current="page">Üretim Akış Şeması</button>
-  <button class="m-btn" type="button" disabled>Geçmiş Eğilimler</button>
-</div>
 
 </body>
 </html>

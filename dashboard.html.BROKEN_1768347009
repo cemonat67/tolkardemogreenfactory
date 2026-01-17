@@ -1,0 +1,1376 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Zero Factory — TOLKAR Facility</title>
+  <link rel="icon" href="factory-logo 2.svg">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+  <style>
+    :root { --zero-navy:#02154e; --zero-orange:#f9ba00; --zero-green:#005530; --zero-red:#D51635; --zero-white:#ffffff; --zero-black:#1a1a1a; --zero-gray-dark:#666; --zero-gray-light:#e0e0e0; --zero-gray-bg:#fafafa; }
+    *{margin:0;padding:0;box-sizing:border-box}
+    body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','Helvetica Neue',Arial,sans-serif;background:var(--zero-white);color:var(--zero-black);line-height:1.6;padding-top:4px}
+    .zero-color-bar{height:4px;width:100%;background:linear-gradient(90deg,var(--zero-green) 0%,var(--zero-green) 25%,var(--zero-red) 25%,var(--zero-red) 50%,var(--zero-navy) 50%,var(--zero-navy) 75%,var(--zero-orange) 75%,var(--zero-orange) 100%);position:fixed;top:0;left:0;right:0;z-index:1000}
+    .app-header{background:var(--zero-white);color:var(--zero-navy);padding:2rem;box-shadow:0 2px 10px rgba(0,0,0,0.1);border-bottom:1px solid var(--zero-gray-light)}
+    .header-content{display:flex;justify-content:space-between;align-items:center;max-width:1200px;margin:0 auto}
+    .title{font-size:1.5rem;font-weight:300;color:var(--zero-navy)}
+    
+
+/* --- Zero@Green Factory subtitle line (same font+size as .title) --- */
+.title-subline{
+  display:block;              /* üst üste binmeyi kes */
+  margin-top:18px;            /* title ile arayı aç */
+  padding-top:2px;
+  text-align:center;
+  font-weight:400;
+  opacity:.88;
+  line-height:1.25;           /* satır yüksekliği */
+  white-space:normal;         /* wrap serbest */
+}
+.title-subline-by{
+  display:inline-block;
+  margin-left:10px;           /* "by ..." ile boşluk */
+  font-weight:700;
+  opacity:.95;
+}.title-at{color:var(--zero-orange)}
+    .container{max-width:1200px;margin:0 auto;padding:2rem}
+    .controls{display:flex;gap:.75rem;margin-bottom:1rem}
+    .btn{padding:.5rem 1rem;background:var(--zero-navy);color:#fff;border:none;border-radius:6px;font-size:.9rem;cursor:pointer}
+    .btn:hover{background:var(--zero-orange);color:var(--zero-navy)}
+    .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:1rem}
+    .card{background:#fff;border:1px solid var(--zero-gray-light);border-radius:8px;padding:1rem}
+    .status{margin:.5rem 0;color:var(--zero-gray-dark)}
+    .logout{position:fixed;top:16px;right:16px;z-index:9999}
+    .toast{position:fixed;bottom:16px;right:16px;background:#111;color:#fff;padding:.6rem .9rem;border-radius:8px;opacity:0;transform:translateY(10px);transition:.2s}
+    .toast.show{opacity:1;transform:translateY(0)}
+    .tabs{display:flex;gap:6px;margin:12px 0;overflow-x:auto}
+    .tab-btn{padding:.5rem .75rem;border:none;background:#fff;color:#666;border-bottom:3px solid transparent;cursor:pointer;font-size:.8rem}
+    .tab-btn.active{color:var(--zero-green);border-bottom-color:var(--zero-green)}
+    .tab-content{display:none}
+    .tab-content.active{display:block}
+    .stations-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:.75rem}
+    .station-card{background:linear-gradient(135deg,#f9fafb 0%,#f5f7fa 100%);border:1px solid #e0e0e0;border-radius:10px;padding:12px;cursor:pointer;border-left:4px solid transparent}
+    .station-card.ok{border-left-color:#005530}
+    .station-card.risk{border-left-color:#f9ba00}
+    .station-card.bottleneck{border-left-color:#D51635}
+    .station-name{font-size:.85rem;font-weight:700;color:#02154e;margin-bottom:.5rem;text-transform:uppercase}
+    .station-metric{font-size:.8rem;color:#666;margin:.25rem 0;display:flex;justify-content:space-between}
+    #f1Track{width:100%;height:300px;background:#fafbfc;border:1px solid #e0e0e0;border-radius:8px}
+    .events-timeline{display:flex;flex-direction:column;gap:.5rem;max-height:300px;overflow-y:auto}
+    .event-pill{display:inline-flex;align-items:center;gap:.5rem;padding:.5rem .6rem;background:#f5f7fa;border:1px solid #e0e0e0;border-radius:8px;font-size:.8rem;color:#02154e;width:fit-content;font-weight:600;cursor:pointer}
+    .event-pill.critical{background:rgba(213,22,53,.08);border-color:rgba(213,22,53,.3);color:#D51635}
+    .event-pill.info{background:rgba(0,85,48,.08);border-color:rgba(0,85,48,.3);color:#005530}
+    .event-dot{width:8px;height:8px;border-radius:50%;background:currentColor}
+    .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.5);display:none;align-items:center;justify-content:center;z-index:2000;padding:20px}
+    .modal-overlay.visible{display:flex}
+    .modal{background:#fff;border-radius:12px;padding:24px;max-width:600px;max-height:80vh;overflow:auto}
+    .kpi-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px;margin-top:.5rem}
+    .kpi-card{background:linear-gradient(135deg,#f9fafb 0%,#f5f7fa 100%);border:1px solid #e0e0e0;border-radius:10px;padding:16px;position:relative;overflow:hidden}
+    .kpi-card::before{content:'';position:absolute;top:0;left:0;right:0;height:4px;background:linear-gradient(90deg,#02154e,#644bcc)}
+    .kpi-label{font-size:.75rem;text-transform:uppercase;color:#666;margin-bottom:.5rem;font-weight:600;letter-spacing:.5px}
+    .kpi-value{font-size:2rem;font-weight:700;color:#02154e;line-height:1}
+    .kpi-unit{font-size:.8rem;color:#999;margin-left:.25rem}
+    .kpi-delta{font-size:.85rem;font-weight:600;margin-top:.25rem}
+    .delta-up{color:#005530}
+    .delta-down{color:#D51635}
+    .btn-pdf{background:var(--zero-navy);color:#fff;border:1px solid transparent}
+    .btn-pdf:hover{background:var(--zero-orange);color:var(--zero-navy);border-color:var(--zero-orange)}
+    .spinner-overlay{position:fixed;inset:0;background:rgba(0,0,0,.3);display:none;align-items:center;justify-content:center;z-index:3000}
+    .spinner-overlay.visible{display:flex}
+    .spinner{width:40px;height:40px;border:4px solid #fff;border-top-color:var(--zero-orange);border-radius:50%;animation:spin .8s linear infinite}
+    .spinner-text{margin-top:12px;color:#fff;font-weight:600}
+    @keyframes spin{to{transform:rotate(360deg)}}
+    .range-buttons{display:flex;gap:.5rem;margin-bottom:.75rem}
+    .range-btn{padding:.4rem .7rem;border:1px solid #e0e0e0;background:#fff;color:#02154e;border-radius:6px;cursor:pointer;font-size:.85rem}
+    .range-btn.active{background:#02154e;color:#fff}
+    .hist-grid{display:grid;grid-template-columns:1fr 1fr;gap:1rem}
+    .range-label{color:#666;font-size:.85rem;margin-bottom:.5rem}
+    .alert-grid{display:grid;grid-template-columns:1fr 1fr;gap:.75rem}
+    .field{display:flex;flex-direction:column;gap:.25rem}
+    .field label{font-size:.85rem;color:#02154e;font-weight:600}
+    .field input,.field select,.field textarea{padding:.5rem;border:1px solid #e0e0e0;border-radius:6px;font-size:.9rem}
+    .alert-actions{display:flex;gap:.5rem;justify-content:flex-end;margin-top:.75rem}
+    .btn-secondary{padding:.5rem .8rem;background:#f5f7fa;color:#02154e;border:1px solid #e0e0e0;border-radius:6px;cursor:pointer}
+    .alert-list{display:flex;flex-direction:column;gap:.5rem}
+    .alert-item{display:flex;gap:.5rem;align-items:center;padding:.5rem;border:1px solid #e0e0e0;border-radius:8px}
+    .alert-item .ts{color:#888;font-size:.85rem;margin-left:auto}
+    .ms-controls{display:flex;gap:.5rem;align-items:center;margin-bottom:.75rem}
+    .site-select{padding:.4rem .7rem;border:1px solid #e0e0e0;border-radius:6px}
+    .ms-grid{display:grid;grid-template-columns:1fr 1fr;gap:1rem}
+ (max-width: 1400px){.ms-grid{grid-template-columns:1fr}}
+ (max-width: 1100px){.hist-grid{grid-template-columns:1fr}.alert-grid{grid-template-columns:1fr}}
+
+
+    .ms-table{width:100%;border-collapse:collapse}
+    .ms-table th,.ms-table td{border:1px solid #e0e0e0;padding:.5rem;text-align:left;font-size:.9rem}
+    .geo-map{width:100%;height:260px;border:1px solid #e0e0e0;border-radius:8px;background:#fafbfc}
+    .site-marker{r:10}
+    .app-header{position:relative}
+    .header-content{display:flex;justify-content:center;align-items:center}
+    .brand-logo{position:absolute;left:16px;top:50%;transform:translateY(-50%);width:80px;height:80px;opacity:.9}
+    .health-bar{position:absolute;right:16px;top:50%;transform:translateY(-50%);display:flex;gap:.5rem;align-items:center}
+    .pill{padding:.25rem .5rem;border-radius:999px;font-size:.8rem;border:1px solid #e0e0e0}
+    .pill.ok{background:rgba(0,85,48,.08);color:#005530;border-color:rgba(0,85,48,.3)}
+    .pill.degraded{background:rgba(249,186,0,.12);color:#7a5b00;border-color:rgba(249,186,0,.4)}
+    .pill.offline{background:rgba(213,22,53,.10);color:#D51635;border-color:rgba(213,22,53,.3)}
+    .card{position:relative}
+    .no-data-overlay{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(255,255,255,.85);color:#02154e;font-weight:600;text-align:center;padding:1rem;}
+    .line-highlight{animation:flash 1.5s linear 1}
+    @keyframes flash{0%{background:#fffcc0}50%{background:#ffe28a}100%{background:transparent}}
+    @keyframes pulse{0%{box-shadow:0 0 0 0 rgba(213,22,53,.20)}50%{box-shadow:0 0 0 6px rgba(213,22,53,.12)}100%{box-shadow:0 0 0 0 rgba(213,22,53,.08)}}
+  
+
+/* ZGF_HEADER_STACK */
+.title-stack{
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  gap:12px;
+  text-align:center;
+  line-height:1.15;
+}
+.title-stack .title{ line-height:1.05; }
+.title-stack .subtitle{
+  margin-top:10px;               /* 1.5 satır aşağı hissi */
+  font-size:inherit;             /* title ile aynı size */
+  font-weight:400;               /* bold değil */
+  color:#02154e;
+  opacity:.85;
+  line-height:1.25;
+  white-space:normal;
+}
+.title-stack .subtitle .subtitle-by{ font-weight:400; opacity:.9; }
+.title-stack .subtitle .brand{ font-weight:400; }  /* by Zero@Ecosystem bold olmasın */
+.title-stack .facility-wrap{ margin-top:2px; display:flex; justify-content:center; }
+.title-stack .facility-pill{
+  display:inline-flex;
+  align-items:center;
+  gap:8px;
+  padding:6px 12px;
+  border-radius:999px;
+  border:1px solid rgba(2,21,78,.18);
+  background:rgba(249,186,0,.12);
+  color:#02154e;
+  font-weight:700;
+  font-size:12px;
+  letter-spacing:.2px;
+}
+.title-stack .facility-name{ font-weight:800; }
+
+
+
+/* ZGF_BRAND_BADGES */
+.title-stack .facility-pill{
+  background:#005530 !important;  /* Zero green */
+  color:#fff !important;
+  border:none !important;
+  border-radius:10px !important;  /* köşesiz dikdörtgen (Çıkış vibe) */
+  padding:8px 14px !important;
+  box-shadow:0 8px 18px rgba(0,0,0,.08);
+}
+.title-stack .facility-pill .facility-name{ color:#fff !important; }
+
+/* OFFLINE badge (sağ üst) — kırmızı zemin + beyaz yazı (olası class/id varyasyonlarını yakala) */
+#healthPill.offline, #statusPill.offline, #syncPill.offline,
+.health-pill.offline, .status-pill.offline, .sync-pill.offline,
+#healthPill[data-state="offline"], #statusPill[data-state="offline"],
+.sync-status.offline, .badge.offline, .pill.offline {
+  background:#D51635 !important;  /* Zero red */
+  color:#fff !important;
+  border:none !important;
+  border-radius:10px !important;
+  padding:6px 12px !important;
+  font-weight:700 !important;
+}
+
+/* ONLINE varsa (bonus): yeşil */
+#healthPill.online, #statusPill.online, #syncPill.online,
+.health-pill.online, .status-pill.online, .sync-pill.online,
+#healthPill[data-state="online"], #statusPill[data-state="online"],
+.sync-status.online, .badge.online, .pill.online {
+  background:#005530 !important;
+  color:#fff !important;
+  border:none !important;
+  border-radius:10px !important;
+  padding:6px 12px !important;
+  font-weight:700 !important;
+}
+
+
+
+/* ZGF_LAYOUT_FILL */
+:root{
+  --zgf-maxw: 1440px; /* desktop */
+  --zgf-maxw-wide: 1600px;
+}
+
+/* sayfanın ana içerik bloğunu genişlet (farklı class olasılıklarını yakala) */
+.container, .main, .main-content, .content, .page, .wrap, .wrapper{
+  max-width: var(--zgf-maxw);
+}
+
+/* Eğer zaten bir max-width varsa, iPad/desktop'ta override */
+@media (min-width: 1024px){
+  .container, .main, .main-content, .content, .page, .wrap, .wrapper{
+    width: min(96vw, var(--zgf-maxw-wide)) !important;
+    max-width: var(--zgf-maxw-wide) !important;
+    margin-left: auto !important;
+    margin-right: auto !important;
+  }
+}
+
+/* KPI kartları: daha iri */
+.kpi-card, .kpi, .kpiBox, .kpi-box, .metric-card{
+  min-height: 96px;
+}
+.kpi-card .value, .kpi .value, .metric-value{
+  font-size: 40px !important;
+  line-height: 1.05 !important;
+}
+
+/* İstasyon kartları: daha iri ve eşit hizalı */
+.station-card, .station, .stationBox, .line-card, .dept-card{
+  min-height: 110px;
+}
+
+/* Üretim Pisti + Trendler kutuları: daha büyük (zoom out'ta boşluğu doldursun) */
+#trackHost, #trendHost, #pistiHost, #trendsHost,
+.track-host, .trend-host, .track-panel, .trend-panel{
+  min-height: 320px !important;
+}
+
+/* Olay listesi kartı: daha nefesli */
+#eventsHost, .events-host, .event-list{
+  min-height: 120px;
+}
+
+/* header altındaki büyük boşlukları azalt (çok yukarıda sıkışmasın) */
+.header, .topbar, .hero{
+  padding-bottom: 8px !important;
+}
+
+</style>
+</head>
+<body>
+  <a href="login.html" class="btn logout">Çıkış</a>
+  <div class="zero-color-bar"></div>
+  <header class="app-header">
+    <div class="header-content">
+      <img class="brand-logo" src="factory-logo 2.svg" alt="Tolkar">
+      <div class="title-stack">
+  <div class="title">Zero<span class="title-at">@</span>Green Factory</div>
+  <div class="subtitle">
+    Sürdürülebilir Üretim Kontrol Merkezi <span class="subtitle-by">by</span>
+    <span class="brand">Zero<span class="title-at">@</span>Ecosystem</span>
+  </div>
+  <div class="facility-wrap">
+    <span class="facility-pill">Facility: <span class="facility-name">TOLKAR</span></span>
+  </div>
+</div>
+<div style="margin-top:10px;display:flex;justify-content:center">
+  </div>
+      <div class="health-bar"><span id="lastSync" class="pill">Last Sync: -</span><span id="healthPill" class="pill offline">Offline</span></div>
+    </div>
+  </header>
+  <main class="container">
+    <div class="tabs">
+      <button class="tab-btn active" onclick="switchTab('overview',event)">Genel Bakış</button>
+      <button class="tab-btn" onclick="switchTab('quality',event)">Kalite</button>
+      <button class="tab-btn" onclick="switchTab('maintenance',event)">Bakım</button>
+      <button class="tab-btn" onclick="switchTab('cfo',event)">CFO</button>
+      <button class="tab-btn" onclick="switchTab('materials',event)">Malzemeler</button>
+      <button class="tab-btn" onclick="switchTab('shipping',event)">Sevkiyat</button>
+      <button class="tab-btn" onclick="switchTab('lines',event)">Hat Takip</button>
+      <button class="tab-btn" onclick="switchTab('tab-flow-live',event)">🧺 Factory Flow Live</button>
+      <button class="tab-btn" onclick="switchTab('tab-historical',event)">📈 Geçmiş Eğilimler</button>
+      <button class="tab-btn" onclick="switchTab('tab-multisite',event)">🏭 Çoklu Site</button>
+    </div>
+    <div id="overview" class="tab-content active">
+    <div class="controls">
+      <button class="btn" id="btn-refresh">Yenile</button>
+      <button class="btn" id="btn-reset">Sıfırla</button>
+      <button class="btn" id="btn-shock">Şok</button>
+      <button class="btn" id="btn-kaizen">Kaizen</button>
+      <button class="btn" id="btn-reports">Raporlar</button>
+      <button class="btn" id="btn-theme">Karanlık Mod</button>
+      <button class="btn btn-pdf" id="btn-pdf">📄 PDF Raporu Dışa Aktar</button>
+      <button class="btn" id="btn-alerts">Uyarılar</button>
+    </div>
+    <div id="status" class="status"></div>
+    <div class="card" style="margin-bottom:1rem"><div style="font-weight:600;color:var(--zero-navy);margin-bottom:.5rem">Anahtar Performans Göstergeleri</div><div class="kpi-grid" id="kpi"></div></div>
+    <div class="card"><div style="font-weight:600;color:var(--zero-navy);margin-bottom:.5rem">İstasyon Performansı</div><div class="stations-grid" id="stations"></div></div>
+    <div class="grid">
+      <div class="card"><div style="font-weight:600;color:var(--zero-navy);margin-bottom:.5rem">Üretim Pisti</div><div id="lineView" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:10px"></div></div>
+      <div class="card"><div style="font-weight:600;color:var(--zero-navy);margin-bottom:.5rem">Trendler</div><canvas id="chartPower" height="150"></canvas><canvas id="chartTemp" height="150" style="margin-top:12px"></canvas></div>
+    </div>
+    <div class="grid">
+      <div class="card" style="grid-column: 1 / -1">
+        <div style="font-weight:600;color:var(--zero-navy);margin-bottom:.5rem">Olay Zaman Çizelgesi</div>
+        <div class="events-timeline" id="events"></div>
+      </div>
+    </div>
+    </div>
+    <div id="quality" class="tab-content">
+      <div class="card"><div style="font-weight:600;color:var(--zero-navy);margin-bottom:.5rem">Kritik Kalite Metrikleri</div>
+        <div class="kpi-grid" id="qualityMetrics"></div>
+      </div>
+      <div class="card"><div style="font-weight:600;color:var(--zero-navy);margin-bottom:.5rem">Top Defect Reasons</div>
+        <div id="qualityTopReasons" style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px"></div>
+      </div>
+      <div class="card"><div style="font-weight:600;color:var(--zero-navy);margin-bottom:.5rem">Son 10 Kalite Olayı</div>
+        <div id="qualityLast10" class="events-timeline"></div>
+      </div>
+      <div class="card"><div style="font-weight:600;color:var(--zero-navy);margin-bottom:.5rem">Kalite Kriterleri ve Standartlar</div>
+        <ul style="margin:0;padding-left:18px;line-height:1.6;color:#333">
+          <li>Sızdırmazlık testleri (kapak, bağlantılar)</li>
+          <li>Dengesiz yük ve uzun süreli çalışma dayanımı</li>
+          <li>Elektriksel güvenlik: EN 60204-1, izolasyon/kaçak akım testleri</li>
+          <li>Yıkama verimliliği, su/enerji tüketimi performansı</li>
+          <li>Hijyen: deterjan/dezenfektan/sıcaklık döngülerinde malzeme stabilitesi</li>
+        </ul>
+      </div>
+    </div>
+    <div id="maintenance" class="tab-content">
+      <div class="card"><div style="font-weight:600;color:var(--zero-navy);margin-bottom:.5rem">Periyodik Bakım Planı</div>
+        <table class="ms-table"><thead><tr><th>Görev</th><th>Sıklık</th><th>Açıklama</th></tr></thead><tbody id="maintTable">
+          <tr><td>Filtre ve tüy tutucu kontrolü</td><td>Günlük</td><td>Temizlik ve görsel kontrol</td></tr>
+          <tr><td>Su giriş filtreleri</td><td>Haftalık</td><td>Debi ve tıkanma kontrolü</td></tr>
+          <tr><td>Deterjan bölmesi temizliği</td><td>Haftalık</td><td>Kalıntı ve akış kontrolü</td></tr>
+          <tr><td>Rulman/kayış kontrolü</td><td>6–12 Ay</td><td>Aşınma, gürültü ve boşluk</td></tr>
+          <tr><td>Elektrik bağlantıları</td><td>6 Ay</td><td>Sıkılık ve izolasyon</td></tr>
+          <tr><td>Sensör kalibrasyonu</td><td>Yıllık</td><td>Sıcaklık, seviye ve hız sensörleri</td></tr>
+        </tbody></table>
+      </div>
+      <div class="card"><div style="font-weight:600;color:var(--zero-navy);margin-bottom:.5rem">Açık Bakım İşleri</div>
+        <table class="ms-table"><thead><tr><th>ID</th><th>Makine</th><th>İş</th><th>ETA</th></tr></thead><tbody id="maintOpenJobs">
+          <tr><td>MJ-101</td><td>Montaj Hattı</td><td>Kayış değişimi</td><td>+1 gün</td></tr>
+          <tr><td>PA-204</td><td>Paketleme</td><td>Sensör kalibrasyonu</td><td>Bugün 17:00</td></tr>
+          <tr><td>PT-307</td><td>Boya</td><td>Fan bakımı</td><td>+2 gün</td></tr>
+        </tbody></table>
+      </div>
+      <div class="card"><div style="font-weight:600;color:var(--zero-navy);margin-bottom:.5rem">MTBF / MTTR</div>
+        <div id="maintMetrics" class="kpi-grid"></div>
+      </div>
+    </div>
+    <div id="cfo" class="tab-content"><div class="card">Finansal görünüm yakında.</div></div>
+    <div id="materials" class="tab-content">
+      <div class="card"><div style="font-weight:600;color:var(--zero-navy);margin-bottom:.5rem">Tedarik Zinciri Görünürlüğü</div>
+        <table class="ms-table"><thead><tr><th>Bileşen</th><th>Malzeme</th><th>Tipik Termin</th><th>Risk</th><th>Stok</th><th>ETA</th></tr></thead><tbody id="materialsTable">
+          <tr><td>Tambur/Gövde</td><td>AISI 304/316 Paslanmaz</td><td>3–6 Hafta</td><td>Düşük</td><td>120</td><td>+10 gün</td></tr>
+          <tr><td>Rulmanlar</td><td>SKF/NSK Endüstriyel</td><td>2–4 Hafta</td><td>Orta</td><td>60</td><td>+7 gün</td></tr>
+          <tr><td>Kapak Contası</td><td>EPDM/NBR</td><td>1–3 Hafta</td><td>Düşük</td><td>300</td><td>+5 gün</td></tr>
+          <tr><td>Motor/İnverter</td><td>IE3/IE4 + Sürücü</td><td>4–8 Hafta</td><td>Orta</td><td>15</td><td>+21 gün</td></tr>
+          <tr><td>Isıtıcı/Valf/Pompa</td><td>Paslanmaz/Brass</td><td>2–5 Hafta</td><td>Orta</td><td>80</td><td>+9 gün</td></tr>
+          <tr><td>PLC/HMI</td><td>Endüstriyel Kontrol</td><td>3–7 Hafta</td><td>Orta</td><td>25</td><td>+14 gün</td></tr>
+        </tbody></table>
+      </div>
+    </div>
+    <div id="shipping" class="tab-content">
+      <div class="card"><div style="font-weight:600;color:var(--zero-navy);margin-bottom:.5rem">Lojistik ve Sevkiyat</div>
+        <div class="ms-grid">
+          <div>
+            <div style="font-weight:600;margin-bottom:6px">Bugün Sevk</div>
+            <table class="ms-table"><thead><tr><th>Order</th><th>Model</th><th>Qty</th><th>ETA</th></tr></thead><tbody>
+              <tr><td>#A1023</td><td>Smartex Miracle 50</td><td>4</td><td>14:30</td></tr>
+              <tr><td>#A1024</td><td>Carina Dryer 30</td><td>2</td><td>16:00</td></tr>
+            </tbody></table>
+          </div>
+          <div>
+            <div style="font-weight:600;margin-bottom:6px">Geciken Sevkiyat</div>
+            <div class="card" style="background:rgba(213,22,53,.08);border:1px solid rgba(213,22,53,.3)"><div>⚠️ #A1019 — Montaj bekliyor • Yeni ETA 18:00</div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div id="tab-flow-live" class="tab-content">
+      <div class="card"><div style="font-weight:600;color:var(--zero-navy);margin-bottom:.5rem">Flow Live Özet</div><div id="flowSummary" class="kpi-grid"></div></div>
+      <div class="grid">
+        <div class="card" style="grid-column:1/-1"><div style="font-weight:600;color:var(--zero-navy);margin-bottom:.5rem">Factory Flow Live <span id="simBadge" class="pill degraded" style="display:none;margin-left:6px">SIM MODE</span></div><div id="flowHost" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:10px"></div></div>
+        <div class="card" style="grid-column:1/-1"><div style="font-weight:600;color:var(--zero-navy);margin-bottom:.5rem">Active Orders</div><div id="flowPanel" style="max-height:320px;overflow:auto;padding-right:6px"></div></div>
+      </div>
+    </div>
+    <div id="lines" class="tab-content">
+      <div class="card"><div style="font-weight:600;color:var(--zero-navy);margin-bottom:.5rem">Canlı Hat Takibi</div>
+        <table class="ms-table"><thead><tr>
+          <th>Hat</th><th>Status</th><th>WIP</th><th>Throughput (adet/saat)</th><th>CT (dk)</th><th>OEE%</th><th>FPY%</th><th>Bottleneck</th><th>Son Olay</th><th>Aksiyon</th>
+        </tr></thead><tbody id="linesTable"></tbody></table>
+      </div>
+    </div>
+    <div id="tab-historical" class="tab-content">
+      <div class="card">
+        <div class="range-buttons">
+          <button class="range-btn" data-range="hour">Last Hour</button>
+          <button class="range-btn active" data-range="shift">Last Shift (8h)</button>
+          <button class="range-btn" data-range="day">Last Day</button>
+          <button class="range-btn" data-range="week">Last Week</button>
+          <button class="range-btn" data-range="month">Last Month</button>
+        </div>
+        <div class="range-label" id="histLabel"></div>
+        <div class="hist-grid">
+        <div class="card"><div style="font-weight:600;color:var(--zero-navy);margin-bottom:.5rem">OEE Eğilimi</div><canvas id="histOEE" height="180"></canvas></div>
+          <div class="card"><div style="font-weight:600;color:var(--zero-navy);margin-bottom:.5rem">Üretim Hacmi</div><canvas id="histVolume" height="180"></canvas></div>
+          <div class="card"><div style="font-weight:600;color:var(--zero-navy);margin-bottom:.5rem">Kalite — WIP</div><canvas id="histFPY" height="180"></canvas></div>
+          <div class="card"><div style="font-weight:600;color:var(--zero-navy);margin-bottom:.5rem">Downtime/Reason</div><canvas id="histEnergy" height="180"></canvas></div>
+          <div class="card"><div style="font-weight:600;color:var(--zero-navy);margin-bottom:.5rem">Energy (kWh)</div><canvas id="histEnergyKWH" height="180"></canvas></div>
+          <div class="card"><div style="font-weight:600;color:var(--zero-navy);margin-bottom:.5rem">CO₂ (kg)</div><canvas id="histCO2" height="180"></canvas></div>
+        </div>
+      </div>
+    </div>
+    <div id="tab-multisite" class="tab-content">
+      <div class="card">
+        <div class="ms-controls"><select id="siteSelect" class="site-select"><option>All Sites</option><option>Bursa</option><option>Gebze</option><option>Kocaeli</option></select></div>
+        <div class="ms-grid">
+          <div class="card"><div style="font-weight:600;color:var(--zero-navy);margin-bottom:.5rem">Toplu KPI</div><div id="msKPI" class="kpi-grid"></div></div>
+          <div class="card"><div style="font-weight:600;color:var(--zero-navy);margin-bottom:.5rem">Site Karşılaştırma</div><table class="ms-table"><thead><tr><th>Site</th><th>OEE%</th><th>WIP</th><th>FPY%</th><th>Bottleneck</th></tr></thead><tbody id="msTable"></tbody></table></div>
+        </div>
+        <div class="card" style="margin-top:1rem"><div style="font-weight:600;color:var(--zero-navy);margin-bottom:.5rem">Coğrafi Isı Haritası</div><svg id="msMap" class="geo-map" viewBox="0 0 800 260" xmlns="http://www.w3.org/2000/svg"></svg></div>
+      </div>
+    </div>
+  </main>
+  <div class="modal-overlay" id="modalOverlay"><div class="modal"><h3 style="margin-bottom:.75rem">Detay</h3><div id="modalContent"></div></div></div>
+  <div class="modal-overlay" id="alertModal"><div class="modal"><h3 style="margin-bottom:.75rem">Alert Configuration</h3><div class="alert-grid">
+    <div class="field"><label>Recipients</label><input id="alRecipients" placeholder="name@example.com, ..."></div>
+    <div class="field"><label>Frequency</label><select id="alFreq"><option value="immediate">Immediate</option><option value="hourly">Hourly Digest</option><option value="daily">Daily</option></select></div>
+    <div class="field"><label>OEE Threshold (%)</label><input id="alOEE" type="number" min="0" max="100" value="80"></div>
+    <div class="field"><label>FPY Threshold (%)</label><input id="alFPY" type="number" min="0" max="100" value="95"></div>
+    <div class="field"><label>WIP Threshold</label><input id="alWIP" type="number" min="0" value="10"></div>
+    <div class="field"><label>Enable Bottleneck Trigger</label><select id="alBottleneck"><option value="on">On</option><option value="off">Off</option></select></div>
+    <div class="field" style="grid-column:1/-1"><label>Email Template Preview</label><textarea id="alTemplate" rows="6"></textarea></div>
+  </div><div class="alert-actions"><button class="btn-secondary" id="alPreview">Preview Email</button><button class="btn" id="alSave">Save</button><button class="btn-secondary" id="alClose">Close</button></div></div></div>
+  <div class="toast" id="toast"></div>
+  <div class="spinner-overlay" id="pdfSpinner"><div style="display:flex;flex-direction:column;align-items:center"><div class="spinner"></div><div class="spinner-text">PDF oluşturuluyor…</div></div></div>
+  <script>
+    window.__API_BASE__ = (location.hostname==='localhost'||location.hostname==='127.0.0.1') ? 'http://127.0.0.1:5000' : location.origin;
+  </script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+  <script src="assets/js/auth-wrapper.js"></script>
+  <script src="assets/js/flow_live.js"></script>
+  <script>
+    if(!AUTH.isLoggedIn()) window.location.href='login.html';
+    const statusEl = document.getElementById('status');
+    const stationsEl = document.getElementById('stations');
+    const eventsEl = document.getElementById('events');
+    const toastEl = document.getElementById('toast');
+    const modalEl = document.getElementById('modalOverlay');
+    const alertModalEl = document.getElementById('alertModal');
+    const ALERT_CONFIG = {recipients:'',freq:'immediate',oee:80, fpy:95, wip:10, bottleneck:true};
+    const ALERT_HISTORY = [];
+    const P = new URLSearchParams(location.search);
+    const CLIENT = {
+      name: P.get('client_name')||'',
+      industry: (P.get('industry')||'').toLowerCase(),
+      stationNames: (P.get('stations')||'').split(',').map(s=>s.trim()).filter(Boolean),
+      costs: { scrap: parseFloat(P.get('scrap')||'0')||0, downtime: parseFloat(P.get('downtime')||'0')||0, labor: parseFloat(P.get('labor')||'0')||0 },
+      thresholds: { oee_good: parseFloat(P.get('oee_good')||'80')||80, ct_crit_pct: parseFloat(P.get('ct_crit_pct')||'20')||20 }
+    };
+    if(CLIENT.name){ const f=document.querySelector('.facility-name'); if(f) f.textContent = CLIENT.name; try{ document.title = 'Zero@Green Factory — ' + CLIENT.name; }catch(e){} }
+    let lastSyncTs = null;
+    function setLastSync(ts){ lastSyncTs = ts; const el=document.getElementById('lastSync'); if(el) el.textContent = 'Last Sync: ' + (ts? new Date(ts).toLocaleTimeString('tr-TR'): '-'); }
+    function setHealth(state){ const el=document.getElementById('healthPill'); if(!el) return; el.classList.remove('ok','degraded','offline'); if(state==='ok'){ el.classList.add('ok'); el.textContent='OK'; } else if(state==='degraded'){ el.classList.add('degraded'); el.textContent='Degraded'; } else { el.classList.add('offline'); el.textContent='Offline'; } }
+    function toast(t){ toastEl.textContent=t; toastEl.classList.add('show'); setTimeout(()=>toastEl.classList.remove('show'),2000); }
+    function switchTab(id,ev){ document.querySelectorAll('.tab-content').forEach(x=>x.classList.remove('active')); document.querySelectorAll('.tab-btn').forEach(x=>x.classList.remove('active')); document.getElementById(id).classList.add('active'); if(ev) ev.target.classList.add('active'); }
+    function openModal(html){ document.getElementById('modalContent').innerHTML=html; modalEl.classList.add('visible'); }
+    modalEl.addEventListener('click', (e)=>{ if(e.target===modalEl) modalEl.classList.remove('visible'); });
+    async function load(){
+      const data = await getStateSafe();
+      renderStations(data.stations||[]);
+      const lines = await getLinesV1Safe();
+      const stationsV1 = await getStationsV1Safe();
+      renderLineView(lines, stationsV1);
+      await renderCharts();
+      statusEl.textContent = 'Son güncelleme: ' + new Date().toLocaleTimeString('tr-TR') + (data.demo ? ' • Demo' : '');
+      try{ const st = await AUTH.get('/api/v1/status'); if(st && st.health){ setHealth(st.health); const bar=document.querySelector('.health-bar'); if(bar && st.reason){ const el=document.getElementById('healthReason'); if(!el){ const r=document.createElement('span'); r.id='healthReason'; r.className='pill'; r.textContent = st.reason; bar.appendChild(r); } else { el.textContent = st.reason; } } } }catch(e){}
+      await renderEventsV1();
+      lastEvents = (await getEventsSafe()).events||[];
+      const kpi = await getKpiSafe(data.stations||[]);
+      renderKPI(kpi);
+      if((data.stations||[]).some(s=>String(s.status).toLowerCase()==='bottleneck')){ toast('⚠️ Bottleneck uyarısı'); }
+      evaluateAlerts(data.stations||[]);
+      buildSites(data.stations||[]);
+      renderMultiSite();
+      const lines2 = await getLinesV1Safe();
+      lastLines = lines2;
+      renderLines(lines2);
+      initFlowLive();
+    }
+    let lastEvents = [];
+    let lastStations = [];
+    let lastAvgPower = 0;
+    let histCharts = { oee:null, volume:null, fpy:null, energy:null };
+    let histRange = 'shift';
+    let sitesData = [];
+    let lastLines = [];
+    function hasFields(obj, fields){ return fields.every(f=> obj && (obj[f]!==undefined && obj[f]!==null && obj[f]!=='')); }
+    async function getLinesV1Safe(){
+      try{
+        const r = await AUTH.get('/api/v1/lines');
+        const required = ['ts','site_id','last_sync','lines'];
+        if(!hasFields(r, required)){ setHealth('degraded'); return []; }
+        const out = (r.lines||[]).map(x=>({
+          name: x.line_name,
+          status: x.status,
+          wip: x.wip,
+          throughput: x.throughput_ph,
+          ct: x.ct_min,
+          oee: x.oee,
+          fpy: x.fpy,
+          bottlenecks: x.bottleneck_station?1:0,
+          lastEvent: x.last_event
+        }));
+        const valid = out.every(x=> hasFields(x, ['name','status','wip','throughput','ct','oee','fpy']));
+        if(!valid) setHealth('degraded'); else setHealth('ok');
+        return out;
+      }catch(e){ setHealth('offline'); return []; }
+    }
+    async function getStationsV1Safe(){
+      try{
+        const r = await AUTH.get('/api/v1/stations');
+        const required = ['ts','site_id','last_sync','stations'];
+        if(!hasFields(r, required)){ setHealth('degraded'); return []; }
+        return (r.stations||[]).map(s=>({ name: s.station_name, status: s.status, wip: s.wip, ct: Math.round((s.ct_sec||0)/60), oee: 0, fpy: 0 }));
+      }catch(e){ setHealth('offline'); return []; }
+    }
+    async function getOrdersV1Safe(){
+  try{
+    const r = await AUTH.get('/api/v1/orders');
+    const required = ['ts','site_id','last_sync','orders'];
+    if(!hasFields(r, required)) return {orders:[], last_sync:null};
+    return r;
+  }catch(e){
+    return {orders:[], last_sync:null};
+  }
+}
+
+async function initFlowLive(){ const r = await getOrdersV1Safe(); const orders=(r.orders||[]); const lines = await getLinesV1Safe(); renderFlowSummary(lines); const sim = (!orders.length); document.getElementById('simBadge').style.display = sim? 'inline-block':'none'; FLOW_LIVE.start(document.getElementById('flowHost'), null);
+ }
+    function renderFlowSummary(lines){ const el=document.getElementById('flowSummary'); if(!el) return; el.innerHTML=''; ['Metal & Şase','Boya Hattı','Montaj','Final Test','Paketleme & Sevkiyat'].forEach(name=>{ const l = lines.find(x=> x.name===name) || {name, status:'Idle', wip:0, throughput:0, oee:0, fpy:0, bottlenecks:0}; const div=document.createElement('div'); const pill = (l.status==='Running')?'ok':(l.status==='Down')?'offline':(l.status==='Idle')?'degraded':'degraded'; div.className='kpi-card'; div.innerHTML = `<div class='kpi-label'>${l.name}</div><div class='kpi-value'>${l.throughput}<span class='kpi-unit'>/h</span></div><div class='kpi-delta ${l.bottlenecks?'delta-down':'delta-up'}'>${l.bottlenecks? '⚠️ bottleneck':'WIP '+l.wip}</div>`; const badge=document.createElement('span'); badge.className='pill '+pill; badge.textContent=l.status; div.appendChild(badge); el.appendChild(div); }); }
+    function reasonLabel(code){ const map={ 'RC10':'Malzeme bekliyor', 'RC11':'Makine arızası', 'RC12':'Operatör bekliyor', 'RC13':'Kalite red bekliyor', 'RC14':'Bakım planlı duruş' }; return map[code]||'Bilinmiyor'; }
+    const LINE_STANDARD = [
+      {id:1, name:'Metal & Şase', keywords:['metal','şase','sase','sasi','sase','şasi']},
+      {id:2, name:'Boya Hattı', keywords:['boya','paint']},
+      {id:3, name:'Montaj', keywords:['montaj','assembly']},
+      {id:4, name:'Final Test', keywords:['test','final']},
+      {id:5, name:'Paketleme & Sevkiyat', keywords:['paket','sevkiyat','pack','shipping']}
+    ];
+    function mapStationToLineName(stationName){
+      const n=(stationName||'').toLowerCase();
+      for(const line of LINE_STANDARD){ if(line.keywords.some(k=> n.includes(k))) return line.name; }
+      return 'Montaj';
+    }
+    function computeLinesFromStations(){ return []; }
+    function renderLines(lines){
+      const tbody = document.getElementById('linesTable'); if(!tbody) return;
+      tbody.innerHTML='';
+      if(!lines.length){ const host=tbody.parentElement; let ov=host.querySelector('.no-data-overlay'); if(!ov){ ov=document.createElement('div'); ov.className='no-data-overlay'; ov.innerHTML=`No Data — Hat Takip<div style='font-size:.9rem;color:#444;margin-top:.5rem'>Reason: İstasyon verisi eksik • Last Seen: ${lastSyncTs? new Date(lastSyncTs).toLocaleTimeString('tr-TR'):'-'}</div>`; host.appendChild(ov);} return; } else { const ov=tbody.parentElement.querySelector('.no-data-overlay'); if(ov) ov.remove(); }
+      lines.forEach(l=>{
+        const tr = document.createElement('tr');
+        const pillClass = (l.status==='Running')?'ok':(l.status==='Down')?'offline':(l.status==='Idle')?'degraded':'degraded';
+        const last = l.lastEvent ? `${l.lastEvent.reason_code||'-'} — ${reasonLabel(l.lastEvent.reason_code||'')} • ${l.lastEvent.since_ts? new Date(l.lastEvent.since_ts).toLocaleTimeString('tr-TR'):''}` : '-';
+        tr.innerHTML = `<td>${l.name}</td>
+          <td><span class='pill ${pillClass}'>${l.status}</span></td>
+          <td>${l.wip}</td>
+          <td>${l.throughput}</td>
+          <td>${l.ct}</td>
+          <td>${l.oee}</td>
+          <td>${l.fpy}</td>
+          <td>${l.bottlenecks}</td>
+          <td>${last}</td>
+          <td><a href='#' onclick="focusLane('${l.name}');return false;">Focus</a></td>`;
+        tbody.appendChild(tr);
+      });
+    }
+    function focusLane(lineName){ const host=document.getElementById('lineView'); const lanes=[...host.querySelectorAll('[data-line]')]; const lane=lanes.find(x=> (x.getAttribute('data-line')||'')===lineName); if(lane){ lane.classList.add('line-highlight'); lane.scrollIntoView({behavior:'smooth',block:'center'}); setTimeout(()=>lane.classList.remove('line-highlight'),1500); } }
+    async function getStateSafe(){
+      try{ const r = await AUTH.get('/api/state'); setHealth('ok'); setLastSync(Date.now()); const stations=(r.stations||[]).map(s=>({
+        id: s.id||s.station_id||s.station_number||Math.random(),
+        name: s.name,
+        wip: s.wip ?? (s.telemetry?s.telemetry.wip:0) ?? 0,
+        ct: s.ct ?? Math.round(((s.cycle_time_sec ?? s.target_cycle_time_sec ?? 0))/60) ?? 0,
+        oee: s.oee ?? 0,
+        fpy: s.fpy ?? 0,
+        status: (s.bottleneck ? 'bottleneck' : (String(s.status||'ok')).toLowerCase()),
+        position_on_track: s.position_on_track ?? null
+      })); statusEl.textContent = 'Son güncelleme: ' + new Date().toLocaleTimeString('tr-TR'); return {stations, demo:false}; }
+      catch(e){ const d = makeDemoState(); setHealth('offline'); statusEl.textContent = 'Offline mod — Son bilinen veri • ' + new Date().toLocaleTimeString('tr-TR'); return {stations:d.stations, demo:true}; }
+    }
+    async function getEventsSafe(){
+      try{ return await AUTH.get('/api/v1/events?limit=200'); }
+      catch(e){ return { events:[{ts:new Date().toISOString(), type:'shock', status:'critical', reason_code:'RC12', payload:{message:'Demo Olay: Dar boğaz algılandı'}}] }; }
+    }
+    async function renderEventsV1(filter){
+      const r = await getEventsSafe();
+      const items = (r.events||[]).filter(e=>{
+        if(!filter) return true; if(filter.station_name) return (e.payload?.message||'').includes(filter.station_name)|| String(e.station_id||'')===String(filter.station_id||''); return true; });
+      renderEvents(items.map(e=>({
+        severity: e.status, event_type: e.type, timestamp: e.ts, message: `${e.reason_code||''} — ${reasonLabel(e.reason_code||'')}`
+      })));
+    }
+    async function getKpiSafe(stations){
+      try{
+        // KPI endpoint yoksa lines'tan KPI türet
+        const r = await AUTH.get('/api/v1/lines');
+        const lines = (r && r.lines) ? r.lines : [];
+        const wip = sum(lines.map(x=> +x.wip||0));
+        const throughput_ph = sum(lines.map(x=> +x.throughput_ph||+x.throughput||0));
+        const oee = lines.length ? Math.round(sum(lines.map(x=> +x.oee||0))/lines.length) : 0;
+        const fpy = lines.length ? Math.round(sum(lines.map(x=> +x.fpy||0))/lines.length) : 0;
+        return { ts:r.ts||new Date().toISOString(), site_id:r.site_id||'', last_sync:r.last_sync||null, wip, throughput_ph, oee, fpy, kpi:{wip, throughput_ph, oee, fpy} };
+      }catch(e){ const total=stations.length; const wip=stations.reduce((x,s)=>x+(s.wip||0),0); const ct = total? Math.round(stations.reduce((x,s)=>x+(s.ct||0),0)/total):0; const fpy = total? Math.round(stations.reduce((x,s)=>x+(s.fpy||0),0)/total):0; const oee = total? Math.round(stations.reduce((x,s)=>x+(s.oee||0),0)/total):0; const bottlenecks = stations.filter(s=>String(s.status).toLowerCase()==='bottleneck').length; return { summary:{stations:total,bottlenecks}, kpi:{wip_sum:wip, ct_avg:ct, fpy_avg:fpy, oee_avg:oee} }; }
+    }
+    function makeDemoState(){
+      const names=['Metal & Şase','Boya Hattı','Montaj','Final Test','Paketleme & Sevkiyat'];
+      const arr=names.map((n,i)=>({
+        id:i+1,
+        name:n,
+        wip:i===2?8:(i+1),
+        ct:i===2?50:(40+i*5),
+        fpy:i===2?92:97,
+        oee:i===2?84:92,
+        status:i===2?'bottleneck':'ok'
+      }));
+      return {stations:arr};
+    }
+    function renderKPI(r){
+      const el=document.getElementById('kpi'); if(!el) return;
+      const stations=(r.summary&&r.summary.stations)||0; const ct=(r.kpi&&r.kpi.ct_avg)||0; const wip=(r.kpi&&r.kpi.wip_sum)||0; const fpy=(r.kpi&&r.kpi.fpy_avg)||0; const oee=(r.kpi&&r.kpi.oee_avg)||0;
+      if(!stations){ el.innerHTML = `<div class='no-data-overlay'>No Data — KPI<div style='font-size:.9rem;color:#444;margin-top:.5rem'>Reason: Veri kaynağı boş • Last Seen: ${lastSyncTs? new Date(lastSyncTs).toLocaleTimeString('tr-TR'):'-'}</div></div>`; return; }
+      const throughput=Math.round((ct? (60/ct):0) * (stations||1));
+      const dWip='▼ 2 birim'; const dThr='▲ 1.2 birim'; const dOee='▲ 2%'; const dFpy='▼ 1%';
+      el.innerHTML=`
+        <div class='kpi-card'><div class='kpi-label'>WIP Total</div><div class='kpi-value'>${wip}</div><div class='kpi-delta delta-down'>${dWip}</div></div>
+        <div class='kpi-card'><div class='kpi-label'>Daily Throughput</div><div class='kpi-value'>${throughput}<span class='kpi-unit'>/day</span></div><div class='kpi-delta delta-up'>${dThr}</div></div>
+        <div class='kpi-card'><div class='kpi-label'>OEE Average</div><div class='kpi-value'>${oee}<span class='kpi-unit'>%</span></div><div class='kpi-delta delta-up'>${dOee}</div></div>
+        <div class='kpi-card'><div class='kpi-label'>FPY Average</div><div class='kpi-value'>${fpy}<span class='kpi-unit'>%</span></div><div class='kpi-delta delta-down'>${dFpy}</div></div>
+      `;
+      if(CLIENT.industry==='automotive'){
+        const andonRate = (lastEvents.filter(e=>String(e.severity).toLowerCase()==='critical').length) + ' çağrı';
+        const jph = Math.round(ct? (60/ct):0);
+        const ftt = Math.round(fpy);
+        el.innerHTML += `
+          <div class='kpi-card'><div class='kpi-label'>JPH (Saatlik İş Sayısı)</div><div class='kpi-value'>${jph}</div><div class='kpi-delta delta-up'>▲ iyileşti</div></div>
+          <div class='kpi-card'><div class='kpi-label'>Andon Çağrı Oranı</div><div class='kpi-value'>${andonRate}</div><div class='kpi-delta delta-down'>▼ daha az çağrı</div></div>
+          <div class='kpi-card'><div class='kpi-label'>İlk Geçişte Başarı (FTT)</div><div class='kpi-value'>${ftt}<span class='kpi-unit'>%</span></div><div class='kpi-delta delta-up'>▲ iyileşti</div></div>
+        `;
+      }
+      renderCFO();
+      renderQuality();
+    }
+    async function renderCFO(){
+      const el = document.getElementById('cfo'); if(!el) return;
+      const COST = { downtime_ph: 2500, scrap_per_unit: 120, labor_ph: 900 };
+      const lines = lastLines||[]; const evs = lastEvents||[];
+      const downtimeH = evs.filter(e=> (e.type||'')==='downtime' || (e.status||'')==='critical').length * 0.75; // pilot approx
+      const defects = evs.filter(e=> String(e.type||'').includes('quality')).length * 10; // pilot approx
+      const idleBlockedH = lines.filter(l=> ['Idle','Blocked'].includes(l.status)).length * 0.5; // pilot approx
+      const monthlyScrap = defects * COST.scrap_per_unit;
+      const downtimeCost = Math.round(downtimeH * COST.downtime_ph);
+      const laborIneff = Math.round(idleBlockedH * COST.labor_ph);
+      const total = monthlyScrap + downtimeCost + laborIneff;
+      el.innerHTML = `<div class='card'><h3>Finansal Etki ve Senaryo Analizi</h3>
+        <div class='kpi-grid'>
+          <div class='kpi-card'><div class='kpi-label'>Aylık Hurda Maliyeti</div><div class='kpi-value'>₺${(monthlyScrap).toLocaleString('tr-TR')}</div></div>
+          <div class='kpi-card'><div class='kpi-label'>Duruş Maliyeti / Saat</div><div class='kpi-value'>₺${(downtimeCost).toLocaleString('tr-TR')}</div></div>
+          <div class='kpi-card'><div class='kpi-label'>İşgücü Verimsizlik</div><div class='kpi-value'>₺${(laborIneff).toLocaleString('tr-TR')}</div></div>
+          <div class='kpi-card'><div class='kpi-label'>Toplam Baz Maliyet</div><div class='kpi-value'>₺${total.toLocaleString('tr-TR')}</div></div>
+        </div>
+        <div style='margin-top:12px;display:flex;gap:8px'>
+          <button class='btn-secondary' id='cfoKaizen'>Kaizen</button>
+          <button class='btn-secondary' id='cfoShock'>Şok</button>
+        </div>
+        <table class='ms-table' style='margin-top:10px'><thead><tr><th>Senaryo</th><th>Downtime (h)</th><th>FPY (%)</th><th>Energy Cost</th><th>Carbon Cost</th><th>Maliyet</th></tr></thead><tbody id='cfoTable'></tbody></table>
+      </div>`;
+      const orders = (await getOrdersV1Safe()).orders||[];
+      const energyKwh = Math.round(orders.reduce((x,o)=>x+(o.energy_kwh||0),0));
+      const co2kg = Math.round(orders.reduce((x,o)=>x+(o.co2e_kg||0),0));
+      const energyCost = Math.round(energyKwh * 3.2);
+      const carbonCost = Math.round(co2kg * 0.9);
+      const base = { downtimeH, fpy: Math.round((lines.reduce((x,l)=>x+(l.fpy||0),0)/(lines.length||1))||95), cost: total + energyCost + carbonCost, energyCost, carbonCost };
+      function renderRows(rows){ const tb=document.getElementById('cfoTable'); tb.innerHTML=''; rows.forEach(r=>{ const tr=document.createElement('tr'); tr.innerHTML=`<td>${r.name}</td><td>${r.downtimeH.toFixed(2)}</td><td>${r.fpy}</td><td>₺${(r.energyCost||energyCost).toLocaleString('tr-TR')}</td><td>₺${(r.carbonCost||carbonCost).toLocaleString('tr-TR')}</td><td>₺${r.cost.toLocaleString('tr-TR')}</td>`; tb.appendChild(tr); }); }
+      const rows=[{name:'Baz',...base}]; renderRows(rows);
+      document.getElementById('cfoKaizen').onclick=()=>{ const d=base.downtimeH*0.8; const f=base.fpy+1; const e=Math.round(energyCost*0.92); const co=Math.round(carbonCost*0.95); const c=Math.round(d*COST.downtime_ph + monthlyScrap + laborIneff*0.9 + e + co); renderRows([{name:'Baz',...base},{name:'Kaizen',downtimeH:d,fpy:f,energyCost:e,carbonCost:co,cost:c}]); };
+      document.getElementById('cfoShock').onclick=()=>{ const d=base.downtimeH+0.75; const f=Math.max(0,base.fpy-2); const e=Math.round(energyCost*1.03); const co=Math.round(carbonCost*1.02); const c=Math.round(d*COST.downtime_ph + monthlyScrap + laborIneff + 15*COST.scrap_per_unit + e + co); renderRows([{name:'Baz',...base},{name:'Şok',downtimeH:d,fpy:f,energyCost:e,carbonCost:co,cost:c}]); };
+    }
+    async function renderQuality(){
+      const host=document.getElementById('qualityMetrics'); if(!host) return;
+      const avgOEE = lastStations.length? Math.round(lastStations.reduce((x,s)=>x+(s.oee||0),0)/lastStations.length):0;
+      const leakPass = 98; const elecPass = 99; const balancePass = 97; const hygienePass = 98;
+      host.innerHTML = `
+        <div class='kpi-card'><div class='kpi-label'>OEE Ortalama</div><div class='kpi-value'>${avgOEE}<span class='kpi-unit'>%</span></div></div>
+        <div class='kpi-card'><div class='kpi-label'>Sızdırmazlık Testi</div><div class='kpi-value'>${leakPass}<span class='kpi-unit'>%</span></div></div>
+        <div class='kpi-card'><div class='kpi-label'>Elektriksel Güvenlik</div><div class='kpi-value'>${elecPass}<span class='kpi-unit'>%</span></div></div>
+        <div class='kpi-card'><div class='kpi-label'>Denge Testi</div><div class='kpi-value'>${balancePass}<span class='kpi-unit'>%</span></div></div>
+        <div class='kpi-card'><div class='kpi-label'>Hijyen Dayanımı</div><div class='kpi-value'>${hygienePass}<span class='kpi-unit'>%</span></div></div>`;
+      // Top reasons & last 10
+      (async()=>{
+        const r = await getEventsSafe(); const evs=(r.events||[]).filter(e=> String(e.type||'').includes('quality'));
+        const counts={}; evs.forEach(e=>{ const rc=e.reason_code||'N/A'; counts[rc]=(counts[rc]||0)+1; });
+        const top = Object.entries(counts).sort((a,b)=>b[1]-a[1]).slice(0,3);
+        const topHost=document.getElementById('qualityTopReasons'); if(topHost){ topHost.innerHTML=''; top.forEach(([rc,n])=>{ const d=document.createElement('div'); d.className='card'; d.style.padding='8px'; d.innerHTML=`<div style='font-weight:600'>${rc} — ${reasonLabel(rc)}</div><div>Count: ${n}</div>`; topHost.appendChild(d); }); }
+        const lastHost=document.getElementById('qualityLast10'); if(lastHost){ lastHost.innerHTML=''; evs.slice(0,10).forEach(e=>{ const pill=document.createElement('div'); pill.className='event-pill info'; const dot=document.createElement('span'); dot.className='event-dot'; const label=document.createElement('span'); label.textContent=`${e.reason_code||'-'} — ${reasonLabel(e.reason_code||'')} • ${new Date(e.ts).toLocaleTimeString('tr-TR')}`; pill.appendChild(dot); pill.appendChild(label); lastHost.appendChild(pill); }); }
+      })();
+    }
+<!-- PATCH START renderTrack-shim -->
+(function(){
+  try{
+    // 1) If renderTrack already exists, do nothing
+    if(typeof window.renderTrack === 'function') return;
+
+    // 2) If an alternate function exists, alias it
+    if(typeof window.renderProductionTrack === 'function'){
+      window.renderTrack = window.renderProductionTrack;
+      return;
+    }
+    if(typeof window.renderProdTrack === 'function'){
+      window.renderTrack = window.renderProdTrack;
+      return;
+    }
+
+    // 3) Fallback: no-op + friendly overlay (prevents crash)
+    window.renderTrack = function(){
+      try{
+        var host =
+          document.getElementById('trackHost') ||
+          document.getElementById('prodTrack') ||
+          document.querySelector('[data-track-host]') ||
+          document.querySelector('#tab-track, #tab-production-track, #production-track') ||
+          null;
+
+        if(!host) return;
+
+        // ensure positioned container for overlay
+        var cs = window.getComputedStyle(host);
+        if(cs && cs.position === 'static') host.style.position = 'relative';
+
+        var ov = host.querySelector('.no-data-overlay');
+        if(!ov){
+          ov = document.createElement('div');
+          ov.className = 'no-data-overlay';
+          var ls = (typeof lastSyncTs !== 'undefined' && lastSyncTs) ? new Date(lastSyncTs).toLocaleTimeString('tr-TR') : '-';
+          ov.innerHTML = "No Data — Üretim Pisti<div style='font-size:.9rem;color:#444;margin-top:.5rem'>Reason: renderTrack missing • Last Seen: " + ls + "</div>";
+          host.appendChild(ov);
+        }
+      }catch(e){}
+    };
+  }catch(e){}
+})();
+<!-- PATCH END renderTrack-shim -->
+
+
+    function renderStations(stations){
+      stationsEl.innerHTML = '';
+      stations.forEach((s,idx)=>{
+        const card = document.createElement('div');
+        const oeeGood = CLIENT.thresholds.oee_good||80;
+        let cls = String(s.status||'ok').toLowerCase();
+        if(cls!=='bottleneck') cls = (s.oee>=oeeGood && s.fpy>=95)?'ok':'risk';
+        card.className = 'station-card ' + cls;
+        const displayName = CLIENT.stationNames[idx] || s.name;
+        card.innerHTML = `<div class="station-name">${displayName}</div>
+          <div class="station-metric">WIP <strong>${s.wip}</strong></div>
+          <div class="station-metric">CT <strong>${s.ct}m</strong></div>
+          <div class="station-metric">OEE <strong>${s.oee}%</strong></div>
+          <div class="station-metric">FPY <strong>${s.fpy}%</strong></div>`;
+        card.onclick = ()=>{
+          const html = `<div style='font-size:.9rem'><p><strong>${displayName}</strong></p><p>WIP: ${s.wip}</p><p>CT: ${s.ct}m</p><p>OEE: ${s.oee}%</p><p>FPY: ${s.fpy}%</p><p>Durum: ${cls}</p></div>`;
+          openModal(html);
+        };
+        stationsEl.appendChild(card);
+      });
+      renderTrack(stations);
+      lastStations = stations;
+    }
+    async function renderLineView(lines, stations){
+      const host = document.getElementById('lineView'); if(!host) return; host.innerHTML='';
+      const statusClass = (st)=> st==='Running'?'ok':(st==='Down'?'offline':(st==='Idle'?'degraded':'degraded'));
+      if(!lines || !lines.length){
+        // Skeleton lanes
+        LINE_STANDARD.forEach(ls=>{
+          const lane=document.createElement('div'); lane.className='lane degraded'; lane.style.border='1px solid #e0e0e0'; lane.style.borderRadius='8px'; lane.style.padding='8px';
+          lane.innerHTML = `<div style="font-weight:600;margin-bottom:6px">${ls.name}</div><div style="font-size:.85rem;color:#666">No Data</div>`;
+          host.appendChild(lane);
+        });
+        const ov=host.parentElement.querySelector('.no-data-overlay'); if(!ov){ const ov2=document.createElement('div'); ov2.className='no-data-overlay'; ov2.innerHTML=`No Data — Üretim Pisti<div style='font-size:.9rem;color:#444;margin-top:.5rem'>Reason: Hat verisi eksik • Last Seen: ${lastSyncTs? new Date(lastSyncTs).toLocaleTimeString('tr-TR'):'-'}</div>`; host.parentElement.appendChild(ov2);} return;
+      } else { const ov=host.parentElement.querySelector('.no-data-overlay'); if(ov) ov.remove(); }
+      const byLine = {}; (stations||[]).forEach(s=>{ const ln = mapStationToLineName(s.name); byLine[ln] = byLine[ln]||[]; byLine[ln].push(s); });
+      lines.forEach(l=>{
+        const lane=document.createElement('div'); lane.className='lane '+statusClass(l.status); lane.style.border='1px solid #e0e0e0'; lane.style.borderRadius='8px'; lane.style.padding='8px';
+        lane.setAttribute('data-line', l.name);
+        const header=document.createElement('div'); header.style.display='flex'; header.style.justifyContent='space-between'; header.style.alignItems='center'; header.innerHTML = `<div style="font-weight:600">${l.name}</div><div><span class='pill ${statusClass(l.status)}'>${l.status}</span></div>`; lane.appendChild(header);
+        const body=document.createElement('div'); body.style.display='grid'; body.style.gridTemplateColumns='1fr'; body.style.gap='6px';
+        const ss = byLine[l.name]||[];
+        if(!ss.length){ const empty=document.createElement('div'); empty.style.fontSize='.85rem'; empty.style.color='#666'; empty.textContent='No stations'; body.appendChild(empty); }
+        ss.forEach(s=>{
+          const stBox=document.createElement('div'); stBox.className='station-box'; stBox.style.border='1px solid #e0e0e0'; stBox.style.borderRadius='6px'; stBox.style.padding='6px'; stBox.style.background='#fafbfc';
+          const bott = String(s.status).toLowerCase()==='bottleneck'; if(bott){ stBox.style.borderColor='#D51635'; stBox.style.boxShadow='0 0 0 2px rgba(213,22,53,.15)'; stBox.style.animation='pulse 1.8s infinite'; }
+          stBox.innerHTML = `<div style='display:flex;justify-content:space-between;align-items:center'><div style='font-weight:600'>${s.name}</div><span class='pill ${statusClass(l.status)}'>${l.status}</span></div>
+            <div style='display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:6px;margin-top:6px'>
+              <div class='station-metric'>WIP <strong>${s.wip||0}</strong></div>
+              <div class='station-metric'>CT <strong>${s.ct||0}m</strong></div>
+              <div class='station-metric'>OEE <strong>${s.oee||0}%</strong></div>
+              <div class='station-metric'>FPY <strong>${s.fpy||0}%</strong></div>
+              <div class='station-metric'>Status <strong>${String(s.status).toLowerCase()}</strong></div>
+            </div>`;
+          stBox.onclick = ()=>{ renderEventsV1({station_name:s.name}); const evCard = document.getElementById('events'); evCard && evCard.scrollIntoView({behavior:'smooth',block:'center'}); };
+          body.appendChild(stBox);
+        });
+        lane.appendChild(body);
+        host.appendChild(lane);
+      });
+    }
+    let powerChart,tempChart;
+    async function renderCharts(){
+      try{
+        const lines = await getLinesV1Safe(); const evs = (await getEventsSafe()).events||[];
+        function hours(range){ return range==='hour'?1: range==='shift'?8: range==='day'?24: range==='week'?7*24: 30*24; }
+        const H = hours(histRange); const now=Date.now(); const binMs = Math.max(10*60*1000, Math.floor((H*60*60*1000)/60));
+        const bins=[]; for(let t=now-H*60*60*1000; t<=now; t+=binMs){ bins.push(t); }
+        function ds(arr){ if(arr.length<=60) return arr; const step=Math.ceil(arr.length/60); const out=[]; for(let i=0;i<arr.length;i+=step){ out.push(arr[i]); } return out; }
+        const oeeBase = Math.round((lines.reduce((x,l)=>x+(l.oee||0),0)/(lines.length||1))||85);
+        const thrBase = Math.round((lines.reduce((x,l)=>x+(l.throughput||0),0)/(lines.length||1))||40);
+        const wipBase = lines.reduce((x,l)=>x+(l.wip||0),0)||50;
+        const labels = bins.map(b=> new Date(b).toLocaleTimeString('tr-TR'));
+        const oee = bins.map(b=>{ const c = evs.filter(e=> (new Date(e.ts).getTime()>=b && new Date(e.ts).getTime()<b+binMs) && (e.status||'')==='critical').length; return Math.max(60, oeeBase - c*2); });
+        const thr = bins.map(b=>{ const c = evs.filter(e=> (new Date(e.ts).getTime()>=b && new Date(e.ts).getTime()<b+binMs) && (e.type||'')==='downtime').length; return Math.max(10, thrBase - c*3); });
+        const wip = bins.map(b=>{ const q = evs.filter(e=> (new Date(e.ts).getTime()>=b && new Date(e.ts).getTime()<b+binMs) && (String(e.type||'').includes('quality'))).length; return wipBase + q; });
+        const reasonCounts = {}; evs.forEach(e=>{ const rc=e.reason_code||'N/A'; reasonCounts[rc]=(reasonCounts[rc]||0)+1; });
+        const labelsDS = ds(labels), oeeDS = ds(oee), thrDS = ds(thr), wipDS = ds(wip);
+        const pc = document.getElementById('histOEE').getContext('2d');
+        const vc = document.getElementById('histVolume').getContext('2d');
+        const wc = document.getElementById('histFPY').getContext('2d');
+        const ec = document.getElementById('histEnergy').getContext('2d');
+        const ek = document.getElementById('histEnergyKWH').getContext('2d');
+        const cc = document.getElementById('histCO2').getContext('2d');
+        if(histCharts.oee) histCharts.oee.destroy(); if(histCharts.volume) histCharts.volume.destroy(); if(histCharts.fpy) histCharts.fpy.destroy(); if(histCharts.energy) histCharts.energy.destroy(); if(histCharts.energyKwh) histCharts.energyKwh.destroy(); if(histCharts.co2) histCharts.co2.destroy();
+        histCharts.oee = new Chart(pc,{type:'line',data:{labels:labelsDS,datasets:[{label:'OEE',data:oeeDS,borderColor:'#005530'}]},options:{responsive:true}});
+        histCharts.volume = new Chart(vc,{type:'line',data:{labels:labelsDS,datasets:[{label:'Throughput',data:thrDS,borderColor:'#02154e'}]},options:{responsive:true}});
+        histCharts.fpy = new Chart(wc,{type:'bar',data:{labels:labelsDS,datasets:[{label:'WIP',data:wipDS,backgroundColor:'#f9ba00'}]},options:{responsive:true}});
+        const rcLabels = Object.keys(reasonCounts); const rcVals = rcLabels.map(k=>reasonCounts[k]);
+        histCharts.energy = new Chart(ec,{type:'bar',data:{labels:rcLabels,datasets:[{label:'Downtime/Reasons',data:rcVals,backgroundColor:'#D51635'}]},options:{responsive:true}});
+        const orders = (await getOrdersV1Safe()).orders||[];
+        const energy = bins.map(b=> orders.filter(o=> new Date(o.updated_ts).getTime()>=b && new Date(o.updated_ts).getTime()<b+binMs).reduce((x,o)=>x+(o.energy_kwh||0),0));
+        const co2 = bins.map(b=> orders.filter(o=> new Date(o.updated_ts).getTime()>=b && new Date(o.updated_ts).getTime()<b+binMs).reduce((x,o)=>x+(o.co2e_kg||0),0));
+        const eDS = ds(energy), cDS = ds(co2);
+        histCharts.energyKwh = new Chart(ek,{type:'line',data:{labels:labelsDS,datasets:[{label:'Energy kWh',data:eDS,borderColor:'#16a34a'}]},options:{responsive:true}});
+        histCharts.co2 = new Chart(cc,{type:'line',data:{labels:labelsDS,datasets:[{label:'CO₂ kg',data:cDS,borderColor:'#6b7280'}]},options:{responsive:true}});
+        const avgOEE = Math.round(oee.reduce((x,y)=>x+y,0)/oee.length); const lbl=document.getElementById('histLabel'); if(lbl) lbl.textContent = `OEE ort: ${avgOEE}% • hedef 80%`;
+      }catch(e){ ['histOEE','histVolume','histFPY','histEnergy'].forEach(id=>{ const c=document.getElementById(id); const host=c.parentElement; let ov=host.querySelector('.no-data-overlay'); if(!ov){ ov=document.createElement('div'); ov.className='no-data-overlay'; ov.innerHTML=`No Data — Trend<div style='font-size:.9rem;color:#444;margin-top:.5rem'>Reason: Veri eksik • Last Seen: ${lastSyncTs? new Date(lastSyncTs).toLocaleTimeString('tr-TR'):'-'}</div>`; host.appendChild(ov);} }); }
+    }
+    document.querySelectorAll('.range-btn').forEach(btn=>{ btn.onclick=()=>{ document.querySelectorAll('.range-btn').forEach(b=>b.classList.remove('active')); btn.classList.add('active'); histRange = btn.getAttribute('data-range'); renderCharts(); }; });
+    document.getElementById('btn-refresh').onclick = ()=>{ load(); toast('Yenilendi'); };
+    document.getElementById('btn-reset').onclick = async()=>{ try{ const r=await AUTH.post('/api/reset',{}); statusEl.textContent=r.message; toast('Sıfırlandı'); load(); }catch(e){ statusEl.textContent=e.message; localResetDemo(); toast('Demo: Sıfırlandı'); } };
+    document.getElementById('btn-shock').onclick = async()=>{ try{ const r=await AUTH.post('/api/shock',{}); statusEl.textContent=r.message; toast('Şok uygulandı'); load(); }catch(e){ statusEl.textContent=e.message; localShockDemo(); toast('Demo: Şok uygulandı'); } };
+    document.getElementById('btn-kaizen').onclick = async()=>{ try{ const r=await AUTH.post('/api/kaizen',{}); statusEl.textContent=r.message; toast('Kaizen tamamlandı'); load(); }catch(e){ statusEl.textContent=e.message; localKaizenDemo(); toast('Demo: Kaizen uygulandı'); } };
+    document.getElementById('btn-reports').onclick = ()=>{ const qs = location.search || ''; location.href = 'reports.html' + qs; };
+    document.getElementById('btn-theme').onclick = ()=>{ const d=document.documentElement; const cur=getComputedStyle(document.body).backgroundColor; document.body.style.background = (cur==='rgb(255, 255, 255)')? '#0f172a':'#ffffff'; toast('Tema değiştirildi'); };
+    document.getElementById('btn-pdf').onclick = async()=>{
+      const ov = document.getElementById('overview');
+      const spinner = document.getElementById('pdfSpinner');
+      try{
+        spinner.classList.add('visible');
+        const { jsPDF } = window.jspdf;
+        const doc = new jsPDF('p','pt','a4');
+        const now = new Date();
+        const fn = `TOLKAR_Report_${CLIENT.name||'Factory'}_${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')}_${String(now.getHours()).padStart(2,'0')}${String(now.getMinutes()).padStart(2,'0')}`;
+        const addFooter=(page,total)=>{ doc.setFontSize(10); doc.setTextColor(120); doc.text('TOLKAR ZERO@FACTORY Platformu tarafından oluşturuldu',40,820); doc.text(now.toLocaleString('tr-TR'),300,820); doc.text(`Sayfa ${page}/${total}`,520,820); };
+        doc.setFontSize(16); doc.setTextColor(20); doc.text('TOLKAR ZERO@FACTORY — Yönetici Özeti',40,60);
+        doc.setFontSize(12); doc.text(`${CLIENT.name||'Fabrika'} • ${now.toLocaleDateString('tr-TR')}`,40,80);
+        let y=110;
+        const grid=[
+          ['Güncel OEE', `${(document.getElementById('kpi').querySelectorAll('.kpi-card .kpi-value')[2]?.textContent||'').trim()}`],
+          ['Toplam WIP', `${(document.getElementById('kpi').querySelectorAll('.kpi-card .kpi-value')[0]?.textContent||'').trim()}`],
+          ['Genel FPY', `${(document.getElementById('kpi').querySelectorAll('.kpi-card .kpi-value')[3]?.textContent||'').trim()}`],
+          ['Aktif Dar Boğaz', String(lastStations.filter(s=>String(s.status).toLowerCase()==='bottleneck').length)],
+          ['Andon Çağrı Oranı', String(lastEvents.filter(e=>String(e.severity).toLowerCase()==='critical').length)+' çağrı'],
+          ['Enerji Verimliliği', `${lastAvgPower} güç indeksi`],
+          ['Maliyet Etkisi', `$${(CLIENT.costs.scrap+CLIENT.costs.downtime+CLIENT.costs.labor)||0}`],
+          ['Kaizen Olayları', String(lastEvents.filter(e=>String(e.event_type)==='kaizen').length)]
+        ];
+        doc.setFontSize(11);
+        for(let i=0;i<grid.length;i++){
+          const col=i%2; const row=Math.floor(i/2); const x=40+col*260; const yy=y+row*60;
+          doc.setDrawColor(230); doc.rect(x,yy,240,50);
+          doc.text(grid[i][0],x+10,yy+18); doc.setFontSize(14); doc.text(String(grid[i][1]),x+10,yy+40); doc.setFontSize(11);
+        }
+        addFooter(1,4);
+        doc.addPage();
+        doc.setFontSize(16); doc.text('Üretim Durumu',40,60);
+        const track = document.getElementById('f1Track');
+        const trackCanvas = await html2canvas(track,{scale:2});
+        doc.addImage(trackCanvas.toDataURL('image/png'),'PNG',40,80,520,200);
+        doc.setFontSize(12); let ty=300; doc.text('İstasyon Performansı',40,ty);
+        ty+=20; const header=['Station','Status','OEE%','CT','WIP','FPY'];
+        doc.setFontSize(10); doc.setTextColor(100); doc.text(header.join('    '),40,ty);
+        doc.setTextColor(20); ty+=14;
+        lastStations.forEach((s,idx)=>{ const row=[s.name,String(s.status),String(s.oee),String(s.ct),String(s.wip),String(s.fpy)]; if(idx%2===0){ doc.setFillColor(245); doc.rect(38,ty-10,520,16,'F'); } doc.text(row.join('    '),40,ty); ty+=16; });
+        addFooter(2,4);
+        doc.addPage();
+        doc.setFontSize(16); doc.text('Kalite ve Sorunlar',40,60);
+        doc.setFontSize(12); doc.text('Kalite Özeti',40,80);
+        const byDef = [...lastStations].sort((a,b)=> (100-a.fpy) - (100-b.fpy)).slice(0,3);
+        let qy=110; byDef.forEach((s)=>{ doc.text(`${s.name} • Defect Rate ~ ${Math.round(100-s.fpy)}%`,40,qy); qy+=18; });
+        doc.text('Son Kritik Olaylar',40,qy+10);
+        let ey=qy+28; lastEvents.filter(e=>String(e.severity).toLowerCase()==='critical').slice(0,10).forEach(e=>{ doc.text(`${e.label} • ${e.created_at?new Date(e.created_at).toLocaleString('tr-TR'):''}`,40,ey); ey+=16; });
+        doc.text('Önerilen Aksiyonlar',40,ey+12);
+        let ay=ey+30; lastStations.filter(s=>String(s.status).toLowerCase()!=='ok').forEach(s=>{ doc.text(`• ${s.name}: reduce WIP, inspect quality, review CT`,40,ay); ay+=16; });
+        addFooter(3,4);
+        doc.addPage();
+        doc.setFontSize(16); doc.text('Finansal Etki',40,60);
+        const c = CLIENT.costs; const total = (c.scrap||0)+(c.downtime||0)+(c.labor||0);
+        doc.setFontSize(12); doc.text(`Baseline Monthly Scrap: $${(c.scrap||0).toLocaleString()}`,40,90);
+        doc.text(`Avg Downtime Cost/Hour: $${(c.downtime||0).toLocaleString()}`,40,110);
+        doc.text(`Labor Inefficiency: $${(c.labor||0).toLocaleString()}`,40,130);
+        doc.text(`Total Baseline: $${total.toLocaleString()}`,40,150);
+        doc.text('Aylık Tasarruf Projeksiyonu',40,180);
+        doc.text(`%10 iyileşme → $${Math.round(total*0.10).toLocaleString()}`,40,200);
+        doc.text('ROI Projeksiyonu',40,230);
+        doc.text('Kaizen girişimleri beklenen ROI ~ %340',40,250);
+        addFooter(4,4);
+        doc.save(fn + '.pdf');
+      }catch(e){ console.error(e); toast('PDF oluşturulamadı — Tarayıcıdan “Yazdır > PDF” deneyin'); window.print(); }
+      finally{ spinner.classList.remove('visible'); }
+    };
+    document.getElementById('btn-alerts').onclick = ()=>{ setupAlertTemplate(); alertModalEl.classList.add('visible'); };
+    document.getElementById('alClose').onclick = ()=>{ alertModalEl.classList.remove('visible'); };
+    document.getElementById('alSave').onclick = ()=>{ ALERT_CONFIG.recipients=document.getElementById('alRecipients').value.trim(); ALERT_CONFIG.freq=document.getElementById('alFreq').value; ALERT_CONFIG.oee=parseFloat(document.getElementById('alOEE').value||'80'); ALERT_CONFIG.fpy=parseFloat(document.getElementById('alFPY').value||'95'); ALERT_CONFIG.wip=parseInt(document.getElementById('alWIP').value||'10'); ALERT_CONFIG.bottleneck=document.getElementById('alBottleneck').value==='on'; toast('Alerts saved'); alertModalEl.classList.remove('visible'); };
+    document.getElementById('alPreview').onclick = ()=>{ const w=window.open('','_blank'); w.document.write(document.getElementById('alTemplate').value); w.document.close(); };
+    alertModalEl.addEventListener('click',(e)=>{ if(e.target===alertModalEl) alertModalEl.classList.remove('visible'); });
+    function setupAlertTemplate(){ const now=new Date(); const html = `<!DOCTYPE html><html><head><meta charset='utf-8'><title>Zero Factory — TOLKAR Facility</title></head><body style="font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#f5f7fa;padding:20px"><table style="max-width:700px;margin:auto;background:#ffffff;border:1px solid #e0e0e0;border-radius:12px"><tr><td style="padding:20px"><h2 style="color:#02154e;margin:0">TOLKAR ZERO@FACTORY Alert</h2><p style="color:#888;margin:4px 0">${now.toLocaleString('tr-TR')}</p><hr style="border:none;border-top:1px solid #eee;margin:12px 0"/><h3 style="color:#02154e;margin-bottom:6px">Triggers</h3><ul style="color:#333;margin:0;padding-left:18px"><li>Bottleneck: ${ALERT_CONFIG.bottleneck?'Enabled':'Disabled'}</li><li>OEE Threshold: ${ALERT_CONFIG.oee}%</li><li>FPY Threshold: ${ALERT_CONFIG.fpy}%</li><li>WIP Threshold: ${ALERT_CONFIG.wip}</li></ul><hr style="border:none;border-top:1px solid #eee;margin:12px 0"/><p style="color:#333">Recipients: ${ALERT_CONFIG.recipients||'-'}</p><p style="color:#333">Frequency: ${ALERT_CONFIG.freq}</p><p style="color:#999;font-size:.85rem;margin-top:16px">Generated by TOLKAR ZERO@FACTORY Platform</p></td></tr></table></body></html>`; document.getElementById('alTemplate').value = html; }
+    function pushAlert(msg,type,meta){ const t={message:msg,type,ts:new Date(),meta:meta||{}}; ALERT_HISTORY.unshift(t);
+      if(Notification && Notification.permission!=='denied'){
+        const body = msg + (t.meta && t.meta.action ? `\nÖnerilen Aksiyon: ${t.meta.action}` : '');
+        if(Notification.permission!=='granted'){ Notification.requestPermission().then(()=>{ new Notification('TOLKAR Alert',{body}); }); } else { new Notification('TOLKAR Alert',{body}); }
+      }
+      toast(msg); renderAlertHistory(); }
+    function renderAlertHistory(){ let host = document.getElementById('alertHistory'); if(!host){ const wrap = document.createElement('div'); wrap.className='card'; wrap.innerHTML = `<div style="font-weight:600;color:var(--zero-navy);margin-bottom:.5rem">Uyarı Geçmişi</div><div id="alertHistory" class="alert-list"></div>`; document.querySelector('main.container').appendChild(wrap); host = document.getElementById('alertHistory'); }
+      host.innerHTML = ''; ALERT_HISTORY.slice(0,20).forEach(a=>{ const el=document.createElement('div'); el.className='alert-item'; const badge=document.createElement('span'); badge.textContent = a.type==='critical'?'⚠️':'ℹ️'; const txt=document.createElement('span'); txt.textContent=a.message; const ts=document.createElement('span'); ts.className='ts'; ts.textContent = a.ts.toLocaleString('tr-TR'); el.appendChild(badge); el.appendChild(txt); el.appendChild(ts);
+        if(a.meta && a.meta.action){ const sub=document.createElement('div'); sub.style.fontSize='.8rem'; sub.style.color='#555'; sub.textContent='Önerilen Aksiyon: ' + a.meta.action; el.appendChild(sub); }
+        if(a.meta && a.meta.line){ el.style.cursor='pointer'; el.onclick = ()=>{ highlightLineRow(a.meta.line); } }
+        host.appendChild(el); }); }
+    function recommendedAction(line){ const map={ 'Metal & Şase':'WIP’i düşür, iş yükünü dengele', 'Boya Hattı':'Akış/ısı kontrolü, beklemeyi azalt', 'Montaj':'Operatör dengeleme ve takt uyumu', 'Final Test':'Test kapasitesini artır/çevrimi hızlandır', 'Paketleme & Sevkiyat':'Çıkış kuyruğunu boşalt, sevkiyatı hızlandır' }; return map[line]||'Akış dengeleme ve kök neden analizi'; }
+    function highlightLineRow(lineName){ const tbody=document.getElementById('linesTable'); if(!tbody) return; const rows=[...tbody.querySelectorAll('tr')]; const r=rows.find(row=> (row.children[0]?.textContent||'').trim()===lineName); if(r){ r.classList.add('line-highlight'); r.scrollIntoView({behavior:'smooth',block:'center'}); setTimeout(()=>r.classList.remove('line-highlight'),1500); } }
+    function evaluateAlerts(stations){ if(!stations || !stations.length){ return; } const avgOEE = Math.round(stations.reduce((x,s)=>x+(s.oee||0),0)/stations.length);
+      if(avgOEE < ALERT_CONFIG.oee){ pushAlert(`Genel OEE ${ALERT_CONFIG.oee}% altına düştü (şu an ${avgOEE}%)`,'critical',{line:'-',action:'Takt/süreç dengelemesi'}); }
+      const lines = lastLines||[];
+      lines.forEach(l=>{
+        if(!l || !l.name) return;
+        const ev = l.lastEvent || {};
+        const rc = ev.reason_code || '';
+        const reason = rc ? (rc + ' — ' + reasonLabel(rc)) : 'Bottleneck';
+        const since = ev.since_ts ? new Date(ev.since_ts).toLocaleTimeString('tr-TR') : (lastSyncTs? new Date(lastSyncTs).toLocaleTimeString('tr-TR') : '');
+        if(l.status==='Blocked'){
+          const msg = `[${l.name}] • [${l.bottlenecks? 'Dar boğaz': 'Durum'}] • ${reason} • Since ${since}`;
+          pushAlert(msg,'critical',{line:l.name,action:recommendedAction(l.name)});
+        }
+      }); }
+    function localResetDemo(){ lastStations = makeDemoState().stations; renderStations(lastStations); renderMultiSite(); }
+    function localShockDemo(){ if(!lastStations.length) lastStations = makeDemoState().stations; const s = lastStations[2]; s.status='bottleneck'; s.wip=8; s.fpy=92; s.oee=84; renderStations(lastStations); renderMultiSite(); }
+    function localKaizenDemo(){ if(!lastStations.length) lastStations = makeDemoState().stations; lastStations.forEach(s=>{ s.status='ok'; s.wip=Math.max(1,s.wip-1); s.fpy=Math.min(99,s.fpy+1); s.oee=Math.min(96,s.oee+1); }); renderStations(lastStations); renderMultiSite(); }
+    async function renderEvents(items){
+      eventsEl.innerHTML = '';
+      items.forEach(i=>{
+        const pill = document.createElement('div');
+        pill.className = 'event-pill ' + String(i.severity||'info').toLowerCase();
+        const dot = document.createElement('span'); dot.className='event-dot';
+        const when = i.timestamp || i.created_at;
+        const title = i.message || i.label || `${i.event_type||'event'}`;
+        const label = document.createElement('span'); label.textContent = title + ' • ' + (when?new Date(when).toLocaleTimeString('tr-TR'):'');
+        pill.appendChild(dot); pill.appendChild(label);
+        pill.onclick = ()=>{ openModal(`<div style='font-size:.9rem'><p><strong>${title}</strong></p><p>Tür: ${i.event_type||'-'}</p><p>Zaman: ${when?new Date(when).toLocaleString('tr-TR'):''}</p><p>Önem: ${i.severity||'-'}</p></div>`); };
+        eventsEl.appendChild(pill);
+      });
+    }
+    const u = AUTH.currentUser();
+    if(u && !(['admin','supervisor'].includes(u.role))){ document.getElementById('btn-reset').style.display='none'; document.getElementById('btn-kaizen').style.display='none'; }
+    load();
+    setInterval(load, 5000);
+    
+    document.querySelectorAll('.range-btn').forEach(btn=>{
+      btn.addEventListener('click', async ()=>{
+        document.querySelectorAll('.range-btn').forEach(b=>b.classList.remove('active'));
+        btn.classList.add('active');
+        histRange = btn.getAttribute('data-range');
+        await renderHistorical();
+      });
+    });
+
+    async function renderHistorical(){
+      const now = new Date();
+      const hours = histRange==='hour'?1:histRange==='shift'?8:histRange==='day'?24:histRange==='week'?24*7:24*30;
+      const start = new Date(now.getTime()-hours*3600*1000);
+      const labelEl = document.getElementById('histLabel');
+      labelEl.textContent = `Showing data from ${start.toLocaleTimeString('tr-TR',{hour:'2-digit',minute:'2-digit'})} to ${now.toLocaleTimeString('tr-TR',{hour:'2-digit',minute:'2-digit'})} (${hours} hours)`;
+      const labels = [];
+      for(let i=hours;i>=0;i--){ const t=new Date(now.getTime()-i*3600*1000); labels.push(`${String(t.getHours()).padStart(2,'0')}:00`); }
+      await renderHistoricalOEE(labels);
+      await renderHistoricalVolume(labels);
+      await renderHistoricalFPY(labels);
+      await renderHistoricalEnergy(labels, start, now);
+    }
+
+    async function renderHistoricalOEE(labels){
+      const overall = labels.map((_,i)=> Math.max(60, Math.min(100, (lastStations.reduce((x,s)=>x+s.oee,0)/(lastStations.length||1)) + (i%3===0?-4:(i%3===1?2:0)))));
+      const colors = ['#02154e','#005530','#f9ba00','#D51635','#644bcc'];
+      const ds = [ {label:'Overall OEE', data:overall, borderColor:colors[0], tension:.2, borderWidth:2} ];
+      for(let k=0;k<Math.min(4,lastStations.length);k++){ const s=lastStations[k]; const arr=labels.map((_,i)=> Math.max(50, Math.min(100, s.oee + ((i%4===0)?-5:((i%4===1)?3:0))))); ds.push({label:`Station ${k+1} OEE`, data:arr, borderColor:colors[k+1], tension:.2, hidden:false}); }
+      ds.push({label:'Target OEE 80%', data:labels.map(()=>80), borderColor:'#999', borderDash:[6,4], pointRadius:0});
+      const ctx=document.getElementById('histOEE').getContext('2d'); if(histCharts.oee) histCharts.oee.destroy();
+      histCharts.oee = new Chart(ctx,{type:'line',data:{labels,datasets:ds},options:{responsive:true,plugins:{legend:{display:true}},scales:{y:{min:0,max:100}}}});
+    }
+
+    async function renderHistoricalVolume(labels){
+      const stationColors = ['#005530','#f9ba00','#D51635','#644bcc','#02154e'];
+      const planned = labels.map(()=> 50);
+      const perStation = lastStations.slice(0,4).map((s,idx)=> ({label:(CLIENT.stationNames[idx]||s.name), data: labels.map(()=> Math.max(0, Math.round((60/(s.ct||60))* (idx+1)*2))), backgroundColor: stationColors[idx], stack:'prod'}));
+      const totals = labels.map((_,i)=> perStation.reduce((x,d)=> x + (d.data[i]||0),0));
+      const ctx=document.getElementById('histVolume').getContext('2d'); if(histCharts.volume) histCharts.volume.destroy();
+      histCharts.volume = new Chart(ctx,{type:'bar',data:{labels,datasets:[...perStation,{type:'line',label:'Plan',data:planned,borderColor:'#02154e',pointRadius:0,tension:.2} ]},options:{responsive:true,plugins:{tooltip:{callbacks:{label:(c)=>{ if(c.dataset.type==='line'){ return `Plan: ${c.formattedValue}` } const total=totals[c.dataIndex]; return `${c.dataset.label}: ${c.formattedValue} (Total: ${total})`; }}}},scales:{x:{stacked:true},y:{stacked:true}}}});
+    }
+
+    async function renderHistoricalFPY(labels){
+      const fpy = labels.map((_,i)=> Math.max(70, Math.min(100, (lastStations.reduce((x,s)=>x+s.fpy,0)/(lastStations.length||1)) + ((i%3===0)?-2:((i%3===1)?1:0)))));
+      const defects = labels.map(()=> Math.floor(Math.max(0, (100-(lastStations.reduce((x,s)=>x+s.fpy,0)/(lastStations.length||1)))/5)));
+      const ctx=document.getElementById('histFPY').getContext('2d'); if(histCharts.fpy) histCharts.fpy.destroy();
+      histCharts.fpy = new Chart(ctx,{data:{labels,datasets:[{type:'line',label:'FPY %',data:fpy,borderColor:'#005530',yAxisID:'y',tension:.2},{type:'bar',label:'Defects',data:defects,backgroundColor:'rgba(213,22,53,.6)',yAxisID:'y1'}]},options:{responsive:true,plugins:{legend:{display:true}},scales:{y:{min:0,max:100,position:'left'},y1:{beginAtZero:true,position:'right'}}}});
+    }
+
+    async function renderHistoricalEnergy(labels, start, end){
+      const qs = `?start=${start.toISOString()}&end=${end.toISOString()}`;
+      let rows=[]; try{ rows = await AUTH.get('/api/telemetry'+qs); }catch(e){ rows=[]; }
+      const buckets = {}; labels.forEach(l=> buckets[l]=[]);
+      rows.forEach(r=>{ const d=new Date(r.recorded_at); const k=`${String(d.getHours()).padStart(2,'0')}:00`; if(buckets[k]) buckets[k].push(r.power_kw_idx||0); });
+      const series = labels.map(l=>{ const a=buckets[l]; return a.length? Math.round(a.reduce((x,y)=>x+y,0)/a.length):lastAvgPower; });
+      const ctx=document.getElementById('histEnergy').getContext('2d'); if(histCharts.energy) histCharts.energy.destroy();
+      histCharts.energy = new Chart(ctx,{type:'line',data:{labels,datasets:[{label:'Power Index',data:series,borderColor:'#644bcc',tension:.2}]},options:{responsive:true}});
+    }
+
+    renderHistorical();
+    document.getElementById('siteSelect').addEventListener('change', renderMultiSite);
+    function buildSites(stations){ const agg = (arr, f)=> arr.reduce((x,y)=>x+(f(y)||0),0); const avg = (arr, f)=> arr.length? Math.round((arr.reduce((x,y)=>x+(f(y)||0),0)/arr.length)*10)/10:0; const bCount = (arr)=> arr.filter(s=>String(s.status).toLowerCase()==='bottleneck').length; const clone = (multOEE, addWIP, multFPY)=> stations.map(s=>({name:s.name,status:s.status,oee:Math.max(60,Math.min(99, s.oee*multOEE)), wip:Math.max(0, s.wip+addWIP), fpy:Math.max(80,Math.min(99, s.fpy*multFPY))})); const bursa = stations.map(s=>({name:s.name,status:s.status,oee:s.oee,wip:s.wip,fpy:s.fpy})); const gebze = clone(0.97,2,0.99); const kocaeli = clone(1.03,-1,1.01); sitesData = [{site:'Bursa', stations:bursa, oee:avg(bursa,s=>s.oee), wip:agg(bursa,s=>s.wip), fpy:avg(bursa,s=>s.fpy), bottlenecks:bCount(bursa)},{site:'Gebze', stations:gebze, oee:avg(gebze,s=>s.oee), wip:agg(gebze,s=>s.wip), fpy:avg(gebze,s=>s.fpy), bottlenecks:bCount(gebze)},{site:'Kocaeli', stations:kocaeli, oee:avg(kocaeli,s=>s.oee), wip:agg(kocaeli,s=>s.wip), fpy:avg(kocaeli,s=>s.fpy), bottlenecks:bCount(kocaeli)}]; }
+    function renderMultiSite(){ const sel = document.getElementById('siteSelect').value; const rows = sel==='All Sites'? sitesData : sitesData.filter(x=>x.site===sel); const totalWip = rows.reduce((x,y)=>x+y.wip,0); const avgOEE = rows.length? Math.round(rows.reduce((x,y)=>x+y.oee,0)/rows.length):0; const avgFPY = rows.length? Math.round(rows.reduce((x,y)=>x+y.fpy,0)/rows.length):0; const bottlenecks = rows.reduce((x,y)=>x+y.bottlenecks,0); const kpi = document.getElementById('msKPI'); kpi.innerHTML = `<div class='kpi-card'><div class='kpi-label'>Overall OEE</div><div class='kpi-value'>${avgOEE}<span class='kpi-unit'>%</span></div></div><div class='kpi-card'><div class='kpi-label'>Total WIP</div><div class='kpi-value'>${totalWip}</div></div><div class='kpi-card'><div class='kpi-label'>Overall FPY</div><div class='kpi-value'>${avgFPY}<span class='kpi-unit'>%</span></div></div><div class='kpi-card'><div class='kpi-label'>Bottlenecks</div><div class='kpi-value'>${bottlenecks}</div></div>`; const tbody=document.getElementById('msTable'); tbody.innerHTML=''; rows.forEach(r=>{ const tr=document.createElement('tr'); tr.innerHTML = `<td>${r.site}</td><td>${r.oee}</td><td>${r.wip}</td><td>${r.fpy}</td><td>${r.bottlenecks}</td>`; tbody.appendChild(tr); }); renderGeo(rows); }
+    function renderGeo(rows){ const svg=document.getElementById('msMap'); svg.innerHTML=''; const bg=document.createElementNS('http://www.w3.org/2000/svg','rect'); bg.setAttribute('x','0'); bg.setAttribute('y','0'); bg.setAttribute('width','800'); bg.setAttribute('height','260'); bg.setAttribute('fill','#fafbfc'); svg.appendChild(bg); const coords={Bursa:[300,140],Gebze:[540,160],Kocaeli:[520,130]}; rows.forEach(r=>{ const c=document.createElementNS('http://www.w3.org/2000/svg','circle'); const color = r.bottlenecks>0? '#D51635' : (r.oee>=85? '#005530':'#f9ba00'); c.setAttribute('cx',coords[r.site][0]); c.setAttribute('cy',coords[r.site][1]); c.setAttribute('r','12'); c.setAttribute('fill',color); c.setAttribute('class','site-marker'); svg.appendChild(c); const t=document.createElementNS('http://www.w3.org/2000/svg','text'); t.setAttribute('x',coords[r.site][0]+18); t.setAttribute('y',coords[r.site][1]+4); t.setAttribute('fill','#02154e'); t.setAttribute('font-size','12'); t.setAttribute('font-weight','600'); t.textContent = `${r.site} • OEE ${r.oee}%`; svg.appendChild(t); }); }
+<!-- PATCH START cfo-once -->
+async function renderCFOOnce(){
+  try{ await renderCFO(); }
+  catch(e){ console.warn('[CFO] render failed', e); }
+}
+<!-- PATCH END cfo-once -->
+<!-- PATCH START lazy-init -->
+(function(){
+  const __tabInit = { flow:false, hist:false, cfo:false };
+  const __origSwitchTab = (typeof switchTab==='function') ? switchTab : null;
+  if(!__origSwitchTab){ console.warn('[PATCH] switchTab not found'); return; }
+  switchTab = function(id, ev){
+    __origSwitchTab(id, ev);
+    try{
+      if(id==='tab-flow-live' && !__tabInit.flow){
+        __tabInit.flow = true;
+        if(typeof initFlowLiveOnce==='function') initFlowLiveOnce();
+      }
+      if(id==='tab-historical' && !__tabInit.hist){
+        __tabInit.hist = true;
+        if(typeof renderHistoricalOnce==='function') renderHistoricalOnce();
+      }
+      if(id==='cfo' && !__tabInit.cfo){
+        __tabInit.cfo = true;
+        if(typeof renderCFOOnce==='function') renderCFOOnce();
+        else if(typeof renderCFO==='function') renderCFO(); // fallback
+      }
+    }catch(e){
+      console.warn('[PATCH] lazy-init failed', e);
+    }
+  };
+})();
+<!-- PATCH END lazy-init -->
+<!-- PATCH START flow-live-once -->
+async function getOrdersOrSim(){
+  try{
+    const r = await getOrdersV1Safe();
+    const orders = (r && r.orders) ? r.orders : [];
+    if(orders.length) return { orders, sim:false, last_sync:r.last_sync||null };
+  }catch(e){}
+  const now = Date.now();
+  const mk = (id,lid,sid,state,energy,co2,risk,rc,note)=>({
+    order_id:id,line_id:lid,station_id:sid,state,
+    start_ts:new Date(now-45*60000).toISOString(),
+    updated_ts:new Date(now).toISOString(),
+    elapsed_min:45, energy_kwh:energy, co2e_kg:co2,
+    scrap_units:0, rework_units:0,
+    eta_ts:new Date(now+60*60000).toISOString(),
+    risk, reason_code:rc, payload:{note}
+  });
+  const simOrders = [
+    mk('SIM-0001',1,1,'moving',3.1,1.3,'ok','',     'Metal akışta'),
+    mk('SIM-0002',2,2,'blocked',2.0,0.9,'at_risk','RC11','Boya bekliyor'),
+    mk('SIM-0003',2,2,'down',   2.8,1.2,'late',  'RC11','Boya arıza'),
+    mk('SIM-0004',3,3,'processing',4.5,2.0,'ok',  'RC12','Montaj istasyonda'),
+    mk('SIM-0005',3,3,'moving',4.0,1.8,'ok','',     'Montaj akışta'),
+    mk('SIM-0006',4,1,'waiting',1.7,0.7,'at_risk','RC14','Final Test bekliyor'),
+    mk('SIM-0007',5,1,'moving',2.2,1.0,'ok','RC10','Paketleme akışta'),
+    mk('SIM-0008',5,1,'waiting',2.0,0.9,'at_risk','RC10','Paketleme bekliyor')
+  ];
+  return { orders: simOrders, sim:true, last_sync:new Date(now).toISOString() };
+}
+
+function renderActiveOrders(orders){
+  const panel = document.getElementById('flowPanel');
+  if(!panel) return;
+  panel.innerHTML = '';
+  orders.slice(0,10).forEach(o=>{
+    const row = document.createElement('div');
+    row.className = 'order-row';
+    row.style.border = '1px solid #e0e0e0';
+    row.style.borderRadius = '8px';
+    row.style.padding = '8px';
+    row.style.marginBottom = '8px';
+    const pillCls = (o.state==='down')?'offline':(o.state==='blocked'?'degraded':(o.state==='waiting'?'degraded':'ok'));
+    row.innerHTML = `
+      <div style="display:flex;justify-content:space-between;align-items:center;gap:8px">
+        <div style="font-weight:700">${o.order_id||'-'}</div>
+        <span class="pill ${pillCls}">${o.state||'-'}</span>
+      </div>
+      <div style="font-size:.85rem;color:#444;margin-top:4px">
+        Line ${o.line_id||'-'} • Station ${o.station_id||'-'} •
+        Energy ${(o.energy_kwh||0).toFixed(1)} kWh • CO₂ ${(o.co2e_kg||0).toFixed(1)} kg •
+        Risk ${(o.risk||'ok')}${o.reason_code?(' • '+o.reason_code):''}
+      </div>
+    `;
+    row.onclick = ()=>{
+      const host=document.getElementById('flowHost'); if(!host) return;
+      const map={1:'Metal & Şase',2:'Boya Hattı',3:'Montaj',4:'Final Test',5:'Paketleme & Sevkiyat'};
+      const target = host.querySelector(`[data-line="${map[o.line_id]||''}"]`);
+      if(target){
+        target.classList.add('line-highlight');
+        target.scrollIntoView({behavior:'smooth',block:'center'});
+        setTimeout(()=>target.classList.remove('line-highlight'),1500);
+      }
+    };
+    panel.appendChild(row);
+  });
+}
+
+let __flowStarted = false;
+let __flowTimer = null;
+
+async function initFlowLiveOnce(){
+  const data = await getOrdersOrSim();
+  try{
+    const lines = await getLinesV1Safe();
+    if(typeof renderFlowSummary==='function') renderFlowSummary(lines||[]);
+  }catch(e){}
+  const badge = document.getElementById('simBadge');
+  if(badge) badge.style.display = data.sim ? 'inline-block' : 'none';
+
+  renderActiveOrders(data.orders||[]);
+
+  if(!__flowStarted){
+    __flowStarted = true;
+    try{
+      if(window.FLOW_LIVE && typeof FLOW_LIVE.start==='function'){
+        FLOW_LIVE.start(document.getElementById('flowHost'), null);
+
+      }
+    }catch(e){ console.warn('[FlowLive] start failed', e); }
+
+    __flowTimer = setInterval(async()=>{
+      const d = await getOrdersOrSim();
+      renderActiveOrders(d.orders||[]);
+      const b = document.getElementById('simBadge');
+      if(b) b.style.display = d.sim ? 'inline-block' : 'none';
+    }, 5000);
+  }
+}
+<!-- PATCH END flow-live-once -->
+<!-- PATCH START historical-energy-co2-once -->
+function downsampleSeries(labels, values, maxPoints){
+  const n = labels.length;
+  if(n<=maxPoints) return {labels, values};
+  const step = Math.ceil(n/maxPoints);
+  const dl=[], dv=[];
+  for(let i=0;i<n;i+=step){ dl.push(labels[i]); dv.push(values[i]); }
+  return {labels:dl, values:dv};
+}
+
+async function renderHistoricalOnce(){
+  // existing renderCharts draws OEE/Throughput/WIP/Reasons (+ energy/co2 if orders exist)
+  try{ await renderCharts(); }catch(e){ console.warn('[Historical] renderCharts failed', e); }
+
+  let orders = [];
+  try{ const r = await getOrdersV1Safe(); orders = (r && r.orders) ? r.orders : []; }catch(e){}
+  const hasOrders = orders.length > 0;
+
+  const addOverlay=(id,name)=>{
+    const el=document.getElementById(id); if(!el) return;
+    const host=el.parentElement; if(!host) return;
+    let ov=host.querySelector('.no-data-overlay');
+    if(!ov){
+      ov=document.createElement('div');
+      ov.className='no-data-overlay';
+      ov.innerHTML=`SIM / No Data — ${name}<div style='font-size:.9rem;color:#444;margin-top:.5rem'>Reason: Orders boş • Last Seen: ${window.lastSyncTs? new Date(window.lastSyncTs).toLocaleTimeString('tr-TR'):'-'}</div>`;
+      host.appendChild(ov);
+    }
+  };
+  const removeOverlay=(id)=>{
+    const el=document.getElementById(id); if(!el) return;
+    const host=el.parentElement; if(!host) return;
+    const ov=host.querySelector('.no-data-overlay'); if(ov) ov.remove();
+  };
+
+  const ek=document.getElementById('histEnergyKWH');
+  const cc=document.getElementById('histCO2');
+  if(!(ek && cc)) return;
+
+  if(hasOrders){
+    removeOverlay('histEnergyKWH'); removeOverlay('histCO2');
+    return; // real data already drawn by renderCharts()
+  }
+
+  // draw demo curves + overlay
+  addOverlay('histEnergyKWH','Energy'); addOverlay('histCO2','CO₂');
+
+  const labels = Array.from({length:30},(_,i)=> String(i+1));
+  const demoE = labels.map((_,i)=> Math.max(0, 20 + 5*Math.sin(i/4)));
+  const demoC = labels.map((_,i)=> Math.max(0, 8 + 2*Math.cos(i/3)));
+
+  // safe histCharts holder
+  window.histCharts = window.histCharts || {};
+  try{
+    if(window.histCharts.energyKwh) window.histCharts.energyKwh.destroy();
+    if(window.histCharts.co2) window.histCharts.co2.destroy();
+  }catch(e){}
+
+  const ekx = ek.getContext('2d');
+  const ccx = cc.getContext('2d');
+  window.histCharts.energyKwh = new Chart(ekx,{type:'line',data:{labels,datasets:[{label:'Energy kWh (SIM)',data:demoE,borderColor:'#16a34a'}]},options:{responsive:true}});
+  window.histCharts.co2 = new Chart(ccx,{type:'line',data:{labels,datasets:[{label:'CO₂ kg (SIM)',data:demoC,borderColor:'#6b7280'}]},options:{responsive:true}});
+}
+<!-- PATCH END historical-energy-co2-once -->
+<!-- PATCH START cfo-once-safe -->
+if(typeof renderCFOOnce!=='function'){
+  async function renderCFOOnce(){
+    try{ await renderCFO(); }
+    catch(e){ console.warn('[CFO] render failed', e); }
+  }
+}
+<!-- PATCH END cfo-once-safe -->
+<!-- PATCH START kpi-endpoint-alias -->
+(function(){
+  try{
+    if(!window.AUTH || typeof AUTH.get !== 'function') return;
+    if(window.__ZERO_KPI_ALIAS_DONE) return;
+    window.__ZERO_KPI_ALIAS_DONE = true;
+
+    const _get = AUTH.get.bind(AUTH);
+
+    AUTH.get = async function(url, opts){
+      // normalize
+      const u = String(url||'');
+      if(u === '/api/reports/kpi' || u.startsWith('/api/reports/kpi?')){
+        // Build KPI-ish response from /api/v1/lines (available)
+        try{
+          const r = await _get('/api/v1/lines');
+          const lines = (r && r.lines) ? r.lines : [];
+          const wip = lines.reduce((a,x)=>a+(+x.wip||0),0);
+          const throughput = lines.reduce((a,x)=>a+(+x.throughput_ph||0),0);
+          const oee = lines.length ? Math.round(lines.reduce((a,x)=>a+(+x.oee||0),0)/lines.length) : 0;
+          const fpy = lines.length ? Math.round(lines.reduce((a,x)=>a+(+x.fpy||0),0)/lines.length) : 0;
+
+          // Return both shapes (some UIs expect r.kpi, some expect top-level)
+          return {
+            ts: r.ts || new Date().toISOString(),
+            site_id: r.site_id || (window.SITE_ID||'tolkar_aosb'),
+            last_sync: r.last_sync || null,
+            kpi: { wip, throughput_ph: throughput, oee, fpy },
+            wip, throughput_ph: throughput, oee, fpy
+          };
+        }catch(e){
+          // hard fallback: never crash the UI
+          return { kpi:{wip:0,throughput_ph:0,oee:0,fpy:0}, wip:0,throughput_ph:0,oee:0,fpy:0 };
+        }
+      }
+      return _get(url, opts);
+    };
+
+    // Optional: tiny console hint once
+    try{ console.log('[Zero@Factory] KPI alias active: /api/reports/kpi -> /api/v1/lines'); }catch(e){}
+  }catch(e){}
+})();
+<!-- PATCH END kpi-endpoint-alias -->
+<!-- PATCH START layout-flow-stack -->
+(function(){
+  function findCard(el){
+    if(!el) return null;
+    let n = el;
+    for(let i=0;i<10 && n;i++){
+      const cls = (n.className||'')+'';
+      if(n.id && (n.id==='flowCard' || n.id==='ordersCard')) return n;
+      if(/\b(card|panel|box|module|kpi-card|content-card|section-card|col)\b/i.test(cls)) return n;
+      n = n.parentElement;
+    }
+    return el.parentElement;
+  }
+
+  function apply(){
+    const flowHost = document.getElementById('flowHost');
+    const flowPanel = document.getElementById('flowPanel');
+    if(!flowHost || !flowPanel) return;
+
+    const flowCard = findCard(flowHost);
+    const ordersCard = findCard(flowPanel);
+    if(!flowCard || !ordersCard) return;
+
+    const parent = flowCard.parentElement;
+    if(!parent) return;
+
+    // 1) Parent'ı tek kolon yap (grid/flex neyse override)
+    parent.style.display = 'block';
+    parent.style.gridTemplateColumns = 'none';
+    parent.style.gridAutoFlow = 'row';
+    parent.style.flexDirection = 'column';
+    parent.style.alignItems = 'stretch';
+
+    // 2) Kartları tam en yap
+    flowCard.style.width = '100%';
+    ordersCard.style.width = '100%';
+
+    // 3) Active Orders'ı Flow'un altına taşı
+    if(ordersCard.parentElement === parent){
+      parent.insertBefore(ordersCard, flowCard.nextSibling);
+    }
+
+    // 4) Biraz boşluk
+    ordersCard.style.marginTop = '12px';
+
+    // 5) İç panel genişliği
+    flowPanel.style.width = '100%';
+  }
+
+  // hem load hem de ilk tab switch sonrası garanti
+  try{ apply(); }catch(e){}
+  window.addEventListener('load', ()=>{ try{ apply(); }catch(e){} });
+
+  // Eğer switchTab varsa, tab'a girince de uygula
+  try{
+    if(typeof switchTab === 'function'){
+      const __orig = switchTab;
+      switchTab = function(id, ev){
+        __orig(id, ev);
+        if(id==='tab-flow-live'){
+          try{ apply(); }catch(e){}
+        }
+      };
+    }
+  }catch(e){}
+})();
+<!-- PATCH END layout-flow-stack -->
+
+</script>
+<!-- PATCH START renderTrack-stub -->
+if(typeof window.renderTrack!=='function'){
+  window.renderTrack = function(){ /* noop: demo-safe */ };
+}
+<!-- PATCH END renderTrack-stub -->
+
+</body>
+</html>

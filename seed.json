@@ -1,0 +1,58 @@
+{
+  "lines": [
+    { "line_id": 1, "line_name": "Metal & Şase", "status": "Running", "wip": 12, "throughput_ph": 35, "ct_min": 1.7, "oee": 88, "fpy": 96,
+      "bottleneck_station": null, "last_event": { "ts": "2026-01-12T10:00:00Z", "type": "info", "reason_code": "RC10", "since_ts": "2026-01-12T10:00:00Z" } },
+
+    { "line_id": 2, "line_name": "Boya Hattı", "status": "Down", "wip": 7, "throughput_ph": 20, "ct_min": 2.5, "oee": 62, "fpy": 93,
+      "bottleneck_station": "Boya", "last_event": { "ts": "2026-01-12T10:15:00Z", "type": "downtime", "reason_code": "RC11", "since_ts": "2026-01-12T10:15:00Z" } },
+
+    { "line_id": 3, "line_name": "Montaj", "status": "Running", "wip": 18, "throughput_ph": 42, "ct_min": 1.4, "oee": 91, "fpy": 97,
+      "bottleneck_station": null, "last_event": { "ts": "2026-01-12T10:20:00Z", "type": "quality_issue", "reason_code": "RC12", "since_ts": "2026-01-12T10:20:00Z" } },
+
+    { "line_id": 4, "line_name": "Final Test", "status": "Idle", "wip": 0, "throughput_ph": 0, "ct_min": 0.0, "oee": 0, "fpy": 0,
+      "bottleneck_station": null, "last_event": { "ts": "2026-01-12T10:00:00Z", "type": "info", "reason_code": "RC14", "since_ts": "2026-01-12T10:00:00Z" } },
+
+    { "line_id": 5, "line_name": "Paketleme & Sevkiyat", "status": "Running", "wip": 9, "throughput_ph": 30, "ct_min": 2.0, "oee": 85, "fpy": 95,
+      "bottleneck_station": null, "last_event": { "ts": "2026-01-12T10:05:00Z", "type": "info", "reason_code": "RC10", "since_ts": "2026-01-12T10:05:00Z" } }
+  ],
+  "stations": [
+    { "station_id": 1, "station_name": "Metal Hazırlık", "line_id": 1, "status": "ok", "wip": 5, "ct_sec": 90, "downtime_sec": 0, "reason_code": "", "updated_ts": "2026-01-12T10:20:00Z" },
+    { "station_id": 2, "station_name": "Boya", "line_id": 2, "status": "bottleneck", "wip": 7, "ct_sec": 150, "downtime_sec": 2700, "reason_code": "RC11", "updated_ts": "2026-01-12T10:25:00Z" },
+    { "station_id": 3, "station_name": "Montaj", "line_id": 3, "status": "ok", "wip": 18, "ct_sec": 84, "downtime_sec": 0, "reason_code": "", "updated_ts": "2026-01-12T10:20:00Z" },
+    { "station_id": 4, "station_name": "Final Test", "line_id": 4, "status": "idle", "wip": 0, "ct_sec": 0, "downtime_sec": 0, "reason_code": "RC14", "updated_ts": "2026-01-12T10:00:00Z" },
+    { "station_id": 5, "station_name": "Paketleme", "line_id": 5, "status": "ok", "wip": 9, "ct_sec": 120, "downtime_sec": 0, "reason_code": "", "updated_ts": "2026-01-12T10:05:00Z" }
+  ],
+  "events": [
+    { "ts": "2026-01-12T10:15:00Z", "type": "downtime", "site_id": "tolkar_aosb", "line_id": 2, "station_id": 2, "status": "critical", "reason_code": "RC11",
+      "payload": { "message": "Boya hattı fan arızası", "energy_kwh": 1.2, "co2e_kg": 0.55 } },
+
+    { "ts": "2026-01-12T10:20:00Z", "type": "quality_issue", "site_id": "tolkar_aosb", "line_id": 3, "station_id": 3, "status": "info", "reason_code": "RC12",
+      "payload": { "message": "Operatör bekliyor", "energy_kwh": 0.4, "co2e_kg": 0.18 } }
+  ],
+  "orders": [
+    { "order_id": "ORD-2026-0001", "line_id": 1, "station_id": 1, "state": "processing",
+      "start_ts": "2026-01-12T09:50:00Z", "updated_ts": "2026-01-12T10:20:00Z", "elapsed_min": 30.0,
+      "energy_kwh": 1.1, "co2e_kg": 0.50, "scrap_units": 0, "rework_units": 0,
+      "eta_ts": "2026-01-12T11:40:00Z", "risk": "ok", "reason_code": "", "payload": { "sku": "SMAR-TEX-5", "qty": 1 } },
+
+    { "order_id": "ORD-2026-0002", "line_id": 2, "station_id": 2, "state": "down",
+      "start_ts": "2026-01-12T09:40:00Z", "updated_ts": "2026-01-12T10:25:00Z", "elapsed_min": 45.0,
+      "energy_kwh": 2.4, "co2e_kg": 1.10, "scrap_units": 0, "rework_units": 1,
+      "eta_ts": "2026-01-12T12:20:00Z", "risk": "late", "reason_code": "RC11", "payload": { "note": "Fan arızası" } },
+
+    { "order_id": "ORD-2026-0003", "line_id": 3, "station_id": 3, "state": "processing",
+      "start_ts": "2026-01-12T09:55:00Z", "updated_ts": "2026-01-12T10:20:00Z", "elapsed_min": 25.0,
+      "energy_kwh": 1.6, "co2e_kg": 0.72, "scrap_units": 0, "rework_units": 0,
+      "eta_ts": "2026-01-12T11:55:00Z", "risk": "ok", "reason_code": "", "payload": { "workstation": "Montaj Masası A" } },
+
+    { "order_id": "ORD-2026-0004", "line_id": 4, "station_id": 4, "state": "waiting",
+      "start_ts": "2026-01-12T10:05:00Z", "updated_ts": "2026-01-12T10:20:00Z", "elapsed_min": 15.0,
+      "energy_kwh": 0.1, "co2e_kg": 0.04, "scrap_units": 0, "rework_units": 0,
+      "eta_ts": "2026-01-12T12:10:00Z", "risk": "at_risk", "reason_code": "RC14", "payload": { "note": "Test sırası" } },
+
+    { "order_id": "ORD-2026-0005", "line_id": 5, "station_id": 5, "state": "moving",
+      "start_ts": "2026-01-12T10:10:00Z", "updated_ts": "2026-01-12T10:20:00Z", "elapsed_min": 10.0,
+      "energy_kwh": 0.3, "co2e_kg": 0.12, "scrap_units": 0, "rework_units": 0,
+      "eta_ts": "2026-01-12T11:20:00Z", "risk": "ok", "reason_code": "", "payload": { "note": "Paketlemeye geçiyor" } }
+  ]
+}

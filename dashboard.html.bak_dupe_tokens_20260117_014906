@@ -713,7 +713,7 @@
       try{ applyConnUI(); }catch(e){}
     }
     function attachCO2ToStationCards(k){ try{ const cards=document.querySelectorAll('#lineView .station-card'); cards.forEach(c=>{ const oee = Array.from(c.querySelectorAll('.station-metric')).find(r=> /OEE/i.test(r.textContent||'')); if(!oee) return; let pill=oee.querySelector('.co2-pill'); if(!pill){ pill=document.createElement('span'); pill.className='co2-pill'; oee.appendChild(pill); } const v=k.co2_unit; pill.textContent='CO₂ '+v+' kg'; const cls=co2RiskPill(v); pill.className='co2-pill pill '+cls; pill.title='CO₂e/unit: '+v+' kg • Energy: '+(k.energy_kwh||'-')+' kWh'; }); }catch(e){} }
-    function renderMES(orders){ return; }
+    function renderMES(orders){ const cont=document.getElementById('mes-tab-content'); if(!cont) return; cont.innerHTML=''; const header=document.createElement('div'); header.className='card'; header.innerHTML = `<div style="font-weight:600;color:var(--zero-navy);margin-bottom:.5rem">MES — Orders</div>`; const tok=document.createElement('div'); tok.id='mesTokens'; tok.style.display='flex'; tok.style.gap='6px'; tok.style.flexWrap='wrap'; header.appendChild(tok); const tableWrap=document.createElement('div'); tableWrap.style.marginTop='.5rem'; const table=document.createElement('table'); table.className='table'; table.style.width='100%'; table.innerHTML = `<thead><tr><th>OrderID</th><th>Hat</th><th>İstasyon</th><th>Durum</th><th>İlerleme</th><th>ETA</th><th>Energy</th><th>CO₂e</th><th>Risk</th></tr></thead><tbody id='mesTable'></tbody>`; tableWrap.appendChild(table); header.appendChild(tableWrap); cont.appendChild(header); const tb=document.getElementById('mesTable'); const src = (orders&&orders.length)? orders : [ {id:'ORD-1001', line:'Montaj', station:'MH-01', status:'Running', progress:42, eta:'+60m', energy:12.4, co2:18.2, risk:'Low'}, {id:'ORD-1002', line:'Boya Hattı', station:'BK-01', status:'Paused', progress:18, eta:'+90m', energy:9.1, co2:22.6, risk:'Medium'} ]; src.forEach(o=>{ const t=document.createElement('span'); t.className='pill'; t.textContent=o.id+' • '+o.line; t.onclick=function(){ Array.from(tok.children).forEach(x=>x.classList.remove('action')); t.classList.add('action'); }; tok.appendChild(t); const tr=document.createElement('tr'); tr.innerHTML = `<td>${o.id}</td><td>${o.line}</td><td>${o.station}</td><td>${o.status}</td><td>${o.progress||0}%</td><td>${o.eta||'-'}</td><td>${o.energy||'-'}</td><td>${o.co2||'-'}</td><td>${o.risk||'-'}</td>`; tb.appendChild(tr); }); }
     function mesSimOrders(){ return [
       {id:'ORD-1001', line:'Hat-1', station:'S1', status:'AKTİF', progress:65, eta:'+45m', energy:12.4, co2:18.2, risk:'OK'},
       {id:'ORD-1002', line:'Hat-2', station:'S2', status:'AKTİF', progress:42, eta:'+90m', energy:9.8, co2:22.6, risk:'WATCH'},
@@ -746,9 +746,7 @@
           return arr.map(o=>({
             order_id: o.order_id || o.id || '-',
             line_id: o.line_id || '-',
-            line_name: o.line_name || undefined,
             station_id: o.station_id || '-',
-            station_name: o.station_name || undefined,
             state: o.state || o.status || 'pending',
             progress: o.progress || 0,
             eta: o.eta || '+0h',
@@ -759,23 +757,20 @@
           }));
         }
       }catch(e){ console.warn('[MES] getOrdersOrSim failed:', e.message); }
-      const LINES=['Metal & Şase','Boya','Montaj','Final Test','Paketleme & Sevkiyat'];
-      const ST=['M01','P01','A01','T01','PK01'];
-      const demo=[]; for(let i=0;i<12;i++){ const id=1001+i; const li=i%LINES.length; const state = (i%7<5)? 'active' : (i%11===0? 'completed':'queued'); const prog = state==='completed'? 100 : (state==='queued'? 0 : (10+((i*17)%85))); const etaMin = state==='completed'? 0 : (20+((i*23)%160)); const energy = (4 + ((i*7)%17)); const co2 = +(energy*0.42).toFixed(1); const risk = prog<30? 'WATCH' : (co2>22? 'ACTION':'OK'); demo.push({ order_id:'ORD-'+id, line_id:(li+1), line_name:LINES[li], station_id:li+1, station_name:ST[li], state, progress:prog, eta:'+'+etaMin+'m', energy_kwh: energy.toFixed(1), co2e_kg: co2.toFixed(1), risk, reason_code: (risk==='ACTION'?'RC11':'') }); }
-      return demo;
+      return [
+        { order_id:'ORD-1001', line_id:1, station_id:1, state:'active', progress:65, eta:'+45m', energy_kwh:'12.4', co2e_kg:'18.2', risk:'OK', reason_code:'' },
+        { order_id:'ORD-1002', line_id:2, station_id:2, state:'active', progress:42, eta:'+90m', energy_kwh:'9.8', co2e_kg:'22.6', risk:'WATCH', reason_code:'RC11' },
+        { order_id:'ORD-1003', line_id:3, station_id:3, state:'queued', progress:0, eta:'+2h', energy_kwh:'0.0', co2e_kg:'0.0', risk:'OK', reason_code:'' },
+        { order_id:'ORD-1004', line_id:4, station_id:1, state:'completed', progress:100, eta:'Done', energy_kwh:'15.2', co2e_kg:'25.4', risk:'OK', reason_code:'' }
+      ];
     }
     function renderMESPanel(orders){ const container=document.getElementById('mes-tab-content'); if(!container){ console.warn('[MES] Container #mes-tab-content not found'); return; }
-      window.__MES_LAST_ORDERS__ = orders.slice();
-      const shown = orders.filter(o=> o.state==='active').length;
-      const done  = orders.filter(o=> o.state==='completed').length;
-      const queue = orders.length - shown;
-      const metaLine = `<div style="color:#02154e;margin-bottom:.5rem">Gösterilen: ${shown} • Kuyruk: ${queue} • Tamamlanan: ${done}</div>`;
-      const timelineHtml = orders.slice(0,12).map((o,i)=> `<div class="mes-token" data-order="${o.order_id}" title="${o.order_id}" onclick="highlightMESOrder('${o.order_id}')">#${i+1}</div>`).join('');
+      const timelineHtml = orders.slice(0,8).map((o,i)=> `<div class="mes-token" data-order="${o.order_id}" title="${o.order_id}" onclick="highlightMESOrder('${o.order_id}')">#${i+1}</div>`).join('');
       const tableHtml = `<table class="mes-table"><thead><tr><th>Order ID</th><th>Line</th><th>Station</th><th>State</th><th>Progress</th><th>ETA</th><th>Energy (kWh)</th><th>CO₂e (kg)</th><th>Risk</th></tr></thead><tbody>${orders.map(o=>`
         <tr class="mes-row" data-order="${o.order_id}" onclick="highlightMESOrder('${o.order_id}')">
           <td><strong>${o.order_id}</strong></td>
-          <td>${o.line_name||('Hat-'+o.line_id)}</td>
-          <td>${o.station_name||('S'+o.station_id)}</td>
+          <td>Hat-${o.line_id}</td>
+          <td>S${o.station_id}</td>
           <td><span class="pill ${o.state==='active'?'ok':(o.state==='completed'?'degraded':'degraded')}">${o.state==='active'?'AKTİF':(o.state==='completed'?'TAM':'BEKLEMEDE')}</span></td>
           <td><div style="width:100px;height:6px;background:#e0e0e0;border-radius:3px;overflow:hidden"><div style="width:${o.progress}%;height:100%;background:${o.progress<50?'#f9ba00':'#005530'};transition:width .3s"></div></div><small>${o.progress}%</small></td>
           <td>${o.eta}</td>
@@ -783,13 +778,12 @@
           <td><strong>${o.co2e_kg}</strong></td>
           <td><span style="color:${o.risk==='ACTION'?'#D51635':(o.risk==='WATCH'?'#f9ba00':'#005530')};font-weight:600">${o.risk}</span></td>
         </tr>`).join('')}</tbody></table>`;
-      const html = `<div class="card"><div style="font-weight:600;color:var(--zero-navy);margin-bottom:.5rem">MES — Sipariş Zaman Çizelgesi</div>${metaLine}<div class="mes-timeline">${timelineHtml}</div></div><div class="card" style="margin-top:1rem"><div style="font-weight:600;color:var(--zero-navy);margin-bottom:1rem">Aktif Siparişler</div>${tableHtml}</div>`;
+      const html = `<div class="card"><div style="font-weight:600;color:var(--zero-navy);margin-bottom:1rem">MES — Order Queue Timeline</div><div class="mes-timeline">${timelineHtml}</div></div><div class="card" style="margin-top:1rem"><div style="font-weight:600;color:var(--zero-navy);margin-bottom:1rem">Active Orders</div>${tableHtml}</div>`;
       container.innerHTML = html;
     }
-    function findOrderById(orderId){ const arr=window.__MES_LAST_ORDERS__||[]; return arr.find(o=> String(o.order_id)===String(orderId)); }
-    function highlightMESOrder(orderId){ document.querySelectorAll('.mes-row.highlighted, .mes-token.active').forEach(el=> el.classList.remove('highlighted','active')); const row=document.querySelector(`.mes-row[data-order="${orderId}"]`); if(row){ row.classList.add('highlighted'); row.scrollIntoView({behavior:'smooth',block:'center'});} const token=document.querySelector(`.mes-token[data-order="${orderId}"]`); if(token){ token.classList.add('active'); } try{ const ord=findOrderById(orderId); if(ord) openOrderDrawer(ord); }catch(e){} }
+    function highlightMESOrder(orderId){ document.querySelectorAll('.mes-row.highlighted, .mes-token.active').forEach(el=> el.classList.remove('highlighted','active')); const row=document.querySelector(`.mes-row[data-order="${orderId}"]`); if(row){ row.classList.add('highlighted'); row.scrollIntoView({behavior:'smooth',block:'center'});} const token=document.querySelector(`.mes-token[data-order="${orderId}"]`); if(token){ token.classList.add('active'); } console.log('[MES] Highlighted order:', orderId); }
     async function initMESTab(){ try{ const orders=await getMESOrders(); renderMESPanel(orders); console.log('[MES] Panel render', orders.length); }catch(e){ console.warn('[MES] init error', e.message); } }
-    const __origAfterTab = null; window.__MES_AFTER_TAB__ = function(tabId){ if(tabId==='mes'){ setTimeout(()=> initMESTab(), 0); } };
+    const __origAfterTab = window.__MES_AFTER_TAB__ || function(){}; window.__MES_AFTER_TAB__ = function(tabId){ if(tabId==='mes'){ setTimeout(()=> initMESTab(), 0); } try{ __origAfterTab(tabId); }catch(e){} };
     document.addEventListener('DOMContentLoaded', function(){ const hash=(location.hash||'').replace('#',''); if(hash==='mes'){ setTimeout(()=> initMESTab(), 100); } });
     // PATCH START: MES STICKY VISIBILITY FIX
     function ensureMesVisible(){ try{ const panel=document.getElementById('mes'); const cont=document.getElementById('mes-tab-content'); if(panel && panel.classList.contains('active')){ if(!cont || cont.children.length===0){ initMESTab(); } } }catch(e){} }
@@ -809,12 +803,21 @@
       return sim;
     }
     let __MES_LOCK__ = false; let __MES_LAST_ACTIVE__ = null;
-    async function openMESTab(){ /* disabled legacy renderer to avoid duplicate tokens */ return; }
+    async function openMESTab(){
+      if(__MES_LOCK__) return; __MES_LOCK__ = true;
+      try{
+        const cont=document.getElementById('mes-tab-content'); const host=document.getElementById('mes');
+        if(!cont||!host){ __MES_LOCK__=false; return; }
+        const orders = await getOrdersOrSim();
+        renderMES(orders);
+      }catch(e){}
+      __MES_LOCK__ = false;
+    }
     window.__MES_AFTER_TAB__ = function(id){
       if(id!=='mes') { __MES_LAST_ACTIVE__ = id; return; }
       if(__MES_LAST_ACTIVE__==='mes' && __MES_LOCK__) return;
       __MES_LAST_ACTIVE__ = 'mes';
-      setTimeout(()=>{ initMESTab(); }, 0);
+      setTimeout(()=>{ openMESTab(); }, 0);
     };
     // ensure click binds even if button has different selector
     document.addEventListener('click', function(ev){ const btn = ev.target.closest('a[href="#mes"], [data-tab="mes"], #mes-tab-btn'); if(!btn) return; setTimeout(()=>{ window.__MES_AFTER_TAB__('mes'); }, 0); });
@@ -1080,13 +1083,6 @@ async function initFlowLive(){ const r = await getOrdersV1Safe(); const orders=(
       catch(e){ const d = makeDemoState(); CONN.state='OFFLINE'; CONN.mode= lastSyncTs? 'CACHE':'DEMO'; CONN.source='/api/state'; CONN.lastSyncAt= lastSyncTs || Date.now(); applyConnUI(); statusEl.textContent = 'Offline mod — Son bilinen veri • Son sync: ' + (CONN.lastSyncAt?new Date(CONN.lastSyncAt).toLocaleTimeString('tr-TR'):new Date().toLocaleTimeString('tr-TR'));
       return {stations:d.stations, demo:true}; }
     }
-    // Drawer — idempotent creation and open/close
-    function ensureOrderDrawer(){ let overlay=document.getElementById('mesOrderOverlay'); let drawer=document.getElementById('mesOrderDrawer'); if(!overlay){ overlay=document.createElement('div'); overlay.id='mesOrderOverlay'; overlay.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.12);opacity:0;pointer-events:none;transition:opacity .2s;z-index:999'; overlay.onclick=closeOrderDrawer; document.body.appendChild(overlay); } if(!drawer){ drawer=document.createElement('div'); drawer.id='mesOrderDrawer'; drawer.style.cssText='position:fixed;right:-420px;top:0;height:100vh;width:420px;background:#fff;border-left:1px solid #e0e0e0;box-shadow:-8px 0 20px rgba(0,0,0,.12);transition:right .25s;z-index:1000;display:flex;flex-direction:column'; drawer.innerHTML='<div style="padding:12px;border-bottom:1px solid #e0e0e0"><button id="mesOrderClose" style="float:right;border:none;background:#02154e;color:#fff;border-radius:6px;padding:.3rem .6rem;font-weight:700">×</button><div id="mesOrderTitle" style="font-weight:800;color:#02154e"></div></div><div id="mesOrderBody" style="padding:10px;overflow:auto;height:calc(100vh - 120px)"></div><div style="position:sticky;bottom:0;background:#fff;border-top:1px solid #e0e0e0;padding:10px"><button onclick="closeOrderDrawer()" style="border:none;background:#02154e;color:#fff;border-radius:8px;padding:.4rem .8rem;font-weight:700">Kapat</button></div>'; document.body.appendChild(drawer); document.getElementById('mesOrderClose').onclick=closeOrderDrawer; document.addEventListener('keydown', function(ev){ if(ev.key==='Escape') closeOrderDrawer(); }); }
-      return {overlay, drawer}; }
-    function openOrderDrawer(order){ const {overlay, drawer}=ensureOrderDrawer(); const title=document.getElementById('mesOrderTitle'); const body=document.getElementById('mesOrderBody'); if(title) title.textContent=`${order.order_id} — ${order.line_name||('Hat-'+order.line_id)} / ${order.station_name||('S'+order.station_id)}`; if(body){ const riskColor = order.risk==='ACTION'?'#D51635':(order.risk==='WATCH'?'#f9ba00':'#005530'); body.innerHTML=''; const kpi=`<div style="display:grid;grid-template-columns:repeat(2,1fr);gap:8px"><div class="card"><div>Progress</div><div><strong>${order.progress}%</strong></div></div><div class="card"><div>ETA</div><div><strong>${order.eta}</strong></div></div><div class="card"><div>Enerji (kWh)</div><div><strong>${order.energy_kwh}</strong></div></div><div class="card"><div>CO₂e (kg)</div><div><strong>${order.co2e_kg}</strong></div></div></div>`; const flow=`<div style="margin-top:.6rem">${['Metal & Şase','Boya','Montaj','Final Test','Paketleme'].map((s,i)=>{ const live = (i<=2 && order.progress> (i*20)); return `<div style='display:flex;gap:.5rem;align-items:center;margin:.25rem 0'><span style='width:12px;height:12px;border-radius:50%;background:${live?'#005530':'#e0e0e0'}'></span><span>${s}</span></div>`; }).join('')}</div>`; const events=`<div style="margin-top:.6rem">${[...Array(6)].map((_,ix)=>{ const ts=new Date(Date.now()-ix*600000).toLocaleTimeString('tr-TR'); return `<div class='event-item'>${ts} — event #${ix+1} • ${order.order_id}</div>`; }).join('')}</div>`; const risk=`<div style="margin-top:.6rem;color:${riskColor};font-weight:700">Risk: ${order.risk}</div>`; body.innerHTML = kpi+risk+flow+events; }
-      overlay.style.opacity='1'; overlay.style.pointerEvents='auto'; drawer.style.right='0'; }
-    function closeOrderDrawer(){ const overlay=document.getElementById('mesOrderOverlay'); const drawer=document.getElementById('mesOrderDrawer'); if(overlay){ overlay.style.opacity='0'; overlay.style.pointerEvents='none'; } if(drawer){ drawer.style.right='-420px'; } }
-    window.openOrderDrawer=openOrderDrawer; window.closeOrderDrawer=closeOrderDrawer;
     async function getEventsSafe(){
       try{ return await AUTH.get('/api/v1/events?limit=200'); }
       catch(e){ return { events:[{ts:new Date().toISOString(), type:'shock', status:'critical', reason_code:'RC12', payload:{message:'Demo Olay: Dar boğaz algılandı'}}] }; }
